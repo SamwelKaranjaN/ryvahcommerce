@@ -1,0 +1,41 @@
+[15-May-2025 19:36:09 UTC] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in C:\wamp64\www\ryvahcommerce\includes\cart.php on line 2
+[15-May-2025 19:36:09 UTC] PHP Stack trace:
+[15-May-2025 19:36:09 UTC] PHP   1. {main}() C:\wamp64\www\ryvahcommerce\pages\index.php:0
+[15-May-2025 19:36:09 UTC] PHP   2. include() C:\wamp64\www\ryvahcommerce\pages\index.php:23
+[15-May-2025 19:36:09 UTC] PHP   3. require_once() C:\wamp64\www\ryvahcommerce\includes\layouts\header.php:226
+[15-May-2025 19:36:09 UTC] PHP   4. session_start() C:\wamp64\www\ryvahcommerce\includes\cart.php:2
+[15-May-2025 19:36:15 UTC] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in C:\wamp64\www\ryvahcommerce\includes\cart.php on line 2
+[15-May-2025 19:36:15 UTC] PHP Stack trace:
+[15-May-2025 19:36:15 UTC] PHP   1. {main}() C:\wamp64\www\ryvahcommerce\pages\cart.php:0
+[15-May-2025 19:36:15 UTC] PHP   2. require_once() C:\wamp64\www\ryvahcommerce\pages\cart.php:3
+[15-May-2025 19:36:15 UTC] PHP   3. session_start() C:\wamp64\www\ryvahcommerce\includes\cart.php:2
+[15-May-2025 19:36:15 UTC] PHP Warning:  Undefined array key "type" in C:\wamp64\www\ryvahcommerce\pages\cart.php on line 50
+[15-May-2025 19:36:15 UTC] PHP Stack trace:
+[15-May-2025 19:36:15 UTC] PHP   1. {main}() C:\wamp64\www\ryvahcommerce\pages\cart.php:0
+[15-May-2025 19:36:15 UTC] PHP Warning:  Undefined array key "author" in C:\wamp64\www\ryvahcommerce\pages\cart.php on line 64
+[15-May-2025 19:36:15 UTC] PHP Stack trace:
+[15-May-2025 19:36:15 UTC] PHP   1. {main}() C:\wamp64\www\ryvahcommerce\pages\cart.php:0
+[15-May-2025 19:36:15 UTC] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\wamp64\www\ryvahcommerce\pages\cart.php on line 64
+[15-May-2025 19:36:15 UTC] PHP Stack trace:
+[15-May-2025 19:36:15 UTC] PHP   1. {main}() C:\wamp64\www\ryvahcommerce\pages\cart.php:0
+[15-May-2025 19:36:15 UTC] PHP   2. htmlspecialchars($string = NULL) C:\wamp64\www\ryvahcommerce\pages\cart.php:64
+[15-May-2025 19:36:19 UTC] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in C:\wamp64\www\ryvahcommerce\includes\cart.php on line 2
+[15-May-2025 19:36:19 UTC] PHP Stack trace:
+[15-May-2025 19:36:19 UTC] PHP   1. {main}() C:\wamp64\www\ryvahcommerce\pages\checkout.php:0
+[15-May-2025 19:36:19 UTC] PHP   2. require_once() C:\wamp64\www\ryvahcommerce\pages\checkout.php:3
+[15-May-2025 19:36:19 UTC] PHP   3. session_start() C:\wamp64\www\ryvahcommerce\includes\cart.php:2
+[15-May-2025 19:36:29 UTC] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in C:\wamp64\www\ryvahcommerce\includes\cart.php on line 2
+[15-May-2025 19:36:29 UTC] PHP Stack trace:
+[15-May-2025 19:36:29 UTC] PHP   1. {main}() C:\wamp64\www\ryvahcommerce\pages\payment.php:0
+[15-May-2025 19:36:29 UTC] PHP   2. require_once() C:\wamp64\www\ryvahcommerce\pages\payment.php:3
+[15-May-2025 19:36:29 UTC] PHP   3. session_start() C:\wamp64\www\ryvahcommerce\includes\cart.php:2
+[15-May-2025 19:38:17 UTC] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in C:\wamp64\www\ryvahcommerce\includes\cart.php on line 2
+[15-May-2025 19:38:17 UTC] PHP Stack trace:
+[15-May-2025 19:38:17 UTC] PHP   1. {main}() C:\wamp64\www\ryvahcommerce\pages\payment.php:0
+[15-May-2025 19:38:17 UTC] PHP   2. require_once() C:\wamp64\www\ryvahcommerce\pages\payment.php:3
+[15-May-2025 19:38:17 UTC] PHP   3. session_start() C:\wamp64\www\ryvahcommerce\includes\cart.php:2
+[15-May-2025 19:38:21 UTC] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in C:\wamp64\www\ryvahcommerce\includes\cart.php on line 2
+[15-May-2025 19:38:21 UTC] PHP Stack trace:
+[15-May-2025 19:38:21 UTC] PHP   1. {main}() C:\wamp64\www\ryvahcommerce\pages\checkout.php:0
+[15-May-2025 19:38:21 UTC] PHP   2. require_once() C:\wamp64\www\ryvahcommerce\pages\checkout.php:3
+[15-May-2025 19:38:21 UTC] PHP   3. session_start() C:\wamp64\www\ryvahcommerce\includes\cart.php:2
