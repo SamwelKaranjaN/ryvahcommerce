@@ -1,5 +1,13 @@
 <?php
-session_start();
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+function debug($data, $label = '')
+{
+    error_log(($label ? $label . ': ' : '') . print_r($data, true));
+}
+
 require_once 'bootstrap.php';
 
 // Initialize cart in session if it doesn't exist
@@ -14,6 +22,9 @@ if (!isset($_SESSION['cart'])) {
 function getCartItems()
 {
     global $conn;
+
+    debug('Getting cart items');
+
     $items = [];
     $total = 0;
 
@@ -68,6 +79,8 @@ function getCartItems()
         }
     }
 
+    debug(['items' => $items, 'total' => $total], 'Cart Data');
+
     return [
         'items' => $items,
         'total' => $total
@@ -84,6 +97,15 @@ function addToCart($product_id, $quantity = 1)
 {
     global $conn;
 
+    debug(['product_id' => $product_id, 'quantity' => $quantity], 'Adding to cart');
+
+    if (!isset($_SESSION['user_id'])) {
+        debug('No user ID in session');
+        return ['success' => false, 'message' => 'User not logged in'];
+    }
+
+    $user_id = $_SESSION['user_id'];
+
     // Get product details
     $stmt = $conn->prepare("SELECT * FROM products WHERE id = ?");
     $stmt->bind_param("i", $product_id);
@@ -95,42 +117,29 @@ function addToCart($product_id, $quantity = 1)
         return ['success' => false, 'message' => 'Product not found'];
     }
 
-    if (isset($_SESSION['user_id'])) {
-        // Handle logged-in user cart
-        $stmt = $conn->prepare("SELECT quantity FROM cart WHERE user_id = ? AND product_id = ?");
-        $stmt->bind_param("ii", $_SESSION['user_id'], $product_id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $cart_item = $result->fetch_assoc();
+    // Check if item already exists in cart
+    $stmt = $conn->prepare("SELECT quantity FROM cart WHERE user_id = ? AND product_id = ?");
+    $stmt->bind_param("ii", $user_id, $product_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-        $current_quantity = $cart_item ? $cart_item['quantity'] : 0;
-        $new_quantity = $current_quantity + $quantity;
+    if ($result->num_rows > 0) {
+        // Update quantity
+        $row = $result->fetch_assoc();
+        $new_quantity = $row['quantity'] + $quantity;
 
-        if ($new_quantity > $product['stock']) {
-            return ['success' => false, 'message' => 'Not enough stock available'];
-        }
-
-        if ($cart_item) {
-            $stmt = $conn->prepare("UPDATE cart SET quantity = ? WHERE user_id = ? AND product_id = ?");
-            $stmt->bind_param("iii", $new_quantity, $_SESSION['user_id'], $product_id);
-        } else {
-            $stmt = $conn->prepare("INSERT INTO cart (user_id, product_id, quantity) VALUES (?, ?, ?)");
-            $stmt->bind_param("iii", $_SESSION['user_id'], $product_id, $quantity);
-        }
-        $stmt->execute();
+        $stmt = $conn->prepare("UPDATE cart SET quantity = ? WHERE user_id = ? AND product_id = ?");
+        $stmt->bind_param("iii", $new_quantity, $user_id, $product_id);
     } else {
-        // Handle guest cart
-        $current_quantity = $_SESSION['cart'][$product_id] ?? 0;
-        $new_quantity = $current_quantity + $quantity;
-
-        if ($new_quantity > $product['stock']) {
-            return ['success' => false, 'message' => 'Not enough stock available'];
-        }
-
-        $_SESSION['cart'][$product_id] = $new_quantity;
+        // Insert new item
+        $stmt = $conn->prepare("INSERT INTO cart (user_id, product_id, quantity) VALUES (?, ?, ?)");
+        $stmt->bind_param("iii", $user_id, $product_id, $quantity);
     }
 
-    return ['success' => true, 'message' => 'Product added to cart'];
+    $success = $stmt->execute();
+    debug(['success' => $success], 'Add to cart result');
+
+    return ['success' => $success, 'message' => 'Product added to cart'];
 }
 
 /**
@@ -143,30 +152,33 @@ function updateCartQuantity($product_id, $quantity)
 {
     global $conn;
 
+    debug(['product_id' => $product_id, 'quantity' => $quantity], 'Updating cart quantity');
+
+    if (!isset($_SESSION['user_id'])) {
+        debug('No user ID in session');
+        return ['success' => false, 'message' => 'User not logged in'];
+    }
+
+    $user_id = $_SESSION['user_id'];
+
     if ($quantity < 1) {
         return removeFromCart($product_id);
     }
 
-    // Check stock availability
-    $stmt = $conn->prepare("SELECT stock FROM products WHERE id = ?");
-    $stmt->bind_param("i", $product_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $product = $result->fetch_assoc();
-
-    if (!$product || $quantity > $product['stock']) {
-        return ['success' => false, 'message' => 'Not enough stock available'];
-    }
-
-    if (isset($_SESSION['user_id'])) {
-        $stmt = $conn->prepare("UPDATE cart SET quantity = ? WHERE user_id = ? AND product_id = ?");
-        $stmt->bind_param("iii", $quantity, $_SESSION['user_id'], $product_id);
-        $stmt->execute();
+    if ($quantity <= 0) {
+        // Remove item
+        $stmt = $conn->prepare("DELETE FROM cart WHERE user_id = ? AND product_id = ?");
+        $stmt->bind_param("ii", $user_id, $product_id);
     } else {
-        $_SESSION['cart'][$product_id] = $quantity;
+        // Update quantity
+        $stmt = $conn->prepare("UPDATE cart SET quantity = ? WHERE user_id = ? AND product_id = ?");
+        $stmt->bind_param("iii", $quantity, $user_id, $product_id);
     }
 
-    return ['success' => true, 'message' => 'Cart updated'];
+    $success = $stmt->execute();
+    debug(['success' => $success], 'Update cart result');
+
+    return ['success' => $success, 'message' => 'Cart updated'];
 }
 
 /**
@@ -178,15 +190,22 @@ function removeFromCart($product_id)
 {
     global $conn;
 
-    if (isset($_SESSION['user_id'])) {
-        $stmt = $conn->prepare("DELETE FROM cart WHERE user_id = ? AND product_id = ?");
-        $stmt->bind_param("ii", $_SESSION['user_id'], $product_id);
-        $stmt->execute();
-    } else {
-        unset($_SESSION['cart'][$product_id]);
+    debug(['product_id' => $product_id], 'Removing from cart');
+
+    if (!isset($_SESSION['user_id'])) {
+        debug('No user ID in session');
+        return ['success' => false, 'message' => 'User not logged in'];
     }
 
-    return ['success' => true, 'message' => 'Product removed from cart'];
+    $user_id = $_SESSION['user_id'];
+
+    $stmt = $conn->prepare("DELETE FROM cart WHERE user_id = ? AND product_id = ?");
+    $stmt->bind_param("ii", $user_id, $product_id);
+
+    $success = $stmt->execute();
+    debug(['success' => $success], 'Remove from cart result');
+
+    return ['success' => $success, 'message' => 'Product removed from cart'];
 }
 
 /**
@@ -197,11 +216,19 @@ function clearCart()
 {
     global $conn;
 
-    if (isset($_SESSION['user_id'])) {
-        $stmt = $conn->prepare("DELETE FROM cart WHERE user_id = ?");
-        $stmt->bind_param("i", $_SESSION['user_id']);
-        $stmt->execute();
+    debug('Clearing cart');
+
+    if (!isset($_SESSION['user_id'])) {
+        debug('No user ID in session');
+        return;
     }
+
+    $user_id = $_SESSION['user_id'];
+
+    $stmt = $conn->prepare("DELETE FROM cart WHERE user_id = ?");
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+
     unset($_SESSION['cart']);
 }
 
@@ -271,11 +298,6 @@ function transferSessionCartToDatabase($user_id)
 
 // Handle AJAX requests
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Skip cart operations if this is a payment request
-    if (isset($_POST['is_payment']) && $_POST['is_payment'] === '1') {
-        exit;
-    }
-
     $response = ['success' => false, 'message' => 'Invalid action'];
 
     if (isset($_POST['action'])) {

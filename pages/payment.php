@@ -1,368 +1,312 @@
 <?php
 require_once '../includes/bootstrap.php';
 require_once '../includes/cart.php';
-require_once '../config/stripe.php';
+require_once '../includes/order/OrderProcessor.php';
+require_once '../includes/payment/PaymentProcessor.php';
 
-// Define Stripe public key
-define('STRIPE_PUBLIC_KEY', 'pk_test_your_stripe_public_key');
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-// Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
-    exit;
+// Debug function
+function debug($data, $label = '')
+{
+    error_log(($label ? $label . ': ' : '') . print_r($data, true));
 }
 
-// Check if we have shipping details in POST
-if (empty($_POST)) {
-    header('Location: checkout.php');
-    exit;
+// Debug request method and data
+debug($_SERVER['REQUEST_METHOD'], 'Request Method');
+debug($_POST, 'POST Data');
+debug($_SESSION, 'Session Data');
+
+// Step 1: Validate session and POST data
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    debug('Processing POST request');
+
+    // Validate required fields
+    $required_fields = ['full_name', 'email', 'phone', 'address', 'city', 'state', 'postal_code'];
+    $missing_fields = [];
+
+    foreach ($required_fields as $field) {
+        if (!isset($_POST[$field]) || empty($_POST[$field])) {
+            $missing_fields[] = $field;
+        }
+    }
+
+    if (!empty($missing_fields)) {
+        debug($missing_fields, 'Missing Required Fields');
+        header('Location: checkout.php?error=' . urlencode('Missing required fields: ' . implode(', ', $missing_fields)));
+        exit;
+    }
+
+    // Get cart items
+    $cart_data = getCartItems();
+    debug($cart_data, 'Cart Data Retrieved');
+
+    if (empty($cart_data['items'])) {
+        debug('Cart is empty');
+        header('Location: checkout.php?error=' . urlencode('Your cart is empty'));
+        exit;
+    }
+
+    // Validate user session
+    if (!isset($_SESSION['user_id'])) {
+        debug('No user ID in session');
+        header('Location: login.php?redirect=payment.php');
+        exit;
+    }
+
+    // Get user data
+    $user = [
+        'id' => $_SESSION['user_id'],
+        'email' => $_POST['email'],
+        'full_name' => $_POST['full_name']
+    ];
+
+    // Create shipping details
+    $shipping_details = [
+        'full_name' => $_POST['full_name'],
+        'email' => $_POST['email'],
+        'phone' => $_POST['phone'],
+        'address' => $_POST['address'],
+        'city' => $_POST['city'],
+        'state' => $_POST['state'],
+        'postal_code' => $_POST['postal_code']
+    ];
+
+    try {
+        // Create payment processor
+        $paymentProcessor = new PaymentProcessor($conn, $user, $cart_data, $shipping_details);
+
+        // Validate payment data
+        $validation = $paymentProcessor->validatePaymentData();
+        if (!$validation['valid']) {
+            throw new Exception('Invalid payment data: ' . implode(', ', $validation['errors']));
+        }
+
+        // Create pending order
+        $result = $paymentProcessor->createPendingOrder();
+        debug($result, 'Pending Order Creation Result');
+
+        if ($result['success']) {
+            // Store invoice number in session
+            $_SESSION['current_invoice'] = $result['invoice_number'];
+            header('Location: payment.php?invoice=' . urlencode($result['invoice_number']));
+            exit;
+        } else {
+            throw new Exception($result['message']);
+        }
+    } catch (Exception $e) {
+        error_log("Error creating pending order: " . $e->getMessage());
+        header('Location: checkout.php?error=' . urlencode($e->getMessage()));
+        exit;
+    }
 }
 
-// Store shipping details in session
-$_SESSION['shipping_details'] = $_POST;
+// Step 2: Handle payment processing
+$payment_error = '';
+$invoice_number = $_GET['invoice'] ?? null;
 
-$cart_data = getCartItems();
-$cart_items = $cart_data['items'];
-$cart_total = $cart_data['total'];
+if (isset($_GET['pay']) && $_GET['pay'] === 'success' && $invoice_number) {
+    debug($_GET, 'Payment Success Parameters');
 
-// Get any payment errors from session
-$payment_error = $_SESSION['payment_error'] ?? null;
-unset($_SESSION['payment_error']);
+    // Validate user session
+    if (!isset($_SESSION['user_id'])) {
+        debug('No user ID in session');
+        header('Location: login.php?redirect=payment.php');
+        exit;
+    }
 
-include '../includes/layouts/header.php';
+    // Get user data
+    $user = [
+        'id' => $_SESSION['user_id'],
+        'email' => $_SESSION['user_email'] ?? '',
+        'full_name' => $_SESSION['user_name'] ?? ''
+    ];
+
+    try {
+        // Get order data from database
+        $stmt = $conn->prepare("
+            SELECT o.*, u.email, u.full_name
+            FROM orders o
+            JOIN users u ON o.user_id = u.id
+            WHERE o.invoice_number = ? AND o.user_id = ?
+        ");
+        $stmt->bind_param("si", $invoice_number, $user['id']);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $order = $result->fetch_assoc();
+
+        if (!$order) {
+            throw new Exception('Order not found');
+        }
+
+        // Get cart items
+        $cart_data = getCartItems();
+
+        // Create payment processor
+        $paymentProcessor = new PaymentProcessor($conn, $user, $cart_data, [
+            'full_name' => $order['full_name'],
+            'email' => $order['email'],
+            'phone' => '', // These would be stored in the order
+            'address' => '',
+            'city' => '',
+            'state' => '',
+            'postal_code' => ''
+        ]);
+
+        // Process payment
+        $result = $paymentProcessor->processPayment($invoice_number);
+        debug($result, 'Payment Processing Result');
+
+        if ($result['success']) {
+            // Clear session data
+            unset($_SESSION['current_invoice']);
+            header('Location: order-confirmation.php?invoice=' . urlencode($invoice_number));
+            exit;
+        } else {
+            $payment_error = $result['message'];
+            debug($payment_error, 'Payment Processing Error');
+        }
+    } catch (Exception $e) {
+        error_log("Error processing payment: " . $e->getMessage());
+        $payment_error = "An error occurred while processing your payment. Please try again.";
+        debug($e->getMessage(), 'Exception in Payment Processing');
+    }
+} elseif (isset($_GET['pay']) && $_GET['pay'] === 'fail') {
+    $payment_error = 'Payment failed. Please try again.';
+}
+
+// Step 3: Get order details for display
+$order = null;
+if ($invoice_number) {
+    $stmt = $conn->prepare("
+        SELECT o.*, u.email, u.full_name
+        FROM orders o
+        JOIN users u ON o.user_id = u.id
+        WHERE o.invoice_number = ? AND o.user_id = ?
+    ");
+    $stmt->bind_param("si", $invoice_number, $_SESSION['user_id']);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $order = $result->fetch_assoc();
+
+    if ($order) {
+        // Get order items
+        $stmt = $conn->prepare("
+            SELECT oi.*, p.name
+            FROM order_items oi
+            JOIN products p ON oi.product_id = p.id
+            WHERE oi.order_id = ?
+        ");
+        $stmt->bind_param("i", $order['id']);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $order_items = [];
+        while ($item = $result->fetch_assoc()) {
+            $order_items[] = $item;
+        }
+    }
+}
+
+// Step 4: Render invoice and payment options
 ?>
+<!DOCTYPE html>
+<html lang="en">
 
-<div class="container py-5">
-    <!-- Add error alert container -->
-    <div id="payment-error" class="alert alert-danger d-none" role="alert"></div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment - <?php echo SITE_NAME; ?></title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
 
-    <div class="row mb-4">
-        <div class="col">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="index" class="text-decoration-none">Home</a></li>
-                    <li class="breadcrumb-item"><a href="cart" class="text-decoration-none">Cart</a></li>
-                    <li class="breadcrumb-item"><a href="checkout" class="text-decoration-none">Checkout</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Payment</li>
-                </ol>
-            </nav>
-            <h2 class="mb-0">Select Payment Method</h2>
-        </div>
-    </div>
-
-    <div class="row g-4">
-        <div class="col-lg-8">
-            <?php if ($payment_error): ?>
-            <div class="alert alert-danger mb-4">
-                <?php echo htmlspecialchars($payment_error); ?>
-            </div>
-            <?php endif; ?>
-
-            <!-- Progress Bar -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between checkout-steps">
-                        <div class="step completed">
-                            <div class="step-icon">
-                                <i class="fas fa-shopping-cart"></i>
-                            </div>
-                            <div class="step-text">Cart</div>
+<body>
+    <?php include '../includes/header.php'; ?>
+    <main class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <h2 class="mb-4">Review & Payment</h2>
+                <?php if ($payment_error): ?>
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <?php echo htmlspecialchars($payment_error); ?>
+                    </div>
+                <?php endif; ?>
+                <?php if (isset($_GET['error'])): ?>
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <?php echo htmlspecialchars($_GET['error']); ?>
+                    </div>
+                <?php endif; ?>
+                <?php if ($order): ?>
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <strong>Invoice #<?php echo htmlspecialchars($order['invoice_number']); ?></strong>
                         </div>
-                        <div class="step completed">
-                            <div class="step-icon">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <div class="step-text">Details</div>
-                        </div>
-                        <div class="step active">
-                            <div class="step-icon">
-                                <i class="fas fa-credit-card"></i>
-                            </div>
-                            <div class="step-text">Payment</div>
-                        </div>
-                        <div class="step">
-                            <div class="step-icon">
-                                <i class="fas fa-check"></i>
-                            </div>
-                            <div class="step-text">Confirmation</div>
+                        <div class="card-body">
+                            <p><strong>Order for:</strong>
+                                <?php echo htmlspecialchars($order['full_name']); ?><br>
+                                <strong>Email:</strong> <?php echo htmlspecialchars($order['email']); ?><br>
+                                <strong>Shipping:</strong>
+                                <?php echo nl2br(htmlspecialchars($order['shipping_address'])); ?>
+                            </p>
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Qty</th>
+                                        <th>Price</th>
+                                        <th>Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($order_items as $item): ?>
+                                        <tr>
+                                            <td><?php echo htmlspecialchars($item['name']); ?></td>
+                                            <td><?php echo (int)$item['quantity']; ?></td>
+                                            <td>$<?php echo number_format($item['price'], 2); ?></td>
+                                            <td>$<?php echo number_format($item['subtotal'], 2); ?></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="3" class="text-end">Total</th>
+                                        <th>$<?php echo number_format($order['total_amount'], 2); ?></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Payment Methods -->
-            <div class="card border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <h5 class="card-title mb-4">
-                        <i class="fas fa-credit-card me-2 text-primary"></i>Choose Payment Method
-                    </h5>
-
-                    <form id="payment-form" action="../includes/process_payment.php" method="POST">
-                        <div class="payment-methods">
-                            <!-- PayPal Option -->
-                            <div class="payment-option mb-4">
-                                <div class="payment-card" data-payment="paypal">
-                                    <input type="radio" name="payment_method" value="paypal" id="paypal" class="d-none">
-                                    <label for="paypal" class="card-body p-4">
-                                        <div class="d-flex align-items-center">
-                                            <img src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_111x69.jpg"
-                                                alt="PayPal" height="40" class="me-3">
-                                            <div>
-                                                <h6 class="mb-1">Pay with PayPal</h6>
-                                                <p class="text-muted mb-0">
-                                                    <small>Safe payment with your PayPal account</small>
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <!-- Credit Card Option -->
-                            <div class="payment-option">
-                                <div class="payment-card" data-payment="card">
-                                    <input type="radio" name="payment_method" value="card" id="card" class="d-none">
-                                    <label for="card" class="card-body p-4">
-                                        <div class="d-flex align-items-center">
-                                            <i class="far fa-credit-card fa-2x text-primary me-3"></i>
-                                            <div>
-                                                <h6 class="mb-1">Credit or Debit Card</h6>
-                                                <p class="text-muted mb-0">
-                                                    <small>Safe payment with Stripe</small>
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div class="card-logos mt-3">
-                                            <img src="https://b.stripecdn.com/site-srv/assets/img/v3/payment_methods-c0d30fdf5c2b6d108a4b6f5eb5a7a19e.png"
-                                                alt="Accepted Cards" height="30">
-                                        </div>
-                                    </label>
-                                </div>
-                            </div>
+                    <div class="mb-4">
+                        <h4>Choose Payment Method</h4>
+                        <div class="d-flex gap-3">
+                            <a href="payment.php?pay=success&invoice=<?php echo urlencode($order['invoice_number']); ?>"
+                                class="btn btn-primary">
+                                <i class="fab fa-paypal me-2"></i>Pay with PayPal (Simulated)
+                            </a>
+                            <a href="payment.php?pay=success&invoice=<?php echo urlencode($order['invoice_number']); ?>"
+                                class="btn btn-secondary">
+                                <i class="fas fa-credit-card me-2"></i>Pay with Debit Card (Simulated)
+                            </a>
                         </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Back Button -->
-            <div class="d-flex justify-content-between align-items-center mt-4">
-                <a href="checkout" class="btn btn-outline-primary">
-                    <i class="fas fa-arrow-left me-2"></i>Back to Checkout
-                </a>
+                    </div>
+                <?php else: ?>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        No order found. Please complete the checkout process.
+                    </div>
+                    <div class="text-center mt-4">
+                        <a href="checkout.php" class="btn btn-primary">
+                            <i class="fas fa-shopping-cart me-2"></i>Return to Checkout
+                        </a>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
+    </main>
+    <?php include '../includes/footer.php'; ?>
+</body>
 
-        <div class="col-lg-4">
-            <!-- Order Summary -->
-            <div class="card border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <h5 class="card-title mb-4">
-                        <i class="fas fa-shopping-basket me-2 text-primary"></i>Order Summary
-                    </h5>
-
-                    <div class="order-items mb-4">
-                        <?php foreach ($cart_items as $item): ?>
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <div class="d-flex align-items-center">
-                                <img src="<?php echo htmlspecialchars($item['thumbs']); ?>" class="rounded me-3" alt=""
-                                    style="width: 50px; height: 50px; object-fit: cover;">
-                                <div>
-                                    <div class="fw-bold"><?php echo htmlspecialchars($item['name']); ?></div>
-                                    <small class="text-muted">Qty: <?php echo $item['quantity']; ?></small>
-                                </div>
-                            </div>
-                            <span>$<?php echo number_format($item['price'] * $item['quantity'], 2); ?></span>
-                        </div>
-                        <?php endforeach; ?>
-                    </div>
-
-                    <div class="summary-details">
-                        <div class="d-flex justify-content-between mb-2">
-                            <span class="text-muted">Subtotal</span>
-                            <span>$<?php echo number_format($cart_total, 2); ?></span>
-                        </div>
-
-                        <div class="d-flex justify-content-between mb-2">
-                            <span class="text-muted">Shipping</span>
-                            <span class="text-success">Free</span>
-                        </div>
-
-                        <hr>
-
-                        <div class="d-flex justify-content-between mb-4">
-                            <strong>Total</strong>
-                            <div class="h4 mb-0 text-primary">$<?php echo number_format($cart_total, 2); ?></div>
-                        </div>
-
-                        <button type="button" class="btn btn-primary btn-lg w-100" id="pay-now-btn" disabled>
-                            <i class="fas fa-lock me-2"></i>Pay Now
-                        </button>
-
-                        <div class="text-center mt-3">
-                            <small class="text-muted">
-                                <i class="fas fa-shield-alt me-1"></i>Secure Payment
-                            </small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Security Badge -->
-            <div class="card border-0 shadow-sm mt-4">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-shield-alt fa-2x text-success me-3"></i>
-                        <div>
-                            <h6 class="mb-1">Secure Payment</h6>
-                            <small class="text-muted">Your payment information is encrypted</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<style>
-/* Existing styles... */
-
-.payment-card {
-    border: 2px solid #dee2e6;
-    border-radius: 1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin-bottom: 1rem;
-}
-
-.payment-card:hover {
-    border-color: #007bff;
-    transform: translateY(-2px);
-}
-
-.payment-card label {
-    cursor: pointer;
-    margin: 0;
-    width: 100%;
-}
-
-input[type="radio"]:checked+label .payment-card {
-    border-color: #007bff;
-    background-color: #f8f9fa;
-}
-
-.card-logos img {
-    max-width: 100%;
-    height: auto;
-}
-
-/* Mobile Responsiveness */
-@media (max-width: 767.98px) {
-    .payment-card {
-        margin-bottom: 1rem;
-    }
-
-    .card-body {
-        padding: 1rem;
-    }
-
-    .card-logos img {
-        height: 24px;
-    }
-}
-
-/* Additional mobile styles... */
-</style>
-
-<!-- Load Stripe.js -->
-<script src="https://js.stripe.com/v3/"></script>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const paymentForm = document.getElementById('payment-form');
-    const payNowBtn = document.getElementById('pay-now-btn');
-    const paymentCards = document.querySelectorAll('.payment-card');
-    let selectedPaymentMethod = null;
-
-    // Handle payment method selection
-    paymentCards.forEach(card => {
-        card.addEventListener('click', function() {
-            const radio = this.querySelector('input[type="radio"]');
-            radio.checked = true;
-            selectedPaymentMethod = radio.value;
-
-            // Enable pay now button
-            payNowBtn.disabled = false;
-
-            // Update UI to show selected card
-            paymentCards.forEach(c => c.classList.remove('selected'));
-            this.classList.add('selected');
-        });
-    });
-
-    // Handle payment submission
-    payNowBtn.addEventListener('click', async function(e) {
-        e.preventDefault();
-
-        if (!selectedPaymentMethod) {
-            const errorDiv = document.getElementById('payment-error');
-            errorDiv.textContent = 'Please select a payment method';
-            errorDiv.classList.remove('d-none');
-            return;
-        }
-
-        // Disable button to prevent double submission
-        payNowBtn.disabled = true;
-
-        try {
-            const formData = new FormData();
-            formData.append('payment_method', selectedPaymentMethod);
-
-            // Add a flag to indicate this is a payment request
-            formData.append('is_payment', '1');
-
-            const response = await fetch('../includes/process_payment.php', {
-                method: 'POST',
-                body: formData
-            });
-
-            const data = await response.json();
-
-            if (!data.success) {
-                throw new Error(data.message);
-            }
-
-            if (selectedPaymentMethod === 'paypal') {
-                window.location.href = data.redirect_url;
-            } else if (selectedPaymentMethod === 'card') {
-                const stripe = Stripe('<?php echo STRIPE_PUBLIC_KEY; ?>');
-                const {
-                    error
-                } = await stripe.redirectToCheckout({
-                    sessionId: data.session_id
-                });
-
-                if (error) {
-                    throw new Error(error.message);
-                }
-            }
-        } catch (error) {
-            console.error('Payment processing error:', error);
-            const errorDiv = document.getElementById('payment-error');
-            errorDiv.textContent = error.message ||
-                'An unexpected error occurred. Please try again.';
-            errorDiv.classList.remove('d-none');
-            payNowBtn.disabled = false;
-        }
-    });
-
-    // Clear error message when payment method changes
-    paymentCards.forEach(card => {
-        card.addEventListener('click', function() {
-            const errorDiv = document.getElementById('payment-error');
-            errorDiv.classList.add('d-none');
-        });
-    });
-});
-</script>
-
-<?php include '../includes/layouts/footer.php'; ?>
+</html>

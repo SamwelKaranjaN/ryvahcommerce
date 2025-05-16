@@ -17,4 +17,4 @@ return [
             'thumb' => 'uploads/thumbs/'
         ]
     ]
-]; 
+];

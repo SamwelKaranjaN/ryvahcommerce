@@ -7,6 +7,14 @@ namespace Composer\Autoload;
 class ComposerStaticInit40aa654f2e66c20881ae0572fe987a10
 {
     public static $prefixLengthsPsr4 = array (
+        'a' => 
+        array (
+            'apimatic\\jsonmapper\\' => 20,
+        ),
+        'U' => 
+        array (
+            'Unirest\\' => 8,
+        ),
         'S' => 
         array (
             'Stripe\\' => 7,
@@ -14,26 +22,52 @@ class ComposerStaticInit40aa654f2e66c20881ae0572fe987a10
         'P' => 
         array (
             'Psr\\Log\\' => 8,
+            'PaypalServerSdkLib\\' => 19,
+        ),
+        'C' => 
+        array (
+            'Core\\' => 5,
+            'CoreInterfaces\\' => 15,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
+        'apimatic\\jsonmapper\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/apimatic/jsonmapper/src',
+        ),
+        'Unirest\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/apimatic/unirest-php/src',
+        ),
         'Stripe\\' => 
         array (
             0 => __DIR__ . '/..' . '/stripe/stripe-php/lib',
         ),
         'Psr\\Log\\' => 
         array (
-            0 => __DIR__ . '/..' . '/psr/log/Psr/Log',
+            0 => __DIR__ . '/..' . '/psr/log/src',
+        ),
+        'PaypalServerSdkLib\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/paypal/paypal-server-sdk/src',
+        ),
+        'Core\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/apimatic/core/src',
+        ),
+        'CoreInterfaces\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/apimatic/core-interfaces/src',
         ),
     );
 
     public static $prefixesPsr0 = array (
-        'P' => 
+        'R' => 
         array (
-            'PayPal' => 
+            'Rs\\Json' => 
             array (
-                0 => __DIR__ . '/..' . '/paypal/rest-api-sdk-php/lib',
+                0 => __DIR__ . '/..' . '/php-jsonpointer/php-jsonpointer/src',
             ),
         ),
     );

@@ -13,16 +13,25 @@ $search_query = isset($_GET['query']) ? $conn->real_escape_string(trim($_GET['qu
 $message = '';
 $message_type = '';
 $product = [
-    'id' => '', 'type' => 'paint', 'sku' => '', 'name' => '', 'author' => '',
-    'description' => '', 'price' => '', 'stock_quantity' => '', 'file_size' => '',
-    'filepath' => '', 'thumbs' => ''
+    'id' => '',
+    'type' => 'paint',
+    'sku' => '',
+    'name' => '',
+    'author' => '',
+    'description' => '',
+    'price' => '',
+    'stock_quantity' => '',
+    'file_size' => '',
+    'filepath' => '',
+    'thumbs' => ''
 ];
 
 // Get CSRF token
 $csrf_token = getCSRFToken();
 
 // Add this function at the top of your file
-function handleDatabaseError($conn, $operation) {
+function handleDatabaseError($conn, $operation)
+{
     if ($conn->error) {
         return [
             'message' => "Error during $operation: " . $conn->error,
@@ -87,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                     $errors[] = 'PDF too large (max 100MB)';
                 } else {
                     $filename = basename($_FILES['filepath']['name']);
-                    $upload_dir = __DIR__ . '/../Uploads/pdfs/';
+                    $upload_dir = __DIR__ . '/Uploads/pdfs/';
                     
                     // Create directory if it doesn't exist
                     if (!file_exists($upload_dir)) {
@@ -111,7 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                     $errors[] = 'Thumbnail too large (max 20MB)';
                 } else {
                     $filename = basename($_FILES['thumbs']['name']);
-                    $upload_dir = __DIR__ . '/../Uploads/thumbs/';
+                    $upload_dir = __DIR__ . '/Uploads/thumbs/';
                     
                     // Create directory if it doesn't exist
                     if (!file_exists($upload_dir)) {
@@ -189,9 +198,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
         // Populate form with submitted data if there's an error
         if ($message_type === 'error') {
             $product = [
-                'id' => $id, 'type' => $type, 'sku' => $sku, 'name' => $name, 'author' => $author,
-                'description' => $description, 'price' => $price, 'stock_quantity' => $stock_quantity,
-                'file_size' => $file_size, 'filepath' => $filepath, 'thumbs' => $thumbs
+                'id' => $id,
+                'type' => $type,
+                'sku' => $sku,
+                'name' => $name,
+                'author' => $author,
+                'description' => $description,
+                'price' => $price,
+                'stock_quantity' => $stock_quantity,
+                'file_size' => $file_size,
+                'filepath' => $filepath,
+                'thumbs' => $thumbs
             ];
         }
     }
@@ -206,7 +223,8 @@ if (isset($_SESSION['message'])) {
 }
 
 // Helper function to format file size
-function formatFileSize($bytes) {
+function formatFileSize($bytes)
+{
     if ($bytes >= 1073741824) {
         return number_format($bytes / 1073741824, 2) . ' GB';
     } elseif ($bytes >= 1048576) {
@@ -416,7 +434,7 @@ if ($result) {
         box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
     }
 
-    .search-bar input:focus + i {
+.search-bar input:focus+i {
         color: var(--primary-color);
     }
 
@@ -799,6 +817,7 @@ if ($result) {
             transform: translateX(100%);
             opacity: 0;
         }
+
         to {
             transform: translateX(0);
             opacity: 1;
@@ -809,6 +828,7 @@ if ($result) {
         from {
             opacity: 0;
         }
+
         to {
             opacity: 1;
         }
@@ -819,6 +839,7 @@ if ($result) {
             transform: translateY(20px);
             opacity: 0;
         }
+
         to {
             transform: translateY(0);
             opacity: 1;
@@ -1068,6 +1089,7 @@ if ($result) {
             transform: translateY(40px);
             opacity: 0;
         }
+
         to {
             transform: translateY(0);
             opacity: 1;
@@ -1098,6 +1120,7 @@ if ($result) {
             transform: translateX(100%) scale(0.8);
             opacity: 0;
         }
+
         to {
             transform: translateX(0) scale(1);
             opacity: 1;
@@ -1245,7 +1268,8 @@ if ($result) {
         </h1>
         <div class="search-container">
             <div class="search-bar">
-                <input type="text" id="search" placeholder="Search products..." value="<?php echo htmlspecialchars($search_query); ?>">
+                <input type="text" id="search" placeholder="Search products..."
+                    value="<?php echo htmlspecialchars($search_query); ?>">
                 <i class="fas fa-search"></i>
             </div>
         </div>
@@ -1268,62 +1292,76 @@ if ($result) {
                 <i class="fas fa-times"></i>
             </button>
             <div class="product-form" id="productForm">
-                <form method="POST" enctype="multipart/form-data" action="<?php echo $_SERVER['PHP_SELF']; ?>" onsubmit="return validateForm(this)">
+                <form method="POST" enctype="multipart/form-data" action="<?php echo $_SERVER['PHP_SELF']; ?>"
+                    onsubmit="return validateForm(this)">
                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                     <input type="hidden" name="id" value="<?php echo $product['id']; ?>">
-                    <input type="hidden" name="existing_filepath" value="<?php echo htmlspecialchars($product['filepath']); ?>">
-                    <input type="hidden" name="existing_thumbs" value="<?php echo htmlspecialchars($product['thumbs']); ?>">
+                    <input type="hidden" name="existing_filepath"
+                        value="<?php echo htmlspecialchars($product['filepath']); ?>">
+                    <input type="hidden" name="existing_thumbs"
+                        value="<?php echo htmlspecialchars($product['thumbs']); ?>">
                     
                     <div class="form-grid">
                         <div class="form-group">
                             <label class="form-label required">Product Type</label>
                             <select name="type" class="form-input" required>
-                                <option value="paint" <?php echo $product['type'] === 'paint' ? 'selected' : ''; ?>>Paint</option>
-                                <option value="ebook" <?php echo $product['type'] === 'ebook' ? 'selected' : ''; ?>>eBook</option>
+                                <option value="paint" <?php echo $product['type'] === 'paint' ? 'selected' : ''; ?>>
+                                    Paint</option>
+                                <option value="ebook" <?php echo $product['type'] === 'ebook' ? 'selected' : ''; ?>>
+                                    eBook</option>
                             </select>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label required">SKU</label>
-                            <input type="text" name="sku" class="form-input" value="<?php echo htmlspecialchars($product['sku']); ?>" required>
+                            <input type="text" name="sku" class="form-input"
+                                value="<?php echo htmlspecialchars($product['sku']); ?>" required>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label required">Name</label>
-                            <input type="text" name="name" class="form-input" value="<?php echo htmlspecialchars($product['name']); ?>" required>
+                            <input type="text" name="name" class="form-input"
+                                value="<?php echo htmlspecialchars($product['name']); ?>" required>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label required">Author</label>
-                            <input type="text" name="author" class="form-input" value="<?php echo htmlspecialchars($product['author']); ?>" required>
+                            <input type="text" name="author" class="form-input"
+                                value="<?php echo htmlspecialchars($product['author']); ?>" required>
                         </div>
 
                         <div class="form-group full-width">
                             <label class="form-label required">Description</label>
-                            <textarea name="description" class="form-input form-textarea" required><?php echo htmlspecialchars($product['description']); ?></textarea>
+                            <textarea name="description" class="form-input form-textarea"
+                                required><?php echo htmlspecialchars($product['description']); ?></textarea>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label required">Price</label>
-                            <input type="number" name="price" class="form-input" step="0.01" value="<?php echo htmlspecialchars($product['price']); ?>" required>
+                            <input type="number" name="price" class="form-input" step="0.01"
+                                value="<?php echo htmlspecialchars($product['price']); ?>" required>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label required">Stock Quantity</label>
-                            <input type="number" name="stock_quantity" class="form-input" value="<?php echo htmlspecialchars($product['stock_quantity']); ?>" required>
+                            <input type="number" name="stock_quantity" class="form-input"
+                                value="<?php echo htmlspecialchars($product['stock_quantity']); ?>" required>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">File Size</label>
-                            <input type="text" name="file_size" class="form-input" value="<?php echo htmlspecialchars($product['file_size']); ?>" readonly>
+                            <input type="text" name="file_size" class="form-input"
+                                value="<?php echo htmlspecialchars($product['file_size']); ?>" readonly>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">Product File (PDF only)</label>
                             <div class="file-input-wrapper">
-                                <input type="file" name="filepath" class="form-input" accept=".pdf" onchange="handleFileUpload(this, 'pdf')">
+                                <input type="file" name="filepath" class="form-input" accept=".pdf"
+                                    onchange="handleFileUpload(this, 'pdf')">
                                 <?php if ($product['filepath']): ?>
-                                    <a href="<?php echo htmlspecialchars($product['filepath']); ?>" target="_blank" class="text-sm text-blue-500">View PDF</a>
+                                <a href="<?php echo htmlspecialchars($product['filepath']); ?>" target="_blank"
+                                    class="text-sm text-blue-500">View PDF</a>
                                 <?php endif; ?>
                             </div>
                         </div>
@@ -1331,9 +1369,11 @@ if ($result) {
                         <div class="form-group">
                             <label class="form-label">Thumbnail (Image only)</label>
                             <div class="file-input-wrapper">
-                                <input type="file" name="thumbs" class="form-input" accept="image/*" onchange="handleFileUpload(this, 'image')">
+                                <input type="file" name="thumbs" class="form-input" accept="image/*"
+                                    onchange="handleFileUpload(this, 'image')">
                                 <?php if ($product['thumbs']): ?>
-                                    <img src="<?php echo htmlspecialchars($product['thumbs']); ?>" alt="Current thumbnail" class="file-preview visible">
+                                <img src="<?php echo htmlspecialchars($product['thumbs']); ?>" alt="Current thumbnail"
+                                    class="file-preview visible">
                                 <?php endif; ?>
                             </div>
                         </div>
@@ -1354,15 +1394,8 @@ if ($result) {
         <?php foreach ($products as $product): ?>
             <div class="product-card" data-id="<?php echo $product['id']; ?>">
                 <div class="product-image-container">
-                    <?php if ($product['thumbs']): ?>
                         <img src="<?php echo htmlspecialchars($product['thumbs']); ?>" 
-                             alt="<?php echo htmlspecialchars($product['name']); ?>" 
-                             class="product-image">
-                    <?php else: ?>
-                        <div class="product-image bg-gray-100 flex items-center justify-center">
-                            <i class="fas fa-image text-gray-400 text-4xl"></i>
-                        </div>
-                    <?php endif; ?>
+                    alt="<?php echo htmlspecialchars($product['name']); ?>" class="product-image">
                     <span class="product-badge"><?php echo ucfirst($product['type']); ?></span>
                 </div>
                 
@@ -1454,7 +1487,8 @@ function filterProducts(query) {
             const type = product.querySelector('.product-badge').textContent.toLowerCase();
             const sku = product.querySelector('.product-sku')?.textContent.toLowerCase() || '';
             
-            if (name.includes(query) || author.includes(query) || type.includes(query) || sku.includes(query)) {
+            if (name.includes(query) || author.includes(query) || type.includes(query) || sku.includes(
+                    query)) {
                 product.style.display = 'block';
             } else {
                 product.style.display = 'none';

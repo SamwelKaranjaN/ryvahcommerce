@@ -26,12 +26,50 @@ include '../includes/layouts/header.php';
 <!-- Hero Section with Book-themed Background -->
 <section class="hero-section position-relative overflow-hidden">
     <div class="hero-overlay"></div>
-    <div class="container position-relative text-center" style="z-index: 2;">
-        <h1 class="display-4 fw-bold animate__animated animate__fadeInDown">Welcome to Ryvah Books</h1>
-        <p class="lead animate__animated animate__fadeInUp animate__delay-1s">Discover Amazing Books and Artworks</p>
-        <a href="#books"
-            class="btn btn-primary btn-lg animate__animated animate__fadeInUp animate__delay-2s pulse-animation">Explore
-            Books</a>
+    <div class="container position-relative" style="z-index: 2;">
+        <div class="hero-content text-center">
+            <h1 class="hero-title animate__animated animate__fadeInDown">
+                Welcome to Ryvah Books
+                <span class="hero-subtitle animate__animated animate__fadeInUp animate__delay-1s">
+                    Your Gateway to Digital Knowledge
+                </span>
+            </h1>
+            <p class="hero-description animate__animated animate__fadeInUp animate__delay-1s">
+                Discover Amazing Books and Artworks
+            </p>
+            <div class="hero-buttons animate__animated animate__fadeInUp animate__delay-2s">
+                <a href="#books" class="btn btn-primary btn-lg hero-btn">
+                    <i class="fas fa-book"></i> Explore Books
+                </a>
+                <a href="#paintings" class="btn btn-outline-light btn-lg hero-btn ms-3">
+                    <i class="fas fa-palette"></i> View Artworks
+                </a>
+                <a href="contact" class="btn btn-outline-light btn-lg hero-btn ms-3">
+                    <i class="fas fa-palette"></i> Contact Us
+                </a>
+            </div>
+            <div class="hero-features animate__animated animate__fadeInUp animate__delay-2s">
+                <div class="feature">
+                    <i class="fas fa-shipping-fast"></i>
+                    <span>Instant Delivery</span>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-lock"></i>
+                    <span>Secure Payment</span>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-headset"></i>
+                    <span>24/7 Support</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="hero-wave">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+            <path fill="#ffffff" fill-opacity="1"
+                d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,149.3C960,160,1056,160,1152,138.7C1248,117,1344,75,1392,53.3L1440,32L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z">
+            </path>
+        </svg>
     </div>
 </section>
 
@@ -50,8 +88,8 @@ include '../includes/layouts/header.php';
                         <span class="badge bg-primary">E-Book</span>
                     </div>
                     <div class="book-image-container">
-                        <img src="<?php echo htmlspecialchars($book['thumbs']); ?>" class="card-img-top book-image"
-                            alt="<?php echo htmlspecialchars($book['name']); ?>">
+                        <img src="../admin/<?php echo htmlspecialchars($book['thumbs']); ?>"
+                            class="card-img-top book-image" alt="<?php echo htmlspecialchars($book['name']); ?>">
                         <div class="book-overlay">
                             <button class="btn btn-light btn-sm quick-view" data-bs-toggle="modal"
                                 data-bs-target="#productModal" data-id="<?php echo $book['id']; ?>"
@@ -59,7 +97,7 @@ include '../includes/layouts/header.php';
                                 data-price="<?php echo $book['price']; ?>"
                                 data-description="<?php echo htmlspecialchars($book['description']); ?>"
                                 data-author="<?php echo htmlspecialchars($book['author']); ?>"
-                                data-image="<?php echo htmlspecialchars($book['thumbs']); ?>"
+                                data-image="../admin/<?php echo htmlspecialchars($book['thumbs']); ?>"
                                 data-stock="<?php echo $book['stock_quantity']; ?>">
                                 <i class="fas fa-eye"></i> Quick View
                             </button>
@@ -105,8 +143,8 @@ include '../includes/layouts/header.php';
                         <span class="badge bg-success">Original Art</span>
                     </div>
                     <div class="paint-image-container">
-                        <img src="<?php echo htmlspecialchars($paint['thumbs']); ?>" class="card-img-top paint-image"
-                            alt="<?php echo htmlspecialchars($paint['name']); ?>">
+                        <img src="../admin/<?php echo htmlspecialchars($paint['thumbs']); ?>"
+                            class="card-img-top paint-image" alt="<?php echo htmlspecialchars($paint['name']); ?>">
                         <div class="paint-overlay">
                             <button class="btn btn-light btn-sm quick-view" data-bs-toggle="modal"
                                 data-bs-target="#productModal" data-id="<?php echo $paint['id']; ?>"
@@ -114,7 +152,7 @@ include '../includes/layouts/header.php';
                                 data-price="<?php echo $paint['price']; ?>"
                                 data-description="<?php echo htmlspecialchars($paint['description']); ?>"
                                 data-author="<?php echo htmlspecialchars($paint['author']); ?>"
-                                data-image="<?php echo htmlspecialchars($paint['thumbs']); ?>"
+                                data-image="../admin/<?php echo htmlspecialchars($paint['thumbs']); ?>"
                                 data-stock="<?php echo $paint['stock_quantity']; ?>">
                                 <i class="fas fa-eye"></i> Quick View
                             </button>
@@ -251,16 +289,19 @@ include '../includes/layouts/header.php';
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
 
 <style>
-/* Enhanced Styles */
+/* Enhanced Hero Section Styles */
 .hero-section {
-    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3');
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+        url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
-    height: 400px;
+    min-height: 100vh;
     display: flex;
     align-items: center;
     color: white;
+    position: relative;
+    padding: 100px 0;
 }
 
 .hero-overlay {
@@ -269,7 +310,194 @@ include '../includes/layouts/header.php';
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(45deg, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.3));
+    background: linear-gradient(45deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.4));
+}
+
+.hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.hero-subtitle {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: #ffd700;
+    margin-top: 0.5rem;
+}
+
+.hero-description {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+}
+
+.hero-buttons {
+    margin-bottom: 3rem;
+}
+
+.hero-btn {
+    padding: 1rem 2rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    border-radius: 50px;
+}
+
+.hero-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.btn-primary {
+    background: linear-gradient(45deg, #007bff, #0056b3);
+    border: none;
+}
+
+.btn-outline-light {
+    border-width: 2px;
+}
+
+.hero-features {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    margin-top: 2rem;
+}
+
+.feature {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.feature i {
+    font-size: 2rem;
+    color: #ffd700;
+    margin-bottom: 0.5rem;
+}
+
+.feature span {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.hero-wave {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    line-height: 0;
+}
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+    .hero-title {
+        font-size: 2.8rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1.3rem;
+    }
+
+    .hero-description {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-section {
+        min-height: 80vh;
+        padding: 60px 0;
+    }
+
+    .hero-title {
+        font-size: 2.2rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1.1rem;
+    }
+
+    .hero-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .hero-btn {
+        width: 100%;
+        margin: 0 !important;
+    }
+
+    .hero-features {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .hero-title {
+        font-size: 1.8rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+
+    .hero-description {
+        font-size: 1rem;
+    }
+
+    .hero-btn {
+        padding: 0.8rem 1.5rem;
+    }
+}
+
+/* Animation Enhancements */
+.animate__animated {
+    animation-duration: 1s;
+}
+
+.animate__delay-1s {
+    animation-delay: 0.5s;
+}
+
+.animate__delay-2s {
+    animation-delay: 1s;
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+.hero-btn {
+    animation: float 3s ease-in-out infinite;
+}
+
+.hero-btn:nth-child(2) {
+    animation-delay: 0.5s;
 }
 
 .section-title {
@@ -306,7 +534,11 @@ include '../includes/layouts/header.php';
     position: relative;
     overflow: hidden;
     padding: 1rem;
-    height: 200px;
+    height: 300px;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .book-image {
@@ -314,6 +546,9 @@ include '../includes/layouts/header.php';
     height: 100%;
     object-fit: contain;
     transition: transform 0.3s;
+    background: white;
+    padding: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .book-card:hover .book-image {
@@ -337,7 +572,11 @@ include '../includes/layouts/header.php';
     position: relative;
     overflow: hidden;
     padding: 1rem;
-    height: 200px;
+    height: 300px;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .paint-image {
@@ -345,6 +584,9 @@ include '../includes/layouts/header.php';
     height: 100%;
     object-fit: contain;
     transition: transform 0.3s;
+    background: white;
+    padding: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .paint-card:hover .paint-image {
@@ -479,19 +721,38 @@ include '../includes/layouts/header.php';
 
 /* Modal Styles */
 .product-modal-image {
-    max-height: 400px;
+    max-height: 500px;
+    width: 100%;
     object-fit: contain;
+    background: white;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
 }
 
 .modal-qty {
     width: 60px !important;
 }
 
+.modal-body .col-md-6:first-child {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+/* Responsive adjustments */
 @media (max-width: 768px) {
 
     .book-image-container,
     .paint-image-container {
-        height: 150px;
+        height: 250px;
+    }
+
+    .product-modal-image {
+        max-height: 300px;
     }
 }
 </style>

@@ -179,6 +179,89 @@
             transform: translateY(0);
         }
     }
+
+    /* Checkout Button Styles */
+    .checkout-btn {
+        position: relative;
+        overflow: hidden;
+        transition: all var(--transition-normal) var(--transition-smooth);
+        z-index: 1000;
+        box-shadow: var(--shadow-md);
+    }
+
+    .checkout-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .checkout-btn::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.2));
+        transform: translateX(-100%);
+        transition: transform 0.6s ease;
+    }
+
+    .checkout-btn:hover::after {
+        transform: translateX(100%);
+    }
+
+    @media (max-width: 991.98px) {
+        .checkout-btn {
+            margin: 0.5rem 0;
+            width: 100%;
+        }
+    }
+
+    /* Toast Message Styles */
+    .toast {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        animation: slideIn 0.3s ease-out;
+    }
+
+    .toast-header {
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+    }
+
+    .toast-body {
+        padding: 1rem;
+        font-size: 0.95rem;
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideOut {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+
+    .toast.hide {
+        animation: slideOut 0.3s ease-in forwards;
+    }
     </style>
 </head>
 
@@ -220,22 +303,39 @@
                     </li>
                 </ul>
                 <div class="d-flex align-items-center">
-                    <a href="cart" class="nav-icon position-relative">
-                        <i class="fas fa-shopping-cart"></i>
-                        <?php
+                    <?php
+                    // Get cart items count
+                    try {
                         require_once dirname(__DIR__) . '/cart.php';
                         $cart_data = getCartItems();
-                        $cart_count = count($cart_data['items']);
-                        if ($cart_count > 0):
-                        ?>
+                        $cart_items = $cart_data['items'];
+                        $cart_count = count($cart_items);
+
+                        // Show checkout button if cart has items
+                        if ($cart_count > 0): ?>
+                    <a href="checkout" class="btn btn-primary me-3 checkout-btn">
+                        <i class="fas fa-lock me-2"></i>Checkout
+                    </a>
+                    <?php endif; ?>
+
+                    <a href="cart" class="nav-icon position-relative">
+                        <i class="fas fa-shopping-cart"></i>
+                        <?php if ($cart_count > 0): ?>
                         <span class="cart-count"><?php echo $cart_count; ?></span>
                         <?php endif; ?>
                     </a>
+                    <?php
+                    } catch (Exception $e) {
+                        error_log("Error in header.php: " . $e->getMessage());
+                        // Don't show error to user, just don't display cart count
+                    }
+                    ?>
                     <div class="dropdown">
                         <a href="#" class="nav-icon" title="Profile" data-bs-toggle="dropdown">
                             <i class="fas fa-user"></i>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
+                            <?php if (isset($_SESSION['user_id'])): ?>
                             <li><a class="dropdown-item" href="profile.php"><i class="fas fa-user me-2"></i>My
                                     Profile</a></li>
                             <li><a class="dropdown-item" href="orders.php"><i class="fas fa-shopping-bag me-2"></i>My
@@ -249,6 +349,13 @@
                             </li>
                             <li><a class="dropdown-item" href="logout.php"><i
                                         class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                            <?php else: ?>
+                            <li><a class="dropdown-item"
+                                    href="login.php?redirect=<?php echo urlencode($_SERVER['REQUEST_URI']); ?>"><i
+                                        class="fas fa-sign-in-alt me-2"></i>Login</a></li>
+                            <li><a class="dropdown-item" href="register.php"><i
+                                        class="fas fa-user-plus me-2"></i>Register</a></li>
+                            <?php endif; ?>
                         </ul>
                     </div>
                 </div>
@@ -258,6 +365,26 @@
 
     <!-- Add padding to body to account for fixed navbar -->
     <div style="padding-top: 76px;"></div>
+
+    <!-- Success Message Toast -->
+    <?php if (isset($_SESSION['success_message'])): ?>
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 1050">
+        <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header bg-success text-white">
+                <i class="fas fa-check-circle me-2"></i>
+                <strong class="me-auto">Success</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"
+                    aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                <?php
+                    echo htmlspecialchars($_SESSION['success_message']);
+                    unset($_SESSION['success_message']); // Clear the message after displaying
+                    ?>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -273,6 +400,17 @@
         }
     });
 
+    // Auto-hide success message after 5 seconds
+    document.addEventListener('DOMContentLoaded', function() {
+        const toast = document.querySelector('.toast');
+        if (toast) {
+            setTimeout(() => {
+                const bsToast = new bootstrap.Toast(toast);
+                bsToast.hide();
+            }, 5000);
+        }
+    });
+
     // Update cart count via AJAX
     function updateCartCount() {
         fetch('../includes/cart.php', {
@@ -282,10 +420,18 @@
                 },
                 body: 'action=get'
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
             .then(data => {
                 const cartCount = document.querySelector('.cart-count');
-                if (data.items.length > 0) {
+                const checkoutBtn = document.querySelector('.checkout-btn');
+
+                if (data.items && data.items.length > 0) {
+                    // Update cart count
                     if (!cartCount) {
                         const span = document.createElement('span');
                         span.className = 'cart-count';
@@ -294,9 +440,27 @@
                     } else {
                         cartCount.textContent = data.items.length;
                     }
-                } else if (cartCount) {
-                    cartCount.remove();
+
+                    // Show checkout button if not present
+                    if (!checkoutBtn) {
+                        const btn = document.createElement('a');
+                        btn.href = 'checkout';
+                        btn.className = 'btn btn-primary me-3 checkout-btn';
+                        btn.innerHTML = '<i class="fas fa-lock me-2"></i>Checkout';
+                        document.querySelector('.d-flex.align-items-center').insertBefore(
+                            btn,
+                            document.querySelector('.nav-icon.position-relative')
+                        );
+                    }
+                } else {
+                    // Remove cart count and checkout button
+                    if (cartCount) cartCount.remove();
+                    if (checkoutBtn) checkoutBtn.remove();
                 }
+            })
+            .catch(error => {
+                console.error('Error updating cart:', error);
+                // Don't show error to user, just log it
             });
     }
 

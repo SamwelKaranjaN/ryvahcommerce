@@ -7,8 +7,15 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-// Fetch user's orders
+// Fetch user data
 $user_id = $_SESSION['user_id'];
+$user_sql = "SELECT name, email, profile_image FROM users WHERE id = ?";
+$user_stmt = $conn->prepare($user_sql);
+$user_stmt->bind_param("i", $user_id);
+$user_stmt->execute();
+$user = $user_stmt->get_result()->fetch_assoc();
+
+// Fetch user's orders
 $sql = "SELECT o.*, 
         COUNT(oi.id) as total_items,
         SUM(oi.quantity) as total_quantity
@@ -89,8 +96,6 @@ include '../includes/layouts/header.php';
                                         <div class="col-md-4">
                                             <p class="mb-1"><strong>Total Amount:</strong>
                                                 $<?php echo number_format($order['total_amount'], 2); ?></p>
-                                            <p class="mb-1"><strong>Payment Method:</strong>
-                                                <?php echo ucfirst($order['payment_method']); ?></p>
                                         </div>
                                         <div class="col-md-4 text-end">
                                             <a href="order_details.php?id=<?php echo $order['id']; ?>"
