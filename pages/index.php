@@ -44,8 +44,8 @@ include '../includes/layouts/header.php';
                 <a href="#paintings" class="btn btn-outline-light btn-lg hero-btn ms-3">
                     <i class="fas fa-palette"></i> View Artworks
                 </a>
-                <a href="contact" class="btn btn-outline-light btn-lg hero-btn ms-3">
-                    <i class="fas fa-palette"></i> Contact Us
+                <a href="contact" class="btn btn-contact btn-lg hero-btn ms-3">
+                    <i class="fas fa-envelope"></i> Contact Us
                 </a>
             </div>
             <div class="hero-features animate__animated animate__fadeInUp animate__delay-2s">
@@ -342,21 +342,21 @@ include '../includes/layouts/header.php';
 }
 
 .hero-buttons {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
     margin-bottom: 3rem;
 }
 
 .hero-btn {
-    padding: 1rem 2rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    transition: all 0.3s ease;
+    font-size: 1.08rem;
+    padding: 0.85rem 1.7rem;
     border-radius: 50px;
-}
-
-.hero-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    font-weight: 600;
+    letter-spacing: 0.5px;
 }
 
 .btn-primary {
@@ -431,14 +431,14 @@ include '../includes/layouts/header.php';
     }
 
     .hero-buttons {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        gap: 0.5rem;
     }
 
     .hero-btn {
-        width: 100%;
-        margin: 0 !important;
+        font-size: 0.98rem;
+        padding: 0.7rem 1.2rem;
     }
 
     .hero-features {
@@ -534,25 +534,55 @@ include '../includes/layouts/header.php';
     position: relative;
     overflow: hidden;
     padding: 1rem;
-    height: 300px;
+    height: 320px;
     background: #f8f9fa;
     display: flex;
     align-items: center;
     justify-content: center;
+    border-radius: 12px;
 }
 
 .book-image {
     width: 100%;
     height: 100%;
+    max-width: 220px;
+    max-height: 300px;
     object-fit: contain;
     transition: transform 0.3s;
     background: white;
     padding: 10px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    margin: 0 auto;
+    display: block;
 }
 
 .book-card:hover .book-image {
     transform: scale(1.05);
+}
+
+@media (max-width: 992px) {
+    .book-image-container {
+        height: 220px;
+    }
+
+    .book-image {
+        max-width: 150px;
+        max-height: 180px;
+    }
+}
+
+@media (max-width: 768px) {
+    .book-image-container {
+        height: 160px;
+        padding: 0.5rem;
+    }
+
+    .book-image {
+        max-width: 100px;
+        max-height: 120px;
+        padding: 5px;
+    }
 }
 
 /* Paint Card Styles */
@@ -754,6 +784,28 @@ include '../includes/layouts/header.php';
     .product-modal-image {
         max-height: 300px;
     }
+}
+
+.btn-contact {
+    background: linear-gradient(90deg, #ff9800, #ff5722);
+    color: #fff !important;
+    border: none;
+    box-shadow: 0 2px 10px rgba(255, 152, 0, 0.15);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+}
+
+.btn-contact i {
+    margin-right: 6px;
+}
+
+.btn-contact:hover,
+.btn-contact:focus {
+    background: linear-gradient(90deg, #ff5722, #ff9800);
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(255, 87, 34, 0.25);
+    transform: translateY(-2px) scale(1.04);
 }
 </style>
 
