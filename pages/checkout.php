@@ -22,8 +22,8 @@ try {
         // Store current URL in session for redirect after login
         $_SESSION['redirect_after_login'] = 'checkout.php';
 
-        // Redirect to login
-        header('Location: login.php');
+        // Redirect to login with return URL
+        header('Location: login.php?redirect=checkout.php');
         exit;
     }
 
@@ -37,6 +37,11 @@ try {
             }
             // Clear temp cart
             unset($_SESSION['temp_cart']);
+
+            // Refresh cart data after merge
+            $cart_data = getCartItems();
+            $cart_items = $cart_data['items'];
+            $cart_total = $cart_data['total'];
         } catch (Exception $e) {
             error_log("Error merging temp cart: " . $e->getMessage());
             // Continue with checkout even if merge fails
@@ -46,8 +51,8 @@ try {
     include '../includes/layouts/header.php';
 } catch (Exception $e) {
     error_log("Error in checkout.php: " . $e->getMessage());
-    // Redirect to payment.php with error message instead of error.php
-    header('Location: payment.php?error=' . urlencode('Unable to process checkout. Please try again.'));
+    // Redirect to cart with error message
+    header('Location: cart.php?error=' . urlencode('Unable to process checkout. Please try again.'));
     exit;
 }
 ?>

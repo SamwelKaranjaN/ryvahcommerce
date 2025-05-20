@@ -431,14 +431,16 @@ include '../includes/layouts/header.php';
     }
 
     .hero-buttons {
-        flex-direction: row;
-        flex-wrap: nowrap;
-        gap: 0.5rem;
+        flex-direction: column !important;
+        gap: 0.7rem !important;
+        align-items: stretch !important;
     }
 
     .hero-btn {
-        font-size: 0.98rem;
-        padding: 0.7rem 1.2rem;
+        width: 100%;
+        font-size: 1.05rem;
+        padding: 0.9rem 1.2rem;
+        margin: 0 !important;
     }
 
     .hero-features {
@@ -449,19 +451,20 @@ include '../includes/layouts/header.php';
 
 @media (max-width: 576px) {
     .hero-title {
-        font-size: 1.8rem;
+        font-size: 1.3rem;
     }
 
     .hero-subtitle {
-        font-size: 1rem;
+        font-size: 0.95rem;
     }
 
     .hero-description {
-        font-size: 1rem;
+        font-size: 0.95rem;
     }
 
     .hero-btn {
-        padding: 0.8rem 1.5rem;
+        font-size: 0.98rem;
+        padding: 0.8rem 1rem;
     }
 }
 
@@ -807,6 +810,43 @@ include '../includes/layouts/header.php';
     box-shadow: 0 4px 20px rgba(255, 87, 34, 0.25);
     transform: translateY(-2px) scale(1.04);
 }
+
+/* Checkout Overlay Styles */
+#checkout-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 3000;
+    align-items: center;
+    justify-content: center;
+}
+
+.checkout-modal {
+    min-width: 260px;
+    max-width: 90vw;
+    border-radius: 1.5rem;
+    box-shadow: 0 4px 20px rgba(25, 135, 84, 0.25);
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .checkout-modal {
+        min-width: unset;
+        width: 95vw;
+        padding: 1.5rem 0.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .checkout-modal {
+        border-radius: 0.5rem;
+        padding: 1rem 0.2rem;
+    }
+}
 </style>
 
 <!-- Custom JavaScript for quantity and price calculation -->
@@ -868,25 +908,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const quantity = parseInt(modalQty.value);
         const total = price * quantity;
         productModal.querySelector('.product-modal-total').textContent = total.toFixed(2);
-    }
-
-    function showToast(title, message, type = 'success') {
-        const toast = document.createElement('div');
-        toast.className = 'position-fixed bottom-0 end-0 p-3';
-        toast.style.zIndex = '5';
-        toast.innerHTML = `
-                <div class="toast show" role="alert">
-                    <div class="toast-header bg-${type} text-white">
-                        <strong class="me-auto">${title}</strong>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
-                    </div>
-                    <div class="toast-body">
-                        ${message}
-                    </div>
-                </div>
-            `;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
     }
 
     // Handle add to cart
@@ -957,7 +978,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 const cartCount = document.querySelector('.cart-count');
-                if (data.items.length > 0) {
+                if (data.items && data.items.length > 0) {
                     if (!cartCount) {
                         const span = document.createElement('span');
                         span.className = 'cart-count';
@@ -971,6 +992,92 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
     }
+
+    // Show toast notification
+    function showToast(title, message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = 'position-fixed bottom-0 end-0 p-3';
+        toast.style.zIndex = '5';
+        toast.innerHTML = `
+            <div class="toast show" role="alert">
+                <div class="toast-header bg-${type} text-white">
+                    <strong class="me-auto">${title}</strong>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+                </div>
+                <div class="toast-body">
+                    ${message}
+                </div>
+            </div>
+        `;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+
+    // Initial cart count update
+    updateCartCount();
+});
+</script>
+
+<!-- Checkout Overlay (hidden by default) -->
+<div id="checkout-overlay"
+    style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.35); z-index:3000; align-items:center; justify-content:center;">
+    <div class="checkout-modal bg-success text-white shadow-lg rounded-4 p-4 d-flex flex-column align-items-center animate__animated animate__fadeInUp"
+        style="min-width:260px; max-width:90vw;">
+        <button type="button" class="btn-close btn-close-white align-self-end mb-2" aria-label="Close"
+            onclick="toggleCheckoutOverlay(false)"></button>
+        <div class="d-flex align-items-center mb-3">
+            <i class="fas fa-shopping-cart fa-2x me-3"></i>
+            <span class="fs-4 fw-bold">Proceed to Checkout</span>
+        </div>
+        <div class="mb-3">
+            <span id="overlay-cart-total" class="badge bg-light text-dark fs-5 fw-bold"></span>
+        </div>
+        <button class="btn btn-light btn-lg fw-bold px-4" onclick="window.location.href='../checkout/checkout'">Go to
+            Checkout</button>
+    </div>
+</div>
+
+<script>
+// Overlay logic
+function toggleCheckoutOverlay(show) {
+    document.getElementById('checkout-overlay').style.display = show ? 'flex' : 'none';
+}
+// Update overlay cart total and show/hide overlay button
+function updateCheckoutOverlayBtn() {
+    fetch('../includes/cart.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: 'action=get'
+        })
+        .then(response => response.json())
+        .then(data => {
+            const overlay = document.getElementById('checkout-overlay');
+            const total = document.getElementById('overlay-cart-total');
+            if (data.items && data.items.length > 0) {
+                let sum = 0;
+                data.items.forEach(item => {
+                    sum += item.price * item.quantity;
+                });
+                total.textContent = '$' + sum.toFixed(2);
+                // Show overlay if not already open
+                toggleCheckoutOverlay(true);
+                overlay.classList.add('showing');
+            } else {
+                toggleCheckoutOverlay(false);
+                overlay.classList.remove('showing');
+            }
+        });
+}
+// Show overlay on page load if cart has items
+window.addEventListener('DOMContentLoaded', function() {
+    updateCheckoutOverlayBtn();
+    document.querySelectorAll('.add-to-cart').forEach(btn => {
+        btn.addEventListener('click', function() {
+            setTimeout(updateCheckoutOverlayBtn, 700);
+        });
+    });
 });
 </script>
 </body>

@@ -2,23 +2,7 @@
 session_start();
 
 // Database connection
-require 'config/config.php';
-
-// Google reCAPTCHA verification
-$recaptcha_secret = "YOUR_RECAPTCHA_SECRET_KEY";
-if (!isset($_POST['g-recaptcha-response'])) {
-    echo json_encode(['success' => false, 'error' => 'reCAPTCHA token missing']);
-    exit();
-}
-
-$recaptcha_response = $_POST['g-recaptcha-response'];
-$response = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=$recaptcha_secret&response=$recaptcha_response");
-$response_keys = json_decode($response, true);
-
-if (!$response_keys["success"]) {
-    echo json_encode(['success' => false, 'error' => 'CAPTCHA verification failed']);
-    exit();
-}
+require '../config/config.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $full_name = mysqli_real_escape_string($conn, filter_var($_POST['full_name'] ?? '', FILTER_SANITIZE_STRING));
@@ -26,9 +10,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = $_POST['password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
     $phone = mysqli_real_escape_string($conn, filter_var($_POST['phone'] ?? '', FILTER_SANITIZE_STRING)) ?: null;
-    $country_code = mysqli_real_escape_string($conn, filter_var($_POST['country_code'] ?? '', FILTER_SANITIZE_STRING)) ?: null;
     $address = mysqli_real_escape_string($conn, filter_var($_POST['address'] ?? '', FILTER_SANITIZE_STRING)) ?: null;
-    $newsletter = isset($_POST['newsletter']) && $_POST['newsletter'] === '1' ? 1 : 0;
+    $role = 'Client'; // Default role for new registrations
 
     // Server-side validation
     if (empty($full_name) || empty($email) || empty($password) || empty($confirm_password)) {
@@ -78,8 +61,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $iv_b64 = base64_encode($iv);
 
     // Insert user into database
-    $stmt = $conn->prepare("INSERT INTO users (full_name, email, password, phone, country_code, address, newsletter, encryption_key, salt, iv) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("ssssssisss", $full_name, $email, $hashed_password, $phone, $country_code, $address, $newsletter, $encryption_key_b64, $salt_b64, $iv_b64);
+    $stmt = $conn->prepare("INSERT INTO users (full_name, email, password, phone, address, role, encryption_key, salt, iv) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("sssssssss", $full_name, $email, $hashed_password, $phone, $address, $role, $encryption_key_b64, $salt_b64, $iv_b64);
 
     if ($stmt->execute()) {
         $_SESSION['user_id'] = $conn->insert_id;

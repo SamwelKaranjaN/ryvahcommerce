@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($result->num_rows === 1) {
                 $user = $result->fetch_assoc();
-                
+
                 // Verify password
                 if (password_verify($password, $user['password'])) {
                     // Get IP address
@@ -57,6 +57,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['login_time'] = date('Y-m-d H:i:s');
                     $_SESSION['log_id'] = $conn->insert_id; // Store the log entry ID
 
+                    // Check for redirect URL in session first
+                    if (isset($_SESSION['redirect_after_login'])) {
+                        $redirect = $_SESSION['redirect_after_login'];
+                        unset($_SESSION['redirect_after_login']);
+                        header("Location: $redirect");
+                        exit();
+                    }
+
+                    // Check for redirect parameter in URL
+                    if (isset($_GET['redirect'])) {
+                        $redirect = $_GET['redirect'];
+                        // Validate redirect URL to prevent open redirect vulnerability
+                        if (strpos($redirect, 'http') !== 0 && strpos($redirect, '//') !== 0) {
+                            header("Location: $redirect");
+                            exit();
+                        }
+                    }
+
                     // Redirect based on role
                     switch ($user['role']) {
                         case 'Admin':
@@ -66,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             header("Location: ../index");
                             break;
                         default:
-                        header("Location: ../index");
+                            header("Location: ../index");
                     }
                     exit();
                 } else {
@@ -89,4 +107,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header("Location: ../index");
     exit();
 }
-?> 

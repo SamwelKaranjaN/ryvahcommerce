@@ -314,6 +314,7 @@ require_once 'php/session_check.php';
                 opacity: 0;
                 transform: translateY(-10px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -405,6 +406,34 @@ require_once 'php/session_check.php';
             color: #ffffff !important;
         }
     </style>
+    <script>
+        // Handle sidebar collapse
+        document.addEventListener('DOMContentLoaded', function() {
+            const mainContent = document.getElementById('main-content');
+            const sidebarToggle = document.querySelector('.toggle-btn');
+            const sidenav = document.querySelector('.sidenav');
+
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function() {
+                    mainContent.classList.toggle('collapsed');
+                    sidenav.classList.toggle('collapsed');
+                });
+            }
+
+            // Check if sidebar should be collapsed on page load
+            const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+            if (isCollapsed) {
+                mainContent.classList.add('collapsed');
+                sidenav.classList.add('collapsed');
+            }
+
+            // Save sidebar state
+            sidebarToggle.addEventListener('click', function() {
+                const isCollapsed = sidenav.classList.contains('collapsed');
+                localStorage.setItem('sidebarCollapsed', isCollapsed);
+            });
+        });
+    </script>
 </head>
 
 <body>
@@ -488,7 +517,7 @@ require_once 'php/session_check.php';
         function toggleSidenav() {
             const sidenav = document.getElementById('sidenav');
             const mainContent = document.getElementById('main-content');
-            
+
             if (window.innerWidth <= 992) {
                 sidenav.classList.toggle('active');
                 document.body.style.overflow = sidenav.classList.contains('active') ? 'hidden' : '';
@@ -504,10 +533,10 @@ require_once 'php/session_check.php';
         function toggleSubmenu(id) {
             const submenu = document.getElementById(id);
             const parent = submenu.previousElementSibling;
-            
+
             submenu.classList.toggle('active');
             parent.classList.toggle('active');
-            
+
             // Rotate chevron icon
             const chevron = parent.querySelector('.fa-chevron-down');
             if (chevron) {
@@ -519,7 +548,7 @@ require_once 'php/session_check.php';
         window.addEventListener('resize', function() {
             const sidenav = document.getElementById('sidenav');
             const mainContent = document.getElementById('main-content');
-            
+
             if (window.innerWidth > 992) {
                 sidenav.classList.remove('active');
                 document.body.style.overflow = '';
@@ -533,10 +562,10 @@ require_once 'php/session_check.php';
         document.addEventListener('click', function(event) {
             const sidenav = document.getElementById('sidenav');
             const toggleBtn = document.querySelector('.toggle-btn');
-            
-            if (window.innerWidth <= 992 && 
-                !sidenav.contains(event.target) && 
-                !toggleBtn.contains(event.target) && 
+
+            if (window.innerWidth <= 992 &&
+                !sidenav.contains(event.target) &&
+                !toggleBtn.contains(event.target) &&
                 sidenav.classList.contains('active')) {
                 sidenav.classList.remove('active');
                 document.body.style.overflow = '';
@@ -566,7 +595,7 @@ require_once 'php/session_check.php';
             // Highlight active page
             const currentPage = window.location.pathname.split('/').pop();
             $(`.sidenav a[href="${currentPage}"]`).addClass('active');
-            
+
             // Add fade-in animation to elements
             $('.sidenav a, .topnav .nav-links a').addClass('fade-in');
         });

@@ -3,6 +3,12 @@ session_start();
 require_once '../config/database.php';
 require_once '../vendor/autoload.php';
 
+// Load PayPal configuration
+$paypal_config = require_once '../config/paypal.php';
+
+// Load Stripe configuration
+$stripe_config = require_once '../config/stripe.php';
+
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     header('Location: ../login.php');
@@ -31,12 +37,12 @@ while ($row = $result->fetch_assoc()) {
 }
 
 // PayPal Configuration
-$paypal_client_id = 'AfnlzZIeFsOcmqTOfERncgTQJqRV6vo6eLHfP1zf7G2S7WwSLV6-uUdvaK99zQ6mNk5D8A2qpjQbhkhE';
-$paypal_secret = 'EJWttkx-dg39VMrg4C76-vLfVMT8Fg3DFtpKDD54skY-_AoHMlA-6iBkObGoNISXCsvJUiVgbzO6gGmO';
+$paypal_client_id = $paypal_config['client_id'];
+$paypal_secret = $paypal_config['secret'];
 
 // Stripe Configuration
-$stripe_secret_key = 'YOUR_STRIPE_SECRET_KEY';
-$stripe_publishable_key = 'YOUR_STRIPE_PUBLISHABLE_KEY';
+$stripe_secret_key = $stripe_config['secret_key'];
+$stripe_publishable_key = $stripe_config['publishable_key'];
 ?>
 
 <!DOCTYPE html>
@@ -51,62 +57,62 @@ $stripe_publishable_key = 'YOUR_STRIPE_PUBLISHABLE_KEY';
     <script src="https://js.stripe.com/v3/"></script>
     <script src="https://www.paypal.com/sdk/js?client-id=<?php echo $paypal_client_id; ?>"></script>
     <style>
-    .checkout-steps {
-        position: relative;
-        margin: 2rem 0;
-    }
+        .checkout-steps {
+            position: relative;
+            margin: 2rem 0;
+        }
 
-    .checkout-steps::before {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: #e9ecef;
-        z-index: 1;
-    }
+        .checkout-steps::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #e9ecef;
+            z-index: 1;
+        }
 
-    .step {
-        position: relative;
-        z-index: 2;
-        text-align: center;
-        width: 33.33%;
-    }
+        .step {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            width: 33.33%;
+        }
 
-    .step-icon {
-        width: 40px;
-        height: 40px;
-        background: #fff;
-        border: 2px solid #e9ecef;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 0.5rem;
-    }
+        .step-icon {
+            width: 40px;
+            height: 40px;
+            background: #fff;
+            border: 2px solid #e9ecef;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.5rem;
+        }
 
-    .step.active .step-icon {
-        background: #0d6efd;
-        border-color: #0d6efd;
-        color: #fff;
-    }
+        .step.active .step-icon {
+            background: #0d6efd;
+            border-color: #0d6efd;
+            color: #fff;
+        }
 
-    .step-text {
-        font-size: 0.875rem;
-        color: #6c757d;
-    }
+        .step-text {
+            font-size: 0.875rem;
+            color: #6c757d;
+        }
 
-    .step.active .step-text {
-        color: #0d6efd;
-        font-weight: 500;
-    }
+        .step.active .step-text {
+            color: #0d6efd;
+            font-weight: 500;
+        }
 
-    .main-content {
-        min-height: calc(100vh - 300px);
-        /* Adjust based on your header/footer height */
-        padding: 2rem 0;
-    }
+        .main-content {
+            min-height: calc(100vh - 300px);
+            /* Adjust based on your header/footer height */
+            padding: 2rem 0;
+        }
     </style>
 </head>
 
@@ -268,17 +274,17 @@ $stripe_publishable_key = 'YOUR_STRIPE_PUBLISHABLE_KEY';
 
                             <div class="order-items mb-4">
                                 <?php foreach ($items as $item): ?>
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <div class="d-flex align-items-center">
-                                        <img src="<?php echo htmlspecialchars($item['thumbs']); ?>" class="rounded me-3"
-                                            alt="" style="width: 50px; height: 50px; object-fit: cover;">
-                                        <div>
-                                            <div class="fw-bold"><?php echo htmlspecialchars($item['name']); ?></div>
-                                            <small class="text-muted">Qty: <?php echo $item['quantity']; ?></small>
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div class="d-flex align-items-center">
+                                            <img src="<?php echo htmlspecialchars($item['thumbs']); ?>" class="rounded me-3"
+                                                alt="" style="width: 50px; height: 50px; object-fit: cover;">
+                                            <div>
+                                                <div class="fw-bold"><?php echo htmlspecialchars($item['name']); ?></div>
+                                                <small class="text-muted">Qty: <?php echo $item['quantity']; ?></small>
+                                            </div>
                                         </div>
+                                        <span>$<?php echo number_format($item['price'] * $item['quantity'], 2); ?></span>
                                     </div>
-                                    <span>$<?php echo number_format($item['price'] * $item['quantity'], 2); ?></span>
-                                </div>
                                 <?php endforeach; ?>
                             </div>
 
@@ -311,85 +317,33 @@ $stripe_publishable_key = 'YOUR_STRIPE_PUBLISHABLE_KEY';
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-    // Initialize Stripe
-    const stripe = Stripe('<?php echo $stripe_publishable_key; ?>');
-    const elements = stripe.elements();
-    const card = elements.create('card');
-    card.mount('#card-element');
+        // Initialize Stripe
+        const stripe = Stripe('<?php echo $stripe_publishable_key; ?>');
+        const elements = stripe.elements();
+        const card = elements.create('card');
+        card.mount('#card-element');
 
-    // Handle Stripe form submission
-    const form = document.getElementById('payment-form');
-    form.addEventListener('submit', async (event) => {
-        event.preventDefault();
+        // Handle Stripe form submission
+        const form = document.getElementById('payment-form');
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
 
-        // Validate billing form
-        const billingForm = document.getElementById('billing-form');
-        if (!validateBillingForm()) {
-            alert('Please fill in all billing information fields.');
-            return;
-        }
-
-        const {
-            token,
-            error
-        } = await stripe.createToken(card);
-
-        if (error) {
-            const errorElement = document.getElementById('card-errors');
-            errorElement.textContent = error.message;
-        } else {
-            // Get billing information
-            const billingInfo = {
-                name: document.getElementById('billing_name').value,
-                email: document.getElementById('billing_email').value,
-                phone: document.getElementById('billing_phone').value,
-                address: document.getElementById('billing_address').value,
-                city: document.getElementById('billing_city').value,
-                state: document.getElementById('billing_state').value,
-                postal_code: document.getElementById('billing_postal').value
-            };
-
-            const response = await fetch('process_payment.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    token: token.id,
-                    amount: <?php echo $total * 100; ?>,
-                    payment_method: 'stripe',
-                    billing_info: billingInfo
-                })
-            });
-
-            const result = await response.json();
-            if (result.success) {
-                window.location.href = 'order_success.php?order_id=' + result.order_id;
-            } else {
-                alert('Payment failed: ' + result.message);
-            }
-        }
-    });
-
-    // Initialize PayPal
-    paypal.Buttons({
-        createOrder: function(data, actions) {
             // Validate billing form
+            const billingForm = document.getElementById('billing-form');
             if (!validateBillingForm()) {
                 alert('Please fill in all billing information fields.');
                 return;
             }
 
-            return actions.order.create({
-                purchase_units: [{
-                    amount: {
-                        value: '<?php echo $total; ?>'
-                    }
-                }]
-            });
-        },
-        onApprove: function(data, actions) {
-            return actions.order.capture().then(function(details) {
+            const {
+                token,
+                error
+            } = await stripe.createToken(card);
+
+            if (error) {
+                const errorElement = document.getElementById('card-errors');
+                errorElement.textContent = error.message;
+            } else {
                 // Get billing information
                 const billingInfo = {
                     name: document.getElementById('billing_name').value,
@@ -401,70 +355,122 @@ $stripe_publishable_key = 'YOUR_STRIPE_PUBLISHABLE_KEY';
                     postal_code: document.getElementById('billing_postal').value
                 };
 
-                fetch('process_payment.php', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            payment_id: details.id,
-                            amount: <?php echo $total; ?>,
-                            payment_method: 'paypal',
-                            billing_info: billingInfo
-                        })
+                const response = await fetch('process_payment.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        token: token.id,
+                        amount: <?php echo $total * 100; ?>,
+                        payment_method: 'stripe',
+                        billing_info: billingInfo
                     })
-                    .then(response => response.json())
-                    .then(result => {
-                        if (result.success) {
-                            window.location.href = 'order_success.php?order_id=' + result
-                                .order_id;
-                        } else {
-                            alert('Payment failed: ' + result.message);
-                        }
-                    });
-            });
-        },
-        onCancel: function() {
-            window.location.href = 'payment_cancelled.php';
-        }
-    }).render('#paypal-button-container');
+                });
 
-    // Function to validate billing form
-    function validateBillingForm() {
-        const requiredFields = [
-            'billing_name', 'billing_email', 'billing_phone',
-            'billing_address', 'billing_city', 'billing_state', 'billing_postal'
-        ];
-
-        let isValid = true;
-        requiredFields.forEach(field => {
-            const input = document.getElementById(field);
-            if (!input.value.trim()) {
-                input.classList.add('is-invalid');
-                isValid = false;
-            } else {
-                input.classList.remove('is-invalid');
+                const result = await response.json();
+                if (result.success) {
+                    window.location.href = 'order_success.php?order_id=' + result.order_id;
+                } else {
+                    alert('Payment failed: ' + result.message);
+                }
             }
         });
 
-        return isValid;
-    }
+        // Initialize PayPal
+        paypal.Buttons({
+            createOrder: function(data, actions) {
+                // Validate billing form
+                if (!validateBillingForm()) {
+                    alert('Please fill in all billing information fields.');
+                    return;
+                }
 
-    // Auto-fill billing information if available
-    fetch('../includes/get_user_info.php')
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                document.getElementById('billing_name').value = data.data.full_name || '';
-                document.getElementById('billing_email').value = data.data.email || '';
-                document.getElementById('billing_phone').value = data.data.phone || '';
-                document.getElementById('billing_address').value = data.data.address || '';
-                document.getElementById('billing_city').value = data.data.city || '';
-                document.getElementById('billing_state').value = data.data.state || '';
-                document.getElementById('billing_postal').value = data.data.postal_code || '';
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: {
+                            value: '<?php echo $total; ?>'
+                        }
+                    }]
+                });
+            },
+            onApprove: function(data, actions) {
+                return actions.order.capture().then(function(details) {
+                    // Get billing information
+                    const billingInfo = {
+                        name: document.getElementById('billing_name').value,
+                        email: document.getElementById('billing_email').value,
+                        phone: document.getElementById('billing_phone').value,
+                        address: document.getElementById('billing_address').value,
+                        city: document.getElementById('billing_city').value,
+                        state: document.getElementById('billing_state').value,
+                        postal_code: document.getElementById('billing_postal').value
+                    };
+
+                    fetch('process_payment.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                payment_id: details.id,
+                                amount: <?php echo $total; ?>,
+                                payment_method: 'paypal',
+                                billing_info: billingInfo
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(result => {
+                            if (result.success) {
+                                window.location.href = 'order_success.php?order_id=' + result
+                                    .order_id;
+                            } else {
+                                alert('Payment failed: ' + result.message);
+                            }
+                        });
+                });
+            },
+            onCancel: function() {
+                window.location.href = 'payment_cancelled.php';
             }
-        })
-        .catch(error => console.error('Error fetching user info:', error));
+        }).render('#paypal-button-container');
+
+        // Function to validate billing form
+        function validateBillingForm() {
+            const requiredFields = [
+                'billing_name', 'billing_email', 'billing_phone',
+                'billing_address', 'billing_city', 'billing_state', 'billing_postal'
+            ];
+
+            let isValid = true;
+            requiredFields.forEach(field => {
+                const input = document.getElementById(field);
+                if (!input.value.trim()) {
+                    input.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    input.classList.remove('is-invalid');
+                }
+            });
+
+            return isValid;
+        }
+
+        // Auto-fill billing information if available
+        fetch('../includes/get_user_info.php')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('billing_name').value = data.data.full_name || '';
+                    document.getElementById('billing_email').value = data.data.email || '';
+                    document.getElementById('billing_phone').value = data.data.phone || '';
+                    document.getElementById('billing_address').value = data.data.address || '';
+                    document.getElementById('billing_city').value = data.data.city || '';
+                    document.getElementById('billing_state').value = data.data.state || '';
+                    document.getElementById('billing_postal').value = data.data.postal_code || '';
+                }
+            })
+            .catch(error => console.error('Error fetching user info:', error));
     </script>
 </body>
 

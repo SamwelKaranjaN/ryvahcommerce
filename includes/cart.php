@@ -99,13 +99,6 @@ function addToCart($product_id, $quantity = 1)
 
     debug(['product_id' => $product_id, 'quantity' => $quantity], 'Adding to cart');
 
-    if (!isset($_SESSION['user_id'])) {
-        debug('No user ID in session');
-        return ['success' => false, 'message' => 'User not logged in'];
-    }
-
-    $user_id = $_SESSION['user_id'];
-
     // Get product details
     $stmt = $conn->prepare("SELECT * FROM products WHERE id = ?");
     $stmt->bind_param("i", $product_id);
@@ -116,6 +109,23 @@ function addToCart($product_id, $quantity = 1)
     if (!$product) {
         return ['success' => false, 'message' => 'Product not found'];
     }
+
+    if (!isset($_SESSION['user_id'])) {
+        // Handle guest cart
+        if (!isset($_SESSION['cart'])) {
+            $_SESSION['cart'] = [];
+        }
+
+        if (isset($_SESSION['cart'][$product_id])) {
+            $_SESSION['cart'][$product_id] += $quantity;
+        } else {
+            $_SESSION['cart'][$product_id] = $quantity;
+        }
+
+        return ['success' => true, 'message' => 'Product added to cart', 'is_guest' => true];
+    }
+
+    $user_id = $_SESSION['user_id'];
 
     // Check if item already exists in cart
     $stmt = $conn->prepare("SELECT quantity FROM cart WHERE user_id = ? AND product_id = ?");
@@ -139,7 +149,7 @@ function addToCart($product_id, $quantity = 1)
     $success = $stmt->execute();
     debug(['success' => $success], 'Add to cart result');
 
-    return ['success' => $success, 'message' => 'Product added to cart'];
+    return ['success' => $success, 'message' => 'Product added to cart', 'is_guest' => false];
 }
 
 /**
@@ -284,15 +294,42 @@ function transferSessionCartToDatabase($user_id)
 {
     global $conn;
 
+    debug('Transferring session cart to database for user: ' . $user_id);
+    debug($_SESSION['cart'], 'Session cart before transfer');
+
     if (!empty($_SESSION['cart'])) {
         foreach ($_SESSION['cart'] as $product_id => $quantity) {
-            $stmt = $conn->prepare("INSERT INTO cart (user_id, product_id, quantity) VALUES (?, ?, ?) 
-                                  ON DUPLICATE KEY UPDATE quantity = quantity + VALUES(quantity)");
-            $stmt->bind_param("iii", $user_id, $product_id, $quantity);
-            $stmt->execute();
+            try {
+                // Check if item already exists in cart
+                $stmt = $conn->prepare("SELECT quantity FROM cart WHERE user_id = ? AND product_id = ?");
+                $stmt->bind_param("ii", $user_id, $product_id);
+                $stmt->execute();
+                $result = $stmt->get_result();
+
+                if ($result->num_rows > 0) {
+                    // Update quantity
+                    $row = $result->fetch_assoc();
+                    $new_quantity = $row['quantity'] + $quantity;
+                    $stmt = $conn->prepare("UPDATE cart SET quantity = ? WHERE user_id = ? AND product_id = ?");
+                    $stmt->bind_param("iii", $new_quantity, $user_id, $product_id);
+                } else {
+                    // Insert new item
+                    $stmt = $conn->prepare("INSERT INTO cart (user_id, product_id, quantity) VALUES (?, ?, ?)");
+                    $stmt->bind_param("iii", $user_id, $product_id, $quantity);
+                }
+
+                if (!$stmt->execute()) {
+                    debug("Error transferring item to cart: " . $stmt->error);
+                }
+            } catch (Exception $e) {
+                debug("Exception transferring item to cart: " . $e->getMessage());
+            }
         }
         // Clear session cart
         $_SESSION['cart'] = [];
+        debug('Session cart cleared after transfer');
+    } else {
+        debug('No items in session cart to transfer');
     }
 }
 
@@ -306,13 +343,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $response = addToCart($_POST['product_id'], $_POST['quantity'] ?? 1);
                 break;
             case 'update':
-                $response = updateCartQuantity($_POST['product_id'], $_POST['quantity']);
+                if (!isset($_SESSION['user_id'])) {
+                    // Handle guest cart update
+                    if (isset($_SESSION['cart'][$_POST['product_id']])) {
+                        $_SESSION['cart'][$_POST['product_id']] = $_POST['quantity'];
+                        $response = ['success' => true, 'message' => 'Cart updated', 'is_guest' => true];
+                    }
+                } else {
+                    $response = updateCartQuantity($_POST['product_id'], $_POST['quantity']);
+                }
                 break;
             case 'remove':
-                $response = removeFromCart($_POST['product_id']);
+                if (!isset($_SESSION['user_id'])) {
+                    // Handle guest cart removal
+                    if (isset($_SESSION['cart'][$_POST['product_id']])) {
+                        unset($_SESSION['cart'][$_POST['product_id']]);
+                        $response = ['success' => true, 'message' => 'Product removed from cart', 'is_guest' => true];
+                    }
+                } else {
+                    $response = removeFromCart($_POST['product_id']);
+                }
                 break;
             case 'get':
-                $response = getCartItems();
+                $cart_items = [];
+                if (isset($_SESSION['user_id'])) {
+                    $user_id = $_SESSION['user_id'];
+                    $stmt = $conn->prepare("SELECT c.product_id, c.quantity, p.name, p.price FROM cart c JOIN products p ON c.product_id = p.id WHERE c.user_id = ?");
+                    $stmt->bind_param("i", $user_id);
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    while ($row = $result->fetch_assoc()) {
+                        $cart_items[] = $row;
+                    }
+                } else {
+                    // For guest users, retrieve from session
+                    if (isset($_SESSION['cart']) && !empty($_SESSION['cart'])) {
+                        $product_ids = array_keys($_SESSION['cart']);
+                        $placeholders = str_repeat('?,', count($product_ids) - 1) . '?';
+
+                        $sql = "SELECT id as product_id, name, price FROM products WHERE id IN ($placeholders)";
+                        $stmt = $conn->prepare($sql);
+                        $stmt->bind_param(str_repeat('i', count($product_ids)), ...$product_ids);
+                        $stmt->execute();
+                        $result = $stmt->get_result();
+
+                        while ($row = $result->fetch_assoc()) {
+                            $row['quantity'] = $_SESSION['cart'][$row['product_id']];
+                            $cart_items[] = $row;
+                        }
+                    }
+                }
+                echo json_encode(['success' => true, 'items' => $cart_items]);
                 break;
         }
     }
