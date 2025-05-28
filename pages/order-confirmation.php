@@ -36,7 +36,7 @@ if (!$order) {
 </head>
 
 <body>
-    <?php include '../includes/header.php'; ?>
+    <?php include '../includes/layouts/header.php'; ?>
 
     <main class="container">
         <div class="row justify-content-center">
@@ -149,7 +149,7 @@ if (!$order) {
         </div>
     </main>
 
-    <?php include '../includes/footer.php'; ?>
+    <?php include '../includes/layouts/footer.php'; ?>
 </body>
 
 </html>

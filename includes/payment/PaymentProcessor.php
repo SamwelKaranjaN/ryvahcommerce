@@ -8,6 +8,7 @@ class PaymentProcessor
     private $order_data;
     private $shipping_details;
     private $invoice_number;
+    private $is_development;
 
     public function __construct($conn, $user, $order_data, $shipping_details)
     {
@@ -15,6 +16,7 @@ class PaymentProcessor
         $this->user = $user;
         $this->order_data = $order_data;
         $this->shipping_details = $shipping_details;
+        $this->is_development = defined('ENVIRONMENT') && ENVIRONMENT === 'development';
     }
 
     /**
@@ -39,10 +41,14 @@ class PaymentProcessor
             $this->invoice_number = $result['invoice_number'];
             return $result;
         } catch (Exception $e) {
+            $error_message = $this->is_development ?
+                'Failed to create pending order: ' . $e->getMessage() :
+                'Unable to create order. Please try again or contact support.';
+
             error_log("Error creating pending order: " . $e->getMessage());
             return [
                 'success' => false,
-                'message' => 'Failed to create pending order: ' . $e->getMessage()
+                'message' => $error_message
             ];
         }
     }
@@ -61,15 +67,16 @@ class PaymentProcessor
 
             // Verify order exists and is pending
             $stmt = $this->conn->prepare("
-                SELECT total_amount 
-                FROM orders 
-                WHERE invoice_number = ? 
-                AND user_id = ? 
-                AND payment_status = 'pending'
+                SELECT o.*, u.email, u.full_name 
+                FROM orders o
+                JOIN users u ON o.user_id = u.id
+                WHERE o.invoice_number = ? 
+                AND o.user_id = ? 
+                AND o.payment_status = 'pending'
             ");
 
             if (!$stmt) {
-                throw new Exception('Failed to prepare order verification statement');
+                throw new Exception('Database error: Unable to verify order');
             }
 
             $stmt->bind_param("si", $invoice_number, $this->user['id']);
@@ -78,17 +85,17 @@ class PaymentProcessor
             $order = $result->fetch_assoc();
 
             if (!$order) {
-                throw new Exception('Invalid or already processed invoice number');
+                throw new Exception('Order not found or already processed');
             }
 
             // Verify amount matches
             if ($order['total_amount'] != $this->order_data['total']) {
-                throw new Exception('Order amount mismatch');
+                throw new Exception('Order amount mismatch. Please refresh and try again.');
             }
 
             // Start transaction
             if (!$this->conn->begin_transaction()) {
-                throw new Exception('Failed to start transaction');
+                throw new Exception('Database error: Unable to start transaction');
             }
 
             // Complete the order
@@ -101,21 +108,34 @@ class PaymentProcessor
 
             // Commit transaction
             if (!$this->conn->commit()) {
-                throw new Exception('Failed to commit transaction');
+                throw new Exception('Database error: Unable to complete transaction');
             }
 
             return [
                 'success' => true,
-                'message' => 'Payment processed successfully'
+                'message' => 'Payment processed successfully',
+                'order_id' => $order['id']
             ];
         } catch (Exception $e) {
             // Rollback transaction on error
-            $this->conn->rollback();
-            error_log("Payment processing error: " . $e->getMessage());
+            if ($this->conn->inTransaction()) {
+                $this->conn->rollback();
+            }
 
+            $error_message = $this->is_development ?
+                'Payment processing failed: ' . $e->getMessage() :
+                'Unable to process payment. Please try again or contact support.';
+
+            error_log("Payment processing error: " . $e->getMessage());
             return [
                 'success' => false,
-                'message' => 'Payment processing failed: ' . $e->getMessage()
+                'message' => $error_message,
+                'error_code' => $e->getCode(),
+                'debug_info' => $this->is_development ? [
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'trace' => $e->getTraceAsString()
+                ] : null
             ];
         }
     }
@@ -139,6 +159,14 @@ class PaymentProcessor
         foreach ($required_fields as $field) {
             if (empty($this->shipping_details[$field])) {
                 $errors[] = "Missing shipping field: $field";
+            }
+        }
+
+        // Validate payment method if provided
+        if (isset($this->order_data['payment_method'])) {
+            $valid_methods = ['paypal', 'stripe', 'credit_card'];
+            if (!in_array($this->order_data['payment_method'], $valid_methods)) {
+                $errors[] = 'Invalid payment method';
             }
         }
 

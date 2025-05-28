@@ -212,6 +212,7 @@ try {
         }
     });
 
+<<<<<<< Updated upstream
     // Initialize PayPal
     paypal.Buttons({
         createOrder: function(data, actions) {
@@ -253,3 +254,7 @@ try {
 </body>
 
 </html>
+=======
+    return $data['access_token'];
+}
+>>>>>>> Stashed changes

@@ -2,6 +2,7 @@
 session_start();
 require_once '../config/database.php';
 require_once '../vendor/autoload.php';
+require_once '../includes/layout.php';
 
 // Load PayPal configuration
 $paypal_config = require_once '../config/paypal.php';
@@ -43,6 +44,9 @@ $paypal_secret = $paypal_config['secret'];
 // Stripe Configuration
 $stripe_secret_key = $stripe_config['secret_key'];
 $stripe_publishable_key = $stripe_config['publishable_key'];
+
+// Set page title for the layout
+$page_title = "Checkout - Ryvah Commerce";
 ?>
 
 <!DOCTYPE html>
@@ -51,9 +55,8 @@ $stripe_publishable_key = $stripe_config['publishable_key'];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkout - Ryvah Commerce</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title><?php echo getPageTitle(); ?></title>
+    <?php renderCSSLinks(); ?>
     <script src="https://js.stripe.com/v3/"></script>
     <script src="https://www.paypal.com/sdk/js?client-id=<?php echo $paypal_client_id; ?>"></script>
     <style>
@@ -90,17 +93,26 @@ $stripe_publishable_key = $stripe_config['publishable_key'];
             align-items: center;
             justify-content: center;
             margin: 0 auto 0.5rem;
+<<<<<<< Updated upstream
+=======
+            transition: all 0.3s ease;
+>>>>>>> Stashed changes
         }
 
         .step.active .step-icon {
             background: #0d6efd;
             border-color: #0d6efd;
             color: #fff;
+<<<<<<< Updated upstream
+=======
+            transform: scale(1.1);
+>>>>>>> Stashed changes
         }
 
         .step-text {
             font-size: 0.875rem;
             color: #6c757d;
+<<<<<<< Updated upstream
         }
 
         .step.active .step-text {
@@ -108,16 +120,276 @@ $stripe_publishable_key = $stripe_config['publishable_key'];
             font-weight: 500;
         }
 
+=======
+            transition: all 0.3s ease;
+        }
+
+        .step.active .step-text {
+            color: #0d6efd;
+            font-weight: 500;
+        }
+
+        .payment-method-card {
+            border: 2px solid #e9ecef;
+            border-radius: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .payment-method-card:hover {
+            border-color: #0d6efd;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(13, 110, 253, 0.1);
+        }
+
+        .payment-method-card.selected {
+            border-color: #0d6efd;
+            background-color: rgba(13, 110, 253, 0.05);
+        }
+
+        .payment-method-card.selected::after {
+            content: '\f00c';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #0d6efd;
+        }
+
+        .payment-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #6c757d;
+        }
+
+        .payment-method-card.selected .payment-icon {
+            color: #0d6efd;
+        }
+
+        .form-control {
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+
+        .btn-primary {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(13, 110, 253, 0.2);
+        }
+
+        .order-summary {
+            background: #f8f9fa;
+            border-radius: 1rem;
+            padding: 1.5rem;
+        }
+
+        .order-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .order-item:last-child {
+            border-bottom: none;
+        }
+
+        .order-item img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 0.5rem;
+            margin-right: 1rem;
+        }
+
+        .total-amount {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #0d6efd;
+        }
+
+>>>>>>> Stashed changes
         .main-content {
             min-height: calc(100vh - 300px);
             /* Adjust based on your header/footer height */
             padding: 2rem 0;
+<<<<<<< Updated upstream
         }
+=======
+        }
+
+        .payment-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1050;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .payment-modal.show {
+            display: flex;
+        }
+
+        .payment-modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+        }
+
+        .payment-modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: #6c757d;
+        }
+
+        .payment-modal-close:hover {
+            color: #dc3545;
+        }
+
+        .alert {
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .alert i {
+            margin-right: 0.5rem;
+            font-size: 1.25rem;
+        }
+
+        @media (max-width: 768px) {
+            .main-content .container {
+                padding: 0 0.5rem;
+            }
+
+            .card {
+                margin-bottom: 1rem !important;
+                border-radius: 1rem !important;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+            }
+
+            .card-body {
+                padding: 1.25rem !important;
+            }
+
+            .form-control {
+                font-size: 1rem;
+                padding: 0.5rem 0.75rem;
+                border-radius: 0.5rem;
+            }
+
+            .btn,
+            .btn-primary,
+            .btn-outline-primary {
+                width: 100%;
+                margin-bottom: 0.5rem;
+                font-size: 1rem;
+                padding: 0.75rem 0;
+                border-radius: 0.5rem;
+            }
+
+            .checkout-steps {
+                margin: 1rem 0 1.5rem 0;
+            }
+
+            .step-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 1rem;
+            }
+
+            .step-text {
+                font-size: 0.85rem;
+            }
+
+            .payment-method-card {
+                margin-bottom: 1rem;
+                padding: 1rem !important;
+                border-radius: 0.75rem !important;
+            }
+
+            .order-summary {
+                margin-top: 1rem;
+                border-radius: 1rem;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            }
+
+            .order-item img {
+                width: 40px;
+                height: 40px;
+            }
+
+            .summary-details {
+                margin-top: 1rem;
+            }
+
+            .breadcrumb {
+                font-size: 0.95rem;
+            }
+
+            h2,
+            h5,
+            h6 {
+                font-size: 1.1rem;
+            }
+        }
+
+        /* Remove duplicate order summary on mobile */
+        @media (max-width: 768px) {
+            .col-lg-4 .card.order-summary-card:nth-of-type(n+2) {
+                display: none;
+            }
+        }
+
+        /* General improvements */
+        .card {
+            border-radius: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .card-body {
+            border-radius: 1rem;
+        }
+
+        .payment-method-card {
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+        }
+>>>>>>> Stashed changes
     </style>
 </head>
 
 <body>
-    <?php include '../includes/header.php'; ?>
+    <?php include '../includes/layouts/header.php'; ?>
 
     <div class="main-content">
         <div class="container">
@@ -313,7 +585,7 @@ $stripe_publishable_key = $stripe_config['publishable_key'];
         </div>
     </div>
 
-    <?php include '../includes/footer.php'; ?>
+    <?php include '../includes/layouts/footer.php'; ?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -329,6 +601,7 @@ $stripe_publishable_key = $stripe_config['publishable_key'];
             event.preventDefault();
 
             // Validate billing form
+<<<<<<< Updated upstream
             const billingForm = document.getElementById('billing-form');
             if (!validateBillingForm()) {
                 alert('Please fill in all billing information fields.');
@@ -344,6 +617,31 @@ $stripe_publishable_key = $stripe_config['publishable_key'];
                 const errorElement = document.getElementById('card-errors');
                 errorElement.textContent = error.message;
             } else {
+=======
+            if (!validateBillingForm()) {
+                showError('Please fill in all billing information fields.');
+                return;
+            }
+
+            const submitButton = form.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+
+            try {
+                const {
+                    token,
+                    error
+                } = await stripe.createToken(card);
+
+                if (error) {
+                    const errorElement = document.getElementById('card-errors');
+                    errorElement.textContent = error.message;
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = 'Pay Now';
+                    return;
+                }
+
+>>>>>>> Stashed changes
                 // Get billing information
                 const billingInfo = {
                     name: document.getElementById('billing_name').value,
@@ -372,11 +670,195 @@ $stripe_publishable_key = $stripe_config['publishable_key'];
                 if (result.success) {
                     window.location.href = 'order_success.php?order_id=' + result.order_id;
                 } else {
+<<<<<<< Updated upstream
                     alert('Payment failed: ' + result.message);
                 }
+=======
+                    handlePaymentError(result.message, result.invoice_number);
+                }
+            } catch (error) {
+                console.error('Payment error:', error);
+                handlePaymentError('An error occurred during payment processing. Please try again.');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.innerHTML = 'Pay Now';
             }
         });
 
+        // Initialize PayPal
+        paypal.Buttons({
+            createOrder: function(data, actions) {
+                // Validate billing form first
+                if (!validateBillingForm()) {
+                    showError('Please fill in all billing information fields.');
+                    return;
+                }
+
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: {
+                            value: '<?php echo $total; ?>'
+                        }
+                    }]
+                });
+            },
+            onApprove: function(data, actions) {
+                return actions.order.capture().then(function(details) {
+                    // Get billing information
+                    const billingInfo = {
+                        name: document.getElementById('billing_name').value,
+                        email: document.getElementById('billing_email').value,
+                        phone: document.getElementById('billing_phone').value,
+                        address: document.getElementById('billing_address').value,
+                        city: document.getElementById('billing_city').value,
+                        state: document.getElementById('billing_state').value,
+                        postal_code: document.getElementById('billing_postal').value
+                    };
+
+                    // Process payment
+                    fetch('process_payment.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                payment_method: 'paypal',
+                                payment_id: details.id,
+                                amount: <?php echo $total * 100; ?>,
+                                billing_info: billingInfo
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(result => {
+                            if (result.success) {
+                                window.location.href = 'order_success.php?order_id=' + result
+                                    .order_id;
+                            } else {
+                                handlePaymentError(result.message, result.invoice_number);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Payment error:', error);
+                            handlePaymentError(
+                                'An error occurred during payment processing. Please try again.'
+                            );
+                        });
+                });
+            },
+            onCancel: function() {
+                handlePaymentCancellation();
+            },
+            onError: function(err) {
+                console.error('PayPal error:', err);
+                handlePaymentError(
+                    'An error occurred with PayPal. Please try again or use a different payment method.');
+            }
+        }).render('#paypal-button-container');
+
+        // Function to handle payment errors
+        function handlePaymentError(message, invoiceNumber = null) {
+            // Move items to pending orders
+            fetch('move_to_pending.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        error_message: message
+                    })
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        showError(message);
+                        if (invoiceNumber) {
+                            setTimeout(() => {
+                                window.location.href = 'payment.php?invoice=' + invoiceNumber;
+                            }, 3000);
+                        } else {
+                            setTimeout(() => {
+                                window.location.href = 'pending_orders.php';
+                            }, 3000);
+                        }
+                    }
+                });
+        }
+
+        // Function to handle payment cancellation
+        function handlePaymentCancellation() {
+            // Move items to pending orders
+            fetch('move_to_pending.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        cancelled_by_user: true
+                    })
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        showWarning('Payment was cancelled. Your order has been moved to pending orders.');
+                        setTimeout(() => {
+                            window.location.href = 'pending_orders.php';
+                        }, 3000);
+                    }
+                });
+        }
+
+        // Function to show error message
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'alert alert-danger';
+            errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i>${message}`;
+            document.querySelector('.card-body').prepend(errorDiv);
+        }
+
+        // Function to show warning message
+        function showWarning(message) {
+            const warningDiv = document.createElement('div');
+            warningDiv.className = 'alert alert-warning';
+            warningDiv.innerHTML = `<i class="fas fa-info-circle"></i>${message}`;
+            document.querySelector('.card-body').prepend(warningDiv);
+        }
+
+        // Function to validate billing form
+        function validateBillingForm() {
+            const requiredFields = [
+                'billing_name', 'billing_email', 'billing_phone',
+                'billing_address', 'billing_city', 'billing_state', 'billing_postal'
+            ];
+
+            let isValid = true;
+            requiredFields.forEach(field => {
+                const input = document.getElementById(field);
+                if (!input.value.trim()) {
+                    input.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    input.classList.remove('is-invalid');
+                }
+            });
+
+            return isValid;
+        }
+
+        // Function to select payment method
+        function selectPaymentMethod(method) {
+            // Remove selected class from all payment cards
+            document.querySelectorAll('.payment-method-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+
+            // Add selected class to clicked card
+            const selectedCard = document.querySelector(`.payment-method-card[data-method="${method}"]`);
+            if (selectedCard) {
+                selectedCard.classList.add('selected');
+>>>>>>> Stashed changes
+            }
+
+<<<<<<< Updated upstream
         // Initialize PayPal
         paypal.Buttons({
             createOrder: function(data, actions) {
@@ -471,6 +953,41 @@ $stripe_publishable_key = $stripe_config['publishable_key'];
                 }
             })
             .catch(error => console.error('Error fetching user info:', error));
+=======
+            // Show/hide payment forms
+            const stripeForm = document.getElementById('payment-form');
+            const paypalContainer = document.getElementById('paypal-button-container');
+
+            if (method === 'paypal') {
+                stripeForm.style.display = 'none';
+                paypalContainer.style.display = 'block';
+            } else {
+                stripeForm.style.display = 'block';
+                paypalContainer.style.display = 'none';
+            }
+        }
+
+        // Initialize with PayPal selected
+        document.addEventListener('DOMContentLoaded', function() {
+            selectPaymentMethod('paypal');
+
+            // Auto-fill billing information if available
+            fetch('../includes/get_user_info.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('billing_name').value = data.data.full_name || '';
+                        document.getElementById('billing_email').value = data.data.email || '';
+                        document.getElementById('billing_phone').value = data.data.phone || '';
+                        document.getElementById('billing_address').value = data.data.address || '';
+                        document.getElementById('billing_city').value = data.data.city || '';
+                        document.getElementById('billing_state').value = data.data.state || '';
+                        document.getElementById('billing_postal').value = data.data.postal_code || '';
+                    }
+                })
+                .catch(error => console.error('Error fetching user info:', error));
+        });
+>>>>>>> Stashed changes
     </script>
 </body>
 

@@ -1,153 +1,275 @@
 <?php
-require_once '../includes/bootstrap.php';
+session_start();
+require_once '../config/database.php';
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
+    header('Location: ../login.php?redirect=orders.php');
     exit();
 }
 
-// Fetch user data
 $user_id = $_SESSION['user_id'];
-$user_sql = "SELECT name, email, profile_image FROM users WHERE id = ?";
-$user_stmt = $conn->prepare($user_sql);
-$user_stmt->bind_param("i", $user_id);
-$user_stmt->execute();
-$user = $user_stmt->get_result()->fetch_assoc();
+$conn = getDBConnection();
 
-// Fetch user's orders
+// Get user's orders with their items and status history
 $sql = "SELECT o.*, 
-        COUNT(oi.id) as total_items,
-        SUM(oi.quantity) as total_quantity
-        FROM orders o 
-        LEFT JOIN order_items oi ON o.id = oi.order_id 
-        WHERE o.user_id = ? 
-        GROUP BY o.id 
+        GROUP_CONCAT(DISTINCT p.type) as product_types,
+        GROUP_CONCAT(DISTINCT p.name SEPARATOR '||') as product_names,
+        GROUP_CONCAT(DISTINCT oi.quantity SEPARATOR '||') as quantities,
+        (
+            SELECT status 
+            FROM order_status_history 
+            WHERE order_id = o.id 
+            ORDER BY created_at DESC 
+            LIMIT 1
+        ) as current_status,
+        (
+            SELECT created_at 
+            FROM order_status_history 
+            WHERE order_id = o.id 
+            ORDER BY created_at DESC 
+            LIMIT 1
+        ) as last_status_update
+        FROM orders o
+        JOIN order_items oi ON o.id = oi.order_id
+        JOIN products p ON oi.product_id = p.id
+        WHERE o.user_id = ?
+        GROUP BY o.id
         ORDER BY o.created_at DESC";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
+$orders = $result->fetch_all(MYSQLI_ASSOC);
 
 include '../includes/layouts/header.php';
 ?>
 
-<div class="container mt-5 pt-5">
-    <div class="row">
-        <!-- Profile Navigation -->
-        <div class="col-md-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="text-center mb-4">
-                        <img src="<?php echo !empty($user['profile_image']) ? htmlspecialchars($user['profile_image']) : '../assets/images/default-avatar.png'; ?>"
-                            class="rounded-circle mb-3" style="width: 100px; height: 100px; object-fit: cover;">
-                        <h5 class="card-title"><?php echo htmlspecialchars($user['name']); ?></h5>
-                        <p class="text-muted"><?php echo htmlspecialchars($user['email']); ?></p>
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="../index.php" class="text-decoration-none">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">My Orders</li>
+                </ol>
+            </nav>
+            <h2 class="mb-0">My Orders</h2>
+        </div>
+    </div>
+
+    <?php if (isset($_SESSION['success_message'])): ?>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <?php
+            echo $_SESSION['success_message'];
+            unset($_SESSION['success_message']);
+            ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <?php endif; ?>
+
+    <?php if (empty($orders)): ?>
+    <div class="text-center py-5">
+        <div class="mb-4">
+            <i class="fas fa-shopping-bag fa-4x text-muted"></i>
+        </div>
+        <h3 class="mb-3">No orders found</h3>
+        <p class="text-muted mb-4">You haven't placed any orders yet.</p>
+        <a href="../index.php" class="btn btn-primary btn-lg px-5">
+            <i class="fas fa-shopping-cart me-2"></i>Start Shopping
+        </a>
+    </div>
+    <?php else: ?>
+    <div class="row g-4">
+        <?php foreach ($orders as $order):
+                $product_names = explode('||', $order['product_names']);
+                $quantities = explode('||', $order['quantities']);
+                $product_types = explode(',', $order['product_types']);
+                $has_ebooks = in_array('ebook', $product_types);
+                $has_physical = in_array('book', $product_types) || in_array('paint', $product_types);
+            ?>
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h5 class="card-title mb-1">Order #<?php echo htmlspecialchars($order['invoice_number']); ?>
+                            </h5>
+                            <p class="text-muted mb-0">
+                                Placed on <?php echo date('F j, Y', strtotime($order['created_at'])); ?>
+                            </p>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-<?php
+                                                            echo match ($order['current_status']) {
+                                                                'pending' => 'warning',
+                                                                'processing' => 'info',
+                                                                'shipped' => 'primary',
+                                                                'delivered' => 'success',
+                                                                'cancelled' => 'danger',
+                                                                default => 'secondary'
+                                                            };
+                                                            ?>">
+                                <?php echo ucfirst($order['current_status']); ?>
+                            </span>
+                            <p class="text-muted mb-0 mt-1">
+                                <small>Last updated:
+                                    <?php echo date('M j, Y g:i A', strtotime($order['last_status_update'])); ?></small>
+                            </p>
+                        </div>
                     </div>
-                    <div class="list-group">
-                        <a href="profile.php" class="list-group-item list-group-item-action">
-                            <i class="fas fa-user me-2"></i>My Profile
-                        </a>
-                        <a href="orders.php" class="list-group-item list-group-item-action active">
-                            <i class="fas fa-shopping-bag me-2"></i>My Orders
-                        </a>
-                        <a href="wishlist.php" class="list-group-item list-group-item-action">
-                            <i class="fas fa-heart me-2"></i>Wishlist
-                        </a>
-                        <a href="settings.php" class="list-group-item list-group-item-action">
-                            <i class="fas fa-cog me-2"></i>Settings
-                        </a>
-                        <a href="logout.php" class="list-group-item list-group-item-action text-danger">
-                            <i class="fas fa-sign-out-alt me-2"></i>Logout
-                        </a>
+
+                    <div class="mb-3">
+                        <h6 class="mb-2">Order Items:</h6>
+                        <ul class="list-unstyled mb-0">
+                            <?php for ($i = 0; $i < count($product_names); $i++): ?>
+                            <li class="mb-1">
+                                <?php echo htmlspecialchars($product_names[$i]); ?>
+                                <span class="text-muted">(Qty: <?php echo $quantities[$i]; ?>)</span>
+                            </li>
+                            <?php endfor; ?>
+                        </ul>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-0">
+                                <strong>Total Amount:</strong>
+                                $<?php echo number_format($order['total_amount'], 2); ?>
+                            </p>
+                            <p class="mb-0">
+                                <strong>Payment Method:</strong>
+                                <?php echo ucfirst($order['payment_method']); ?>
+                            </p>
+                        </div>
+                        <div class="text-end">
+                            <?php if ($has_ebooks): ?>
+                            <a href="my_ebooks.php" class="btn btn-outline-primary me-2">
+                                <i class="fas fa-book me-2"></i>View Ebooks
+                            </a>
+                            <?php endif; ?>
+                            <?php if ($has_physical): ?>
+                            <button class="btn btn-outline-primary" data-bs-toggle="modal"
+                                data-bs-target="#trackingModal<?php echo $order['id']; ?>">
+                                <i class="fas fa-truck me-2"></i>Track Order
+                            </button>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Orders Content -->
-        <div class="col-md-9">
-            <div class="card">
-                <div class="card-body">
-                    <h4 class="card-title mb-4">My Orders</h4>
-                    <?php if ($result->num_rows > 0): ?>
-                        <?php while ($order = $result->fetch_assoc()): ?>
-                            <div class="card mb-3">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <div>
-                                            <h6 class="mb-0">Order #<?php echo $order['id']; ?></h6>
-                                            <small class="text-muted">Placed on
-                                                <?php echo date('F j, Y', strtotime($order['created_at'])); ?></small>
-                                        </div>
-                                        <span class="badge bg-<?php
-                                                                echo $order['status'] == 'completed' ? 'success' : ($order['status'] == 'processing' ? 'primary' : ($order['status'] == 'cancelled' ? 'danger' : 'warning'));
-                                                                ?>">
-                                            <?php echo ucfirst($order['status']); ?>
-                                        </span>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-4">
-                                            <p class="mb-1"><strong>Total Items:</strong> <?php echo $order['total_items']; ?>
-                                            </p>
-                                            <p class="mb-1"><strong>Total Quantity:</strong>
-                                                <?php echo $order['total_quantity']; ?></p>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <p class="mb-1"><strong>Total Amount:</strong>
-                                                $<?php echo number_format($order['total_amount'], 2); ?></p>
-                                        </div>
-                                        <div class="col-md-4 text-end">
-                                            <a href="order_details.php?id=<?php echo $order['id']; ?>"
-                                                class="btn btn-outline-primary btn-sm">
-                                                View Details
-                                            </a>
-                                        </div>
-                                    </div>
+        <?php if ($has_physical): ?>
+        <!-- Tracking Modal -->
+        <div class="modal fade" id="trackingModal<?php echo $order['id']; ?>" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Track Order #<?php echo htmlspecialchars($order['invoice_number']); ?>
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <?php
+                                    // Get order status history
+                                    $sql = "SELECT * FROM order_status_history 
+                                WHERE order_id = ? 
+                                ORDER BY created_at DESC";
+                                    $stmt = $conn->prepare($sql);
+                                    $stmt->bind_param("i", $order['id']);
+                                    $stmt->execute();
+                                    $result = $stmt->get_result();
+                                    $status_history = $result->fetch_all(MYSQLI_ASSOC);
+                                    ?>
+                        <div class="timeline">
+                            <?php foreach ($status_history as $status): ?>
+                            <div class="timeline-item">
+                                <div class="timeline-marker"></div>
+                                <div class="timeline-content">
+                                    <h6 class="mb-1"><?php echo ucfirst($status['status']); ?></h6>
+                                    <p class="text-muted mb-0">
+                                        <?php echo date('F j, Y g:i A', strtotime($status['created_at'])); ?>
+                                    </p>
+                                    <?php if ($status['notes']): ?>
+                                    <p class="mb-0"><?php echo htmlspecialchars($status['notes']); ?></p>
+                                    <?php endif; ?>
                                 </div>
                             </div>
-                        <?php endwhile; ?>
-                    <?php else: ?>
-                        <div class="text-center py-5">
-                            <i class="fas fa-shopping-bag fa-3x text-muted mb-3"></i>
-                            <h5>No Orders Yet</h5>
-                            <p class="text-muted">You haven't placed any orders yet.</p>
-                            <a href="index.php" class="btn btn-primary">Start Shopping</a>
+                            <?php endforeach; ?>
                         </div>
-                    <?php endif; ?>
+                    </div>
                 </div>
             </div>
         </div>
+        <?php endif; ?>
+        <?php endforeach; ?>
     </div>
+    <?php endif; ?>
 </div>
 
 <style>
-    .list-group-item {
-        border: none;
-        padding: 0.8rem 1rem;
-        transition: all 0.3s ease;
-    }
+.timeline {
+    position: relative;
+    padding: 20px 0;
+}
 
-    .list-group-item:hover {
-        background-color: #f8f9fa;
-        transform: translateX(5px);
-    }
+.timeline-item {
+    position: relative;
+    padding-left: 40px;
+    margin-bottom: 20px;
+}
 
-    .list-group-item.active {
-        background-color: #007bff;
-        border-color: #007bff;
-    }
+.timeline-marker {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: #007bff;
+    border: 3px solid #fff;
+    box-shadow: 0 0 0 2px #007bff;
+}
 
+.timeline-item:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 15px;
+    height: calc(100% + 5px);
+    width: 2px;
+    background: #e9ecef;
+}
+
+.timeline-content {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 4px;
+}
+
+.card {
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.btn {
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
     .card {
-        border: none;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-        border-radius: 10px;
+        margin-bottom: 1rem;
     }
-
-    .badge {
-        padding: 0.5em 1em;
-        font-weight: 500;
-    }
+}
 </style>
 
 <?php include '../includes/layouts/footer.php'; ?>

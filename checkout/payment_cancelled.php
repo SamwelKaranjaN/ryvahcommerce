@@ -33,6 +33,7 @@ $order = $stmt->get_result()->fetch_assoc();
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+<<<<<<< Updated upstream
         .payment-status {
             text-align: center;
             padding: 3rem 0;
@@ -49,12 +50,23 @@ $order = $stmt->get_result()->fetch_assoc();
             border-radius: 0.5rem;
             padding: 1.5rem;
             margin-top: 2rem;
+=======
+        .cancel-icon {
+            font-size: 4rem;
+            color: #dc3545;
+        }
+
+        .order-details {
+            background-color: #f8f9fa;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+>>>>>>> Stashed changes
         }
     </style>
 </head>
 
 <body>
-    <?php include '../includes/header.php'; ?>
+    <?php include '../includes/layouts/header.php'; ?>
 
     <div class="container py-5">
         <div class="row justify-content-center">
@@ -67,6 +79,7 @@ $order = $stmt->get_result()->fetch_assoc();
                             <p class="text-muted mb-4">Your payment process was cancelled. Don't worry, your order is
                                 still saved.</p>
 
+<<<<<<< Updated upstream
                             <?php if ($order): ?>
                                 <div class="order-details">
                                     <h5 class="mb-3">Order Details</h5>
@@ -87,12 +100,54 @@ $order = $stmt->get_result()->fetch_assoc();
                             </div>
                         </div>
                     </div>
+=======
+                <?php if ($order): ?>
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title mb-4">Order Details</h5>
+                            <div class="order-details">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p class="mb-1"><strong>Order Number:</strong></p>
+                                        <p class="text-muted">#<?php echo $order['id']; ?></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p class="mb-1"><strong>Invoice Number:</strong></p>
+                                        <p class="text-muted"><?php echo $order['invoice_number'] ?? 'N/A'; ?></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p class="mb-1"><strong>Order Date:</strong></p>
+                                        <p class="text-muted"><?php echo date('F j, Y', strtotime($order['order_date'])); ?>
+                                        </p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p class="mb-1"><strong>Status:</strong></p>
+                                        <p class="text-danger">Cancelled</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
+                <div class="text-center">
+                    <a href="payment.php?invoice=<?php echo urlencode($order['invoice_number']); ?>"
+                        class="btn btn-primary me-2">
+                        <i class="fas fa-credit-card me-2"></i>Retry Payment
+                    </a>
+                    <a href="../pages/cart.php" class="btn btn-outline-secondary me-2">
+                        <i class="fas fa-shopping-cart me-2"></i>Return to Cart
+                    </a>
+                    <a href="../index.php" class="btn btn-outline-primary">
+                        <i class="fas fa-home me-2"></i>Continue Shopping
+                    </a>
+>>>>>>> Stashed changes
                 </div>
             </div>
         </div>
     </div>
 
-    <?php include '../includes/footer.php'; ?>
+    <?php include '../includes/layouts/footer.php'; ?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

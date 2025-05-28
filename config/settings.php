@@ -1,6 +1,7 @@
 <?php
 // General settings
 define('SITE_NAME', 'Ryvah Commerce');
+define('BASE_URL', '/ryvahcommerce/');
 define('SITE_URL', 'http://localhost/ryvahcommerce');
 define('SITE_EMAIL', 'support@ryvahcommerce.com');
 
@@ -41,44 +42,52 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // Helper functions
-function redirect($url) {
+function redirect($url)
+{
     header("Location: " . $url);
     exit();
 }
 
-function isLoggedIn() {
+function isLoggedIn()
+{
     return isset($_SESSION['user_id']);
 }
 
-function requireLogin() {
+function requireLogin()
+{
     if (!isLoggedIn()) {
         redirect('login.php');
     }
 }
 
-function sanitizeInput($data) {
+function sanitizeInput($data)
+{
     $data = trim($data);
     $data = stripslashes($data);
     $data = htmlspecialchars($data);
     return $data;
 }
 
-function generateToken() {
+function generateToken()
+{
     return bin2hex(random_bytes(32));
 }
 
-function validateToken($token) {
+function validateToken($token)
+{
     return isset($_SESSION['token']) && hash_equals($_SESSION['token'], $token);
 }
 
-function setFlashMessage($type, $message) {
+function setFlashMessage($type, $message)
+{
     $_SESSION['flash_message'] = [
         'type' => $type,
         'message' => $message
     ];
 }
 
-function getFlashMessage() {
+function getFlashMessage()
+{
     if (isset($_SESSION['flash_message'])) {
         $message = $_SESSION['flash_message'];
         unset($_SESSION['flash_message']);
@@ -87,60 +96,68 @@ function getFlashMessage() {
     return null;
 }
 
-function formatPrice($price) {
+function formatPrice($price)
+{
     return number_format($price, 2, '.', ',');
 }
 
-function formatDate($date) {
+function formatDate($date)
+{
     return date('F j, Y', strtotime($date));
 }
 
-function getFileExtension($filename) {
+function getFileExtension($filename)
+{
     return strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 }
 
-function isAllowedFileType($filename) {
+function isAllowedFileType($filename)
+{
     return in_array(getFileExtension($filename), ALLOWED_FILE_TYPES);
 }
 
-function createUploadDirectory() {
+function createUploadDirectory()
+{
     if (!file_exists(UPLOAD_DIR)) {
         mkdir(UPLOAD_DIR, 0777, true);
     }
 }
 
-function generateUniqueFilename($filename) {
+function generateUniqueFilename($filename)
+{
     $extension = getFileExtension($filename);
     return uniqid() . '_' . time() . '.' . $extension;
 }
 
-function handleFileUpload($file) {
+function handleFileUpload($file)
+{
     if ($file['error'] !== UPLOAD_ERR_OK) {
         throw new Exception('File upload failed');
     }
-    
+
     if ($file['size'] > MAX_FILE_SIZE) {
         throw new Exception('File size exceeds limit');
     }
-    
+
     if (!isAllowedFileType($file['name'])) {
         throw new Exception('File type not allowed');
     }
-    
+
     createUploadDirectory();
-    
+
     $filename = generateUniqueFilename($file['name']);
     $destination = UPLOAD_DIR . '/' . $filename;
-    
+
     if (!move_uploaded_file($file['tmp_name'], $destination)) {
         throw new Exception('Failed to move uploaded file');
     }
-    
+
     return $filename;
 }
 
 if (!function_exists('ensure_session_and_debug')) {
-    function ensure_session_and_debug($page = '') {
+    function ensure_session_and_debug($page = '')
+    {
         if (headers_sent()) {
             error_log('WARNING: Headers already sent before session_start() on ' . $page);
         }
@@ -149,4 +166,4 @@ if (!function_exists('ensure_session_and_debug')) {
         }
         error_log('DEBUG: session_id=' . session_id() . ' user_id=' . ($_SESSION['user_id'] ?? 'not set') . ' page=' . $page);
     }
-} 
+}

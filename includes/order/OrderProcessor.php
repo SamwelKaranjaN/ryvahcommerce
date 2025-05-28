@@ -1,15 +1,17 @@
 <?php
+require_once __DIR__ . '/../bootstrap.php';
+
 class OrderProcessor
 {
     private $conn;
     private $user;
-    private $cart;
+    private $order_data;
 
-    public function __construct($conn, $user, $cart)
+    public function __construct($conn, $user, $order_data)
     {
         $this->conn = $conn;
         $this->user = $user;
-        $this->cart = $cart;
+        $this->order_data = $order_data;
     }
 
     /**
@@ -25,96 +27,84 @@ class OrderProcessor
 
     /**
      * Create a pending order
-     * @param array $shippingDetails Shipping information
+     * @param array $shipping_details Shipping information
      * @return array Order creation result
      */
-    public function createPendingOrder($shippingDetails)
+    public function createPendingOrder($shipping_details)
     {
         try {
-            // Validate input data
-            if (empty($this->user['id'])) {
-                throw new Exception("Invalid user data");
-            }
-            if (empty($this->cart['items'])) {
-                throw new Exception("Cart is empty");
-            }
-            if (empty($shippingDetails)) {
-                throw new Exception("Shipping details are required");
-            }
-
             // Generate invoice number
-            $invoiceNumber = $this->generateInvoiceNumber();
+            $invoice_number = 'INV-' . date('Ymd') . '-' . rand(1000, 9999);
 
             // Start transaction
-            if (!$this->conn->begin_transaction()) {
-                throw new Exception("Failed to start transaction");
-            }
+            $this->conn->begin_transaction();
 
-            // Create pending order
-            $stmt = $this->conn->prepare("
-                INSERT INTO orders (
-                    user_id, 
-                    invoice_number,
-                    total_amount, 
-                    payment_status,
-                    shipping_address,
-                    created_at
-                ) VALUES (?, ?, ?, 'pending', ?, NOW())
-            ");
+            // Create order
+            $sql = "INSERT INTO orders (invoice_number, user_id, total_amount, payment_status, shipping_address, billing_address) 
+                    VALUES (?, ?, ?, 'pending', ?, ?)";
+            $stmt = $this->conn->prepare($sql);
 
-            if (!$stmt) {
-                throw new Exception("Failed to prepare order statement: " . $this->conn->error);
-            }
-
-            $shippingAddress = sprintf(
-                "%s\n%s, %s, %s %s\nPhone: %s",
-                $shippingDetails['full_name'],
-                $shippingDetails['address'],
-                $shippingDetails['city'],
-                $shippingDetails['state'],
-                $shippingDetails['postal_code'],
-                $shippingDetails['phone']
-            );
+            $shipping_address = json_encode($shipping_details);
+            $billing_address = json_encode($shipping_details); // Using same address for both
 
             $stmt->bind_param(
-                "isds",
+                "sidds",
+                $invoice_number,
                 $this->user['id'],
-                $invoiceNumber,
-                $this->cart['total'],
-                $shippingAddress
+                $this->order_data['total'],
+                $shipping_address,
+                $billing_address
             );
+            $stmt->execute();
+            $order_id = $this->conn->insert_id;
 
-            if (!$stmt->execute()) {
-                throw new Exception("Failed to create order: " . $stmt->error);
+            // Create order items
+            foreach ($this->order_data['items'] as $item) {
+                $sql = "INSERT INTO order_items (order_id, product_id, quantity, price, subtotal) 
+                        VALUES (?, ?, ?, ?, ?)";
+                $stmt = $this->conn->prepare($sql);
+                $subtotal = $item['price'] * $item['quantity'];
+                $stmt->bind_param(
+                    "iiidd",
+                    $order_id,
+                    $item['id'],
+                    $item['quantity'],
+                    $item['price'],
+                    $subtotal
+                );
+                $stmt->execute();
+
+                // If it's an ebook, create user_purchases entry
+                if ($item['type'] === 'ebook') {
+                    $sql = "INSERT INTO user_purchases (user_id, product_id, order_id, download_count) 
+                            VALUES (?, ?, ?, 0)";
+                    $stmt = $this->conn->prepare($sql);
+                    $stmt->bind_param(
+                        "iii",
+                        $this->user['id'],
+                        $item['id'],
+                        $order_id
+                    );
+                    $stmt->execute();
+                }
             }
 
-            $orderId = $this->conn->insert_id;
-            if (!$orderId) {
-                throw new Exception("Failed to get order ID");
-            }
+            // Add initial status history
+            $sql = "INSERT INTO order_status_history (order_id, status, notes) VALUES (?, 'pending', 'Order created')";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bind_param("i", $order_id);
+            $stmt->execute();
 
-            // Add order items
-            if (!$this->addOrderItems($orderId)) {
-                throw new Exception("Failed to add order items");
-            }
-
-            // Commit transaction
-            if (!$this->conn->commit()) {
-                throw new Exception("Failed to commit transaction");
-            }
+            $this->conn->commit();
 
             return [
                 'success' => true,
-                'order_id' => $orderId,
-                'invoice_number' => $invoiceNumber,
-                'message' => 'Pending order created successfully'
+                'order_id' => $order_id,
+                'invoice_number' => $invoice_number
             ];
         } catch (Exception $e) {
-            // Rollback transaction on error
-            if ($this->conn->inTransaction()) {
-                $this->conn->rollback();
-            }
-            error_log("Order creation failed: " . $e->getMessage());
+            $this->conn->rollback();
+            error_log("Error creating pending order: " . $e->getMessage());
             return [
                 'success' => false,
                 'message' => 'Failed to create order: ' . $e->getMessage()
@@ -124,64 +114,57 @@ class OrderProcessor
 
     /**
      * Complete a pending order after successful payment
-     * @param string $invoiceNumber Invoice number
+     * @param string $invoice_number Invoice number
      * @return array Order completion result
      */
-    public function completeOrder($invoiceNumber)
+    public function completeOrder($invoice_number)
     {
         try {
             // Start transaction
-            if (!$this->conn->begin_transaction()) {
-                throw new Exception("Failed to start transaction");
-            }
+            $this->conn->begin_transaction();
+
+            // Get order details
+            $sql = "SELECT o.*, oi.*, p.type 
+                    FROM orders o 
+                    JOIN order_items oi ON o.id = oi.order_id 
+                    JOIN products p ON oi.product_id = p.id 
+                    WHERE o.invoice_number = ?";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bind_param("s", $invoice_number);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $order_items = $result->fetch_all(MYSQLI_ASSOC);
 
             // Update order status
-            $stmt = $this->conn->prepare("
-                UPDATE orders 
-                SET payment_status = 'completed', 
-                    updated_at = NOW()
-                WHERE invoice_number = ? 
-                AND user_id = ? 
-                AND payment_status = 'pending'
-            ");
+            $sql = "UPDATE orders SET payment_status = 'completed' WHERE invoice_number = ?";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bind_param("s", $invoice_number);
+            $stmt->execute();
 
-            if (!$stmt) {
-                throw new Exception("Failed to prepare order update statement: " . $this->conn->error);
-            }
-
-            $stmt->bind_param("si", $invoiceNumber, $this->user['id']);
-
-            if (!$stmt->execute()) {
-                throw new Exception("Failed to update order: " . $stmt->error);
-            }
-
-            if ($stmt->affected_rows === 0) {
-                throw new Exception("Order not found or already completed");
-            }
-
-            // Update inventory
-            if (!$this->updateInventory()) {
-                throw new Exception("Failed to update inventory");
-            }
+            // Add status history
+            $sql = "INSERT INTO order_status_history (order_id, status, notes) 
+                    SELECT id, 'completed', 'Payment completed' 
+                    FROM orders WHERE invoice_number = ?";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bind_param("s", $invoice_number);
+            $stmt->execute();
 
             // Clear cart
-            $this->clearCart();
+            $sql = "DELETE FROM cart WHERE user_id = ?";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bind_param("i", $this->user['id']);
+            $stmt->execute();
 
-            // Commit transaction
-            if (!$this->conn->commit()) {
-                throw new Exception("Failed to commit transaction");
-            }
+            $this->conn->commit();
 
             return [
                 'success' => true,
-                'message' => 'Order completed successfully'
+                'message' => 'Order completed successfully',
+                'order_items' => $order_items
             ];
         } catch (Exception $e) {
-            // Rollback transaction on error
-            if ($this->conn->inTransaction()) {
-                $this->conn->rollback();
-            }
-            error_log("Order completion failed: " . $e->getMessage());
+            $this->conn->rollback();
+            error_log("Error completing order: " . $e->getMessage());
             return [
                 'success' => false,
                 'message' => 'Failed to complete order: ' . $e->getMessage()
@@ -191,10 +174,10 @@ class OrderProcessor
 
     /**
      * Get order details
-     * @param int $orderId Order ID
+     * @param int $order_id Order ID
      * @return array|null Order details or null if not found
      */
-    public function getOrderDetails($orderId)
+    public function getOrderDetails($order_id)
     {
         $stmt = $this->conn->prepare("
             SELECT o.*, u.email, u.full_name
@@ -202,49 +185,10 @@ class OrderProcessor
             JOIN users u ON o.user_id = u.id
             WHERE o.id = ? AND o.user_id = ?
         ");
-        $stmt->bind_param("ii", $orderId, $this->user['id']);
+        $stmt->bind_param("ii", $order_id, $this->user['id']);
         $stmt->execute();
         $result = $stmt->get_result();
         return $result->fetch_assoc();
-    }
-
-    /**
-     * Add items to order
-     * @param int $orderId Order ID
-     * @return bool Success status
-     */
-    private function addOrderItems($orderId)
-    {
-        try {
-            $stmt = $this->conn->prepare("
-                INSERT INTO order_items (
-                    order_id, product_id, quantity, price, subtotal
-                ) VALUES (?, ?, ?, ?, ?)
-            ");
-
-            if (!$stmt) {
-                throw new Exception("Failed to prepare order items statement: " . $this->conn->error);
-            }
-
-            foreach ($this->cart['items'] as $item) {
-                $subtotal = $item['price'] * $item['quantity'];
-                $stmt->bind_param(
-                    "iiidd",
-                    $orderId,
-                    $item['id'],
-                    $item['quantity'],
-                    $item['price'],
-                    $subtotal
-                );
-                if (!$stmt->execute()) {
-                    throw new Exception("Failed to add order item: " . $stmt->error);
-                }
-            }
-            return true;
-        } catch (Exception $e) {
-            error_log("Error adding order items: " . $e->getMessage());
-            return false;
-        }
     }
 
     /**
@@ -264,7 +208,7 @@ class OrderProcessor
                 throw new Exception("Failed to prepare inventory update statement: " . $this->conn->error);
             }
 
-            foreach ($this->cart['items'] as $item) {
+            foreach ($this->order_data['items'] as $item) {
                 $stmt->bind_param("ii", $item['quantity'], $item['id']);
                 if (!$stmt->execute()) {
                     throw new Exception("Failed to update inventory: " . $stmt->error);
@@ -276,6 +220,7 @@ class OrderProcessor
             return false;
         }
     }
+<<<<<<< Updated upstream
 
     /**
      * Clear user's cart
@@ -298,4 +243,6 @@ class OrderProcessor
             error_log("Error clearing cart: " . $e->getMessage());
         }
     }
+=======
+>>>>>>> Stashed changes
 }
