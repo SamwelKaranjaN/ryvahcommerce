@@ -50,39 +50,42 @@
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <div class="form-floating mb-3">
-                                        <input type="text" class="form-control" id="name" placeholder="Your Name" required 
-                                               minlength="2" maxlength="50" pattern="[A-Za-z\s]+">
+                                        <input type="text" class="form-control" id="name" placeholder="Your Name"
+                                            required minlength="2" maxlength="50" pattern="[A-Za-z\s]+">
                                         <label for="name">Your Name</label>
-                                        <div class="invalid-feedback">Please enter a valid name (2-50 characters, letters only)</div>
+                                        <div class="invalid-feedback">Please enter a valid name (2-50 characters,
+                                            letters only)</div>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-floating mb-3">
-                                        <input type="email" class="form-control" id="email" placeholder="Your Email" required
-                                               pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$">
+                                        <input type="email" class="form-control" id="email" placeholder="Your Email"
+                                            required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$">
                                         <label for="email">Your Email</label>
                                         <div class="invalid-feedback">Please enter a valid email address</div>
                                     </div>
                                 </div>
                                 <div class="col-12">
                                     <div class="form-floating mb-3">
-                                        <input type="text" class="form-control" id="subject" placeholder="Subject" required
-                                               minlength="5" maxlength="100">
+                                        <input type="text" class="form-control" id="subject" placeholder="Subject"
+                                            required minlength="5" maxlength="100">
                                         <label for="subject">Subject</label>
                                         <div class="invalid-feedback">Subject must be between 5 and 100 characters</div>
                                     </div>
                                 </div>
                                 <div class="col-12">
                                     <div class="form-floating mb-3">
-                                        <textarea class="form-control" id="message" placeholder="Your Message" 
-                                                  style="height: 150px" required minlength="10" maxlength="1000"></textarea>
+                                        <textarea class="form-control" id="message" placeholder="Your Message"
+                                            style="height: 150px" required minlength="10" maxlength="1000"></textarea>
                                         <label for="message">Your Message</label>
-                                        <div class="invalid-feedback">Message must be between 10 and 1000 characters</div>
+                                        <div class="invalid-feedback">Message must be between 10 and 1000 characters
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="col-12 text-center">
                                     <button type="submit" class="btn btn-primary btn-lg px-5" id="submitBtn">
-                                        <span class="spinner-border spinner-border-sm d-none me-2" role="status" aria-hidden="true"></span>
+                                        <span class="spinner-border spinner-border-sm d-none me-2" role="status"
+                                            aria-hidden="true"></span>
                                         <i class="fas fa-paper-plane me-2"></i>Send Message
                                     </button>
                                 </div>
@@ -101,8 +104,9 @@
         <div class="row justify-content-center">
             <div class="col-md-10">
                 <div class="map-container shadow-sm rounded overflow-hidden">
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d387193.30591910525!2d-74.25986432970718!3d40.697149422113014!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c24fa5d33f083b%3A0xc80b8f06e177fe62!2sNew%20York%2C%20NY%2C%20USA!5e0!3m2!1sen!2s!4v1645564750986!5m2!1sen!2s" 
-                            width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                    <iframe
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d387193.30591910525!2d-74.25986432970718!3d40.697149422113014!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c24fa5d33f083b%3A0xc80b8f06e177fe62!2sNew%20York%2C%20NY%2C%20USA!5e0!3m2!1sen!2s!4v1645564750986!5m2!1sen!2s"
+                        width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
                 </div>
             </div>
         </div>
@@ -126,7 +130,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(45deg, rgba(0,0,0,0.7), rgba(0,0,0,0.3));
+    background: linear-gradient(45deg, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.3));
 }
 
 .section-title {
@@ -155,14 +159,14 @@
     transform: translateY(-5px);
 }
 
-.form-floating > .form-control:focus ~ label,
-.form-floating > .form-control:not(:placeholder-shown) ~ label {
+.form-floating>.form-control:focus~label,
+.form-floating>.form-control:not(:placeholder-shown)~label {
     color: #007bff;
 }
 
 .form-control:focus {
     border-color: #007bff;
-    box-shadow: 0 0 0 0.25rem rgba(0,123,255,.25);
+    box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, .25);
 }
 
 .form-control.is-invalid {
@@ -192,7 +196,7 @@
     .contact-info-card {
         margin-bottom: 1rem;
     }
-    
+
     .btn-lg {
         padding: 0.5rem 1rem;
         font-size: 1rem;
@@ -204,7 +208,7 @@
         padding-left: 15px;
         padding-right: 15px;
     }
-    
+
     .card-body {
         padding: 1rem;
     }
@@ -216,19 +220,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('contactForm');
     const submitBtn = document.getElementById('submitBtn');
     const spinner = submitBtn.querySelector('.spinner-border');
-    
+
     // Real-time validation
     const inputs = form.querySelectorAll('input, textarea');
     inputs.forEach(input => {
         input.addEventListener('input', function() {
             validateInput(this);
         });
-        
+
         input.addEventListener('blur', function() {
             validateInput(this);
         });
     });
-    
+
     function validateInput(input) {
         if (input.checkValidity()) {
             input.classList.remove('is-invalid');
@@ -238,46 +242,48 @@ document.addEventListener('DOMContentLoaded', function() {
             input.classList.add('is-invalid');
         }
     }
-    
+
     form.addEventListener('submit', async function(event) {
         event.preventDefault();
-        
+
         if (!form.checkValidity()) {
             event.stopPropagation();
             form.classList.add('was-validated');
             return;
         }
-        
+
         // Show loading state
         submitBtn.disabled = true;
         spinner.classList.remove('d-none');
-        
+
         try {
             // Simulate form submission (replace with actual API call)
             await new Promise(resolve => setTimeout(resolve, 1500));
-            
+
             // Show success message
             const successAlert = document.createElement('div');
             successAlert.className = 'alert alert-success mt-3';
-            successAlert.innerHTML = '<i class="fas fa-check-circle me-2"></i>Your message has been sent successfully!';
+            successAlert.innerHTML =
+                '<i class="fas fa-check-circle me-2"></i>Your message has been sent successfully!';
             form.insertAdjacentElement('afterend', successAlert);
-            
+
             // Reset form
             form.reset();
             form.classList.remove('was-validated');
             inputs.forEach(input => {
                 input.classList.remove('is-valid', 'is-invalid');
             });
-            
+
             // Remove success message after 5 seconds
             setTimeout(() => successAlert.remove(), 5000);
         } catch (error) {
             // Show error message
             const errorAlert = document.createElement('div');
             errorAlert.className = 'alert alert-danger mt-3';
-            errorAlert.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>An error occurred. Please try again.';
+            errorAlert.innerHTML =
+                '<i class="fas fa-exclamation-circle me-2"></i>An error occurred. Please try again.';
             form.insertAdjacentElement('afterend', errorAlert);
-            
+
             // Remove error message after 5 seconds
             setTimeout(() => errorAlert.remove(), 5000);
         } finally {
@@ -289,4 +295,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<?php include '../includes/layouts/footer.php'; ?> 
+<?php include '../includes/layouts/footer.php'; ?>

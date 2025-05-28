@@ -1,4 +1,7 @@
 <?php
+// Define environment
+define('ENVIRONMENT', 'development'); // Change to 'production' when deploying
+
 require_once '../includes/bootstrap.php';
 require_once '../includes/cart.php';
 require_once '../includes/order/OrderProcessor.php';
@@ -148,11 +151,11 @@ if (isset($_GET['pay']) && $_GET['pay'] === 'success' && $invoice_number) {
         $paymentProcessor = new PaymentProcessor($conn, $user, $cart_data, [
             'full_name' => $order['full_name'],
             'email' => $order['email'],
-            'phone' => '', // These would be stored in the order
-            'address' => '',
-            'city' => '',
-            'state' => '',
-            'postal_code' => ''
+            'phone' => $order['phone'] ?? '',
+            'address' => $order['shipping_address'] ?? '',
+            'city' => $order['shipping_city'] ?? '',
+            'state' => $order['shipping_state'] ?? '',
+            'postal_code' => $order['shipping_postal'] ?? ''
         ]);
 
         // Process payment
@@ -162,19 +165,24 @@ if (isset($_GET['pay']) && $_GET['pay'] === 'success' && $invoice_number) {
         if ($result['success']) {
             // Clear session data
             unset($_SESSION['current_invoice']);
-            header('Location: order-confirmation.php?invoice=' . urlencode($invoice_number));
+            header('Location: order-confirmation.php?order_id=' . $result['order_id']);
             exit;
         } else {
             $payment_error = $result['message'];
+            if (isset($result['debug_info']) && defined('ENVIRONMENT') && ENVIRONMENT === 'development') {
+                debug($result['debug_info'], 'Payment Error Debug Info');
+            }
             debug($payment_error, 'Payment Processing Error');
         }
     } catch (Exception $e) {
         error_log("Error processing payment: " . $e->getMessage());
-        $payment_error = "An error occurred while processing your payment. Please try again.";
+        $payment_error = defined('ENVIRONMENT') && ENVIRONMENT === 'development' ?
+            "An error occurred while processing your payment: " . $e->getMessage() :
+            "An error occurred while processing your payment. Please try again or contact support.";
         debug($e->getMessage(), 'Exception in Payment Processing');
     }
 } elseif (isset($_GET['pay']) && $_GET['pay'] === 'fail') {
-    $payment_error = 'Payment failed. Please try again.';
+    $payment_error = 'Payment failed. Please try again or choose a different payment method.';
 }
 
 // Step 3: Get order details for display
@@ -219,23 +227,86 @@ if ($invoice_number) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Payment - <?php echo SITE_NAME; ?></title>
     <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        .alert {
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .alert i {
+            margin-right: 0.5rem;
+            font-size: 1.25rem;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            border-color: #f5c2c7;
+            color: #842029;
+        }
+
+        .alert-warning {
+            background-color: #fff3cd;
+            border-color: #ffecb5;
+            color: #664d03;
+        }
+
+        .payment-method-card {
+            border: 2px solid #e9ecef;
+            border-radius: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .payment-method-card:hover {
+            border-color: #0d6efd;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(13, 110, 253, 0.1);
+        }
+
+        .payment-method-card.selected {
+            border-color: #0d6efd;
+            background-color: rgba(13, 110, 253, 0.05);
+        }
+
+        .payment-method-card.selected::after {
+            content: '\f00c';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #0d6efd;
+        }
+    </style>
 </head>
 
 <body>
-    <?php include '../includes/header.php'; ?>
+    <?php include '../includes/layouts/header.php'; ?>
     <main class="container py-5">
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <h2 class="mb-4">Review & Payment</h2>
                 <?php if ($payment_error): ?>
                     <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <i class="fas fa-exclamation-circle"></i>
                         <?php echo htmlspecialchars($payment_error); ?>
+                        <?php if (defined('ENVIRONMENT') && ENVIRONMENT === 'development'): ?>
+                            <div class="mt-2 small">
+                                <strong>Debug Info:</strong>
+                                <pre
+                                    class="mb-0"><?php echo htmlspecialchars(print_r($result['debug_info'] ?? [], true)); ?></pre>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 <?php endif; ?>
                 <?php if (isset($_GET['error'])): ?>
-                    <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-circle me-2"></i>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
                         <?php echo htmlspecialchars($_GET['error']); ?>
                     </div>
                 <?php endif; ?>
@@ -306,7 +377,7 @@ if ($invoice_number) {
             </div>
         </div>
     </main>
-    <?php include '../includes/footer.php'; ?>
+    <?php include '../includes/layouts/footer.php'; ?>
 </body>
 
 </html>
