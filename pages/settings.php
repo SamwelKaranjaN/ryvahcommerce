@@ -19,20 +19,20 @@ $user = $result->fetch_assoc();
 include '../includes/layouts/header.php';
 ?>
 
-<div class="profile-container">
+<div class="settings-main-container">
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar Navigation -->
             <div class="col-lg-3">
-                <div class="profile-sidebar">
-                    <div class="profile-header text-center">
-                        <div class="profile-avatar">
+                <div class="settings-sidebar-card">
+                    <div class="settings-header text-center">
+                        <div class="settings-avatar">
                             <i class="fas fa-user"></i>
                         </div>
-                        <h4 class="profile-name"><?php echo htmlspecialchars($user['full_name']); ?></h4>
-                        <p class="profile-email"><?php echo htmlspecialchars($user['email']); ?></p>
+                        <h4 class="settings-name"><?php echo htmlspecialchars($user['full_name']); ?></h4>
+                        <p class="settings-email"><?php echo htmlspecialchars($user['email']); ?></p>
                     </div>
-                    <div class="profile-nav">
+                    <div class="settings-nav">
                         <a href="profile.php" class="nav-item">
                             <i class="fas fa-user-circle"></i>
                             <span>My Profile</span>
@@ -40,6 +40,14 @@ include '../includes/layouts/header.php';
                         <a href="orders.php" class="nav-item">
                             <i class="fas fa-shopping-bag"></i>
                             <span>My Orders</span>
+                        </a>
+                        <a href="pending_orders.php" class="nav-item">
+                            <i class="fas fa-clock"></i>
+                            <span>Pending Orders</span>
+                        </a>
+                        <a href="downloads.php" class="nav-item">
+                            <i class="fas fa-download"></i>
+                            <span>My Downloads</span>
                         </a>
                         <a href="wishlist.php" class="nav-item">
                             <i class="fas fa-heart"></i>
@@ -59,154 +67,157 @@ include '../includes/layouts/header.php';
 
             <!-- Main Content -->
             <div class="col-lg-9">
-                <div class="profile-content">
+                <div class="settings-content-card">
                     <?php if (isset($_SESSION['success_message'])): ?>
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <?php
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <?php
                             echo $_SESSION['success_message'];
                             unset($_SESSION['success_message']);
                             ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
                     <?php endif; ?>
 
                     <?php if (isset($_SESSION['error_messages'])): ?>
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <ul class="mb-0">
-                            <?php
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <ul class="mb-0">
+                                <?php
                                 foreach ($_SESSION['error_messages'] as $error) {
                                     echo "<li>" . htmlspecialchars($error) . "</li>";
                                 }
                                 unset($_SESSION['error_messages']);
                                 ?>
-                        </ul>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
+                            </ul>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
                     <?php endif; ?>
 
-                    <div class="content-header">
+                    <div class="settings-content-header">
                         <h2>Account Settings</h2>
-                        <p class="text-muted">Manage your account preferences and security settings</p>
+                        <p class="text-muted">Manage your account preferences and security</p>
                     </div>
 
-                    <!-- Change Password Form -->
-                    <div class="profile-card">
-                        <form action="update_password.php" method="POST" id="passwordForm" class="needs-validation"
-                            novalidate>
-                            <h5 class="card-title mb-4">
-                                <i class="fas fa-lock me-2"></i>Change Password
-                            </h5>
-                            <div class="row g-4">
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label class="form-label">Current Password</label>
-                                        <div class="input-group">
-                                            <span class="input-group-text"><i class="fas fa-key"></i></span>
-                                            <input type="password" class="form-control" name="current_password"
-                                                required>
+                    <div class="settings-section">
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-body p-4">
+                                <h5 class="card-title mb-4">Change Password</h5>
+                                <form action="update_password.php" method="POST" class="needs-validation" novalidate>
+                                    <div class="row g-3">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label class="form-label">Current Password</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                                    <input type="password" class="form-control" name="current_password"
+                                                        required>
+                                                    <button class="btn btn-outline-secondary toggle-password"
+                                                        type="button">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="invalid-feedback">Please enter your current password.</div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-label">New Password</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text"><i class="fas fa-key"></i></span>
+                                                    <input type="password" class="form-control" name="new_password"
+                                                        required pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$">
+                                                    <button class="btn btn-outline-secondary toggle-password"
+                                                        type="button">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                </div>
+                                                <div class="form-text">Password must be at least 8 characters long and
+                                                    include both letters and numbers.</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-label">Confirm New Password</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text"><i class="fas fa-key"></i></span>
+                                                    <input type="password" class="form-control" name="confirm_password"
+                                                        required>
+                                                    <button class="btn btn-outline-secondary toggle-password"
+                                                        type="button">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="form-label">New Password</label>
-                                        <div class="input-group">
-                                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                                            <input type="password" class="form-control" name="new_password"
-                                                pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$" required>
-                                        </div>
-                                        <div class="invalid-feedback">
-                                            Password must be at least 8 characters long and include both letters and
-                                            numbers.
-                                        </div>
+                                    <div class="mt-4">
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            <i class="fas fa-save me-2"></i>Update Password
+                                        </button>
                                     </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="form-label">Confirm New Password</label>
-                                        <div class="input-group">
-                                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                                            <input type="password" class="form-control" name="confirm_password"
-                                                required>
-                                        </div>
-                                        <div class="invalid-feedback">Passwords do not match.</div>
-                                    </div>
-                                </div>
+                                </form>
                             </div>
-                            <div class="form-actions">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-key me-2"></i>Update Password
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+                        </div>
 
-                    <!-- Notification Preferences -->
-                    <div class="profile-card">
-                        <form action="update_notifications.php" method="POST" id="notificationForm">
-                            <h5 class="card-title mb-4">
-                                <i class="fas fa-bell me-2"></i>Notification Preferences
-                            </h5>
-                            <div class="preference-group">
-                                <div class="form-check mb-3">
-                                    <input class="form-check-input" type="checkbox" name="email_notifications"
-                                        id="emailNotifications" checked>
-                                    <label class="form-check-label" for="emailNotifications">
-                                        <i class="fas fa-envelope me-2"></i>Email Notifications
-                                    </label>
-                                </div>
-                                <div class="form-check mb-3">
-                                    <input class="form-check-input" type="checkbox" name="order_updates"
-                                        id="orderUpdates" checked>
-                                    <label class="form-check-label" for="orderUpdates">
-                                        <i class="fas fa-shopping-bag me-2"></i>Order Updates
-                                    </label>
-                                </div>
-                                <div class="form-check mb-3">
-                                    <input class="form-check-input" type="checkbox" name="promotional_emails"
-                                        id="promotionalEmails">
-                                    <label class="form-check-label" for="promotionalEmails">
-                                        <i class="fas fa-bullhorn me-2"></i>Promotional Emails
-                                    </label>
-                                </div>
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-body p-4">
+                                <h5 class="card-title mb-4">Notification Preferences</h5>
+                                <form action="update_notifications.php" method="POST">
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" id="emailNotifications"
+                                            name="email_notifications" checked>
+                                        <label class="form-check-label" for="emailNotifications">Email
+                                            Notifications</label>
+                                        <div class="form-text">Receive updates about your orders and account activity
+                                        </div>
+                                    </div>
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" id="marketingEmails"
+                                            name="marketing_emails">
+                                        <label class="form-check-label" for="marketingEmails">Marketing Emails</label>
+                                        <div class="form-text">Receive special offers and promotions</div>
+                                    </div>
+                                    <div class="mt-4">
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            <i class="fas fa-save me-2"></i>Save Preferences
+                                        </button>
+                                    </div>
+                                </form>
                             </div>
-                            <div class="form-actions">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save me-2"></i>Save Preferences
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+                        </div>
 
-                    <!-- Privacy Settings -->
-                    <div class="profile-card">
-                        <form action="update_privacy.php" method="POST" id="privacyForm">
-                            <h5 class="card-title mb-4">
-                                <i class="fas fa-shield-alt me-2"></i>Privacy Settings
-                            </h5>
-                            <div class="preference-group">
-                                <div class="form-check mb-3">
-                                    <input class="form-check-input" type="checkbox" name="profile_visibility"
-                                        id="profileVisibility" checked>
-                                    <label class="form-check-label" for="profileVisibility">
-                                        <i class="fas fa-eye me-2"></i>Make Profile Public
-                                    </label>
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body p-4">
+                                <h5 class="card-title mb-4">Account Security</h5>
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="settings-security-icon me-3">
+                                        <i class="fas fa-shield-alt"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1">Two-Factor Authentication</h6>
+                                        <p class="text-muted mb-0">Add an extra layer of security to your account</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <button class="btn btn-outline-primary" disabled>
+                                            Coming Soon
+                                        </button>
+                                    </div>
                                 </div>
-                                <div class="form-check mb-3">
-                                    <input class="form-check-input" type="checkbox" name="show_order_history"
-                                        id="showOrderHistory" checked>
-                                    <label class="form-check-label" for="showOrderHistory">
-                                        <i class="fas fa-history me-2"></i>Show Order History
-                                    </label>
+                                <hr>
+                                <div class="d-flex align-items-center">
+                                    <div class="settings-security-icon me-3">
+                                        <i class="fas fa-history"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1">Login History</h6>
+                                        <p class="text-muted mb-0">View your recent login activity</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <button class="btn btn-outline-primary" disabled>
+                                            Coming Soon
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="form-actions">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save me-2"></i>Save Privacy Settings
-                                </button>
-                            </div>
-                        </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -215,258 +226,213 @@ include '../includes/layouts/header.php';
 </div>
 
 <style>
-.profile-container {
-    min-height: 100vh;
-    background: #f8f9fa;
-    padding: 2rem 0;
-}
+    .settings-main-container {
+        min-height: 100vh;
+        background: #f8f9fa;
+        padding: 2rem 0;
+    }
 
-.profile-sidebar {
-    background: white;
-    border-radius: 15px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
-    padding: 2rem;
-    height: 100%;
-}
+    .settings-main-container .settings-sidebar-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+        padding: 2rem 1.5rem;
+        height: 100%;
+        position: sticky;
+        top: 90px;
+    }
 
-.profile-header {
-    padding-bottom: 2rem;
-    border-bottom: 1px solid #eee;
-    margin-bottom: 2rem;
-}
-
-.profile-avatar {
-    width: 120px;
-    height: 120px;
-    background: linear-gradient(45deg, #007bff, #00bcd4);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 1.5rem;
-    box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
-}
-
-.profile-avatar i {
-    font-size: 3.5rem;
-    color: white;
-}
-
-.profile-name {
-    color: #2c3e50;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-}
-
-.profile-email {
-    color: #6c757d;
-    font-size: 0.9rem;
-}
-
-.profile-nav {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.nav-item {
-    display: flex;
-    align-items: center;
-    padding: 1rem;
-    color: #2c3e50;
-    text-decoration: none;
-    border-radius: 10px;
-    transition: all 0.3s ease;
-}
-
-.nav-item i {
-    width: 24px;
-    margin-right: 1rem;
-    font-size: 1.1rem;
-}
-
-.nav-item:hover {
-    background: #f8f9fa;
-    color: #007bff;
-}
-
-.nav-item.active {
-    background: #007bff;
-    color: white;
-}
-
-.profile-content {
-    padding: 0 1rem;
-}
-
-.content-header {
-    margin-bottom: 2rem;
-}
-
-.content-header h2 {
-    color: #2c3e50;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-}
-
-.profile-card {
-    background: white;
-    border-radius: 15px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
-    padding: 2rem;
-    margin-bottom: 2rem;
-}
-
-.card-title {
-    color: #2c3e50;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-}
-
-.card-title i {
-    color: #007bff;
-}
-
-.form-group {
-    margin-bottom: 1.5rem;
-}
-
-.form-label {
-    color: #2c3e50;
-    font-weight: 500;
-    margin-bottom: 0.5rem;
-}
-
-.input-group-text {
-    background-color: #f8f9fa;
-    border-right: none;
-    color: #6c757d;
-}
-
-.form-control {
-    border-left: none;
-}
-
-.form-control:focus {
-    border-color: #dee2e6;
-    box-shadow: none;
-}
-
-.input-group:focus-within {
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-}
-
-.form-actions {
-    margin-top: 2rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid #eee;
-}
-
-.btn-primary {
-    background: linear-gradient(45deg, #007bff, #00bcd4);
-    border: none;
-    padding: 0.8rem 2rem;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
-}
-
-.preference-group {
-    padding: 1rem 0;
-}
-
-.form-check-input {
-    width: 1.2em;
-    height: 1.2em;
-    margin-top: 0.15em;
-}
-
-.form-check-input:checked {
-    background-color: #007bff;
-    border-color: #007bff;
-}
-
-.form-check-label {
-    color: #2c3e50;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-}
-
-.form-check-label i {
-    color: #007bff;
-    width: 20px;
-}
-
-@media (max-width: 991.98px) {
-    .profile-sidebar {
+    .settings-main-container .settings-header {
+        padding-bottom: 2rem;
+        border-bottom: 1px solid #eee;
         margin-bottom: 2rem;
     }
 
-    .profile-content {
-        padding: 0;
+    .settings-main-container .settings-avatar {
+        width: 110px;
+        height: 110px;
+        background: linear-gradient(45deg, #007bff, #00bcd4);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.2rem;
+        box-shadow: 0 5px 15px rgba(0, 123, 255, 0.15);
     }
-}
 
-@media (max-width: 767.98px) {
-    .profile-container {
-        padding: 1rem;
+    .settings-main-container .settings-avatar i {
+        font-size: 3rem;
+        color: #fff;
     }
 
-    .profile-card {
-        padding: 1.5rem;
+    .settings-main-container .settings-name {
+        color: #2c3e50;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
     }
-}
+
+    .settings-main-container .settings-email {
+        color: #6c757d;
+        font-size: 0.95rem;
+    }
+
+    .settings-main-container .settings-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-top: 2rem;
+    }
+
+    .settings-main-container .nav-item {
+        display: flex;
+        align-items: center;
+        padding: 0.9rem 1rem;
+        color: #2c3e50;
+        text-decoration: none;
+        border-radius: 10px;
+        transition: all 0.2s;
+        font-weight: 500;
+    }
+
+    .settings-main-container .nav-item i {
+        width: 22px;
+        margin-right: 1rem;
+        font-size: 1.1rem;
+    }
+
+    .settings-main-container .nav-item:hover {
+        background: #f8f9fa;
+        color: #007bff;
+    }
+
+    .settings-main-container .nav-item.active {
+        background: #007bff;
+        color: #fff;
+    }
+
+    .settings-main-container .settings-content-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+        padding: 2.5rem 2rem;
+        min-height: 600px;
+    }
+
+    .settings-main-container .settings-content-header h2 {
+        color: #2c3e50;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .settings-main-container .settings-content-header p {
+        color: #6c757d;
+        margin-bottom: 2rem;
+    }
+
+    .settings-main-container .settings-section .card {
+        transition: transform 0.3s ease;
+    }
+
+    .settings-main-container .settings-section .card:hover {
+        transform: translateY(-5px);
+    }
+
+    .settings-main-container .settings-security-icon {
+        width: 50px;
+        height: 50px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .settings-main-container .settings-security-icon i {
+        font-size: 1.5rem;
+        color: #007bff;
+    }
+
+    .settings-main-container .btn {
+        transition: all 0.3s ease;
+    }
+
+    .settings-main-container .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .settings-main-container .input-group-text {
+        background-color: #f8f9fa;
+        border-right: none;
+        color: #6c757d;
+    }
+
+    .settings-main-container .form-control {
+        border-left: none;
+    }
+
+    .settings-main-container .form-control:focus {
+        border-color: #dee2e6;
+        box-shadow: none;
+    }
+
+    .settings-main-container .input-group:focus-within {
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+
+    @media (max-width: 991.98px) {
+        .settings-main-container .settings-sidebar-card {
+            margin-bottom: 2rem;
+            position: static;
+        }
+
+        .settings-main-container .settings-content-card {
+            padding: 1.5rem 0.5rem;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .settings-main-container {
+            padding: 1rem;
+        }
+
+        .settings-main-container .settings-content-card {
+            padding: 1rem 0.2rem;
+        }
+    }
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Password form validation
-    const passwordForm = document.getElementById('passwordForm');
-    const newPassword = passwordForm.querySelector('input[name="new_password"]');
-    const confirmPassword = passwordForm.querySelector('input[name="confirm_password"]');
-
-    passwordForm.addEventListener('submit', function(event) {
-        if (!passwordForm.checkValidity()) {
-            event.preventDefault();
-            event.stopPropagation();
-        }
-
-        if (newPassword.value !== confirmPassword.value) {
-            confirmPassword.setCustomValidity('Passwords do not match');
-            event.preventDefault();
-            event.stopPropagation();
-        } else {
-            confirmPassword.setCustomValidity('');
-        }
-
-        passwordForm.classList.add('was-validated');
+    // Form validation
+    (function() {
+        'use strict';
+        const forms = document.querySelectorAll('.needs-validation');
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            });
+        });
+    })();
+    // Password visibility toggle
+    document.querySelectorAll('.toggle-password').forEach(button => {
+        button.addEventListener('click', function() {
+            const input = this.previousElementSibling;
+            const icon = this.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
     });
-
-    confirmPassword.addEventListener('input', function() {
-        if (this.value === newPassword.value) {
-            this.setCustomValidity('');
-        }
-    });
-
-    // Notification form submission
-    document.getElementById('notificationForm').addEventListener('submit', function(event) {
-        event.preventDefault();
-        showToast('Success', 'Notification preferences updated', 'success');
-    });
-
-    // Privacy form submission
-    document.getElementById('privacyForm').addEventListener('submit', function(event) {
-        event.preventDefault();
-        showToast('Success', 'Privacy settings updated', 'success');
-    });
-});
 </script>
 
 <?php include '../includes/layouts/footer.php'; ?>

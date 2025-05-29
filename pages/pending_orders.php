@@ -1,260 +1,336 @@
 <?php
-session_start();
-require_once '../config/database.php';
+require_once '../includes/bootstrap.php';
 
+// Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
     exit();
 }
 
+// Fetch user data
 $user_id = $_SESSION['user_id'];
-$conn = getDBConnection();
-
-// Handle actions
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['action'])) {
-        switch ($_POST['action']) {
-            case 'remove':
-                if (isset($_POST['pending_order_id'])) {
-                    $pending_order_id = $_POST['pending_order_id'];
-
-                    // Start transaction
-                    $conn->begin_transaction();
-
-                    try {
-                        // Get pending order details
-                        $sql = "SELECT * FROM pending_orders WHERE id = ? AND user_id = ?";
-                        $stmt = $conn->prepare($sql);
-                        $stmt->bind_param("ii", $pending_order_id, $user_id);
-                        $stmt->execute();
-                        $pending_order = $stmt->get_result()->fetch_assoc();
-
-                        if ($pending_order) {
-                            // Add item back to cart
-                            $sql = "INSERT INTO cart (user_id, product_id, quantity) 
-                                   VALUES (?, ?, ?) 
-                                   ON DUPLICATE KEY UPDATE quantity = quantity + ?";
-                            $stmt = $conn->prepare($sql);
-                            $stmt->bind_param(
-                                "iiii",
-                                $user_id,
-                                $pending_order['product_id'],
-                                $pending_order['quantity'],
-                                $pending_order['quantity']
-                            );
-                            $stmt->execute();
-
-                            // Remove from pending orders
-                            $sql = "DELETE FROM pending_orders WHERE id = ?";
-                            $stmt = $conn->prepare($sql);
-                            $stmt->bind_param("i", $pending_order_id);
-                            $stmt->execute();
-
-                            $conn->commit();
-                            $success_message = "Item moved back to cart successfully.";
-                        }
-                    } catch (Exception $e) {
-                        $conn->rollback();
-                        $error_message = "Error processing request: " . $e->getMessage();
-                    }
-                }
-                break;
-
-            case 'checkout':
-                if (isset($_POST['pending_order_ids'])) {
-                    $pending_order_ids = explode(',', $_POST['pending_order_ids']);
-                    $pending_order_ids = array_filter($pending_order_ids, 'is_numeric');
-                    $ids_string = implode(',', array_map('intval', $pending_order_ids));
-
-                    if (!empty($ids_string)) {
-                        // Redirect to checkout with selected items
-                        header("Location: ../checkout/checkout.php?items=" . urlencode($ids_string));
-                        exit();
-                    }
-                }
-                break;
-        }
-    }
-}
-
-// Get user's pending orders
-$sql = "SELECT po.*, p.name, p.thumbs, p.type 
-        FROM pending_orders po 
-        JOIN products p ON po.product_id = p.id 
-        WHERE po.user_id = ? AND po.status = 'pending'
-        ORDER BY po.created_at DESC";
+$sql = "SELECT * FROM users WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
-$pending_orders = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
 
-// Calculate total
-$total = 0;
-foreach ($pending_orders as $order) {
-    $total += $order['price'] * $order['quantity'];
-}
+// Fetch pending orders
+$sql = "SELECT o.*, 
+        GROUP_CONCAT(DISTINCT p.type) as product_types,
+        GROUP_CONCAT(DISTINCT p.name SEPARATOR '||') as product_names,
+        GROUP_CONCAT(DISTINCT oi.quantity SEPARATOR '||') as quantities,
+        (
+            SELECT status 
+            FROM order_status_history 
+            WHERE order_id = o.id 
+            ORDER BY created_at DESC 
+            LIMIT 1
+        ) as current_status,
+        (
+            SELECT created_at 
+            FROM order_status_history 
+            WHERE order_id = o.id 
+            ORDER BY created_at DESC 
+            LIMIT 1
+        ) as last_status_update
+        FROM orders o
+        JOIN order_items oi ON o.id = oi.order_id
+        JOIN products p ON oi.product_id = p.id
+        WHERE o.user_id = ? AND o.payment_status = 'pending'
+        GROUP BY o.id
+        ORDER BY o.created_at DESC";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$pending_orders = $result->fetch_all(MYSQLI_ASSOC);
+
+include '../includes/layouts/header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pending Orders - Ryvah Commerce</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        .product-image {
-            width: 80px;
-            height: 80px;
-            object-fit: cover;
-            border-radius: 8px;
-        }
-
-        .order-card {
-            transition: all 0.3s ease;
-        }
-
-        .order-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-    </style>
-</head>
-
-<body>
-    <?php include '../includes/layouts/header.php'; ?>
-
-    <div class="container py-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>Pending Orders</h2>
-            <?php if (!empty($pending_orders)): ?>
-                <form method="POST" id="checkout-form">
-                    <input type="hidden" name="action" value="checkout">
-                    <input type="hidden" name="pending_order_ids" id="pending_order_ids">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-shopping-cart me-2"></i>Proceed to Checkout
-                    </button>
-                </form>
-            <?php endif; ?>
-        </div>
-
-        <?php if (isset($success_message)): ?>
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <?php echo $success_message; ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        <?php endif; ?>
-
-        <?php if (isset($error_message)): ?>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <?php echo $error_message; ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        <?php endif; ?>
-
-        <?php if (empty($pending_orders)): ?>
-            <div class="text-center py-5">
-                <i class="fas fa-shopping-basket fa-3x text-muted mb-3"></i>
-                <h4>No Pending Orders</h4>
-                <p class="text-muted">You don't have any pending orders at the moment.</p>
-                <a href="products.php" class="btn btn-primary">
-                    <i class="fas fa-shopping-bag me-2"></i>Continue Shopping
-                </a>
-            </div>
-        <?php else: ?>
-            <div class="row">
-                <div class="col-lg-8">
-                    <?php foreach ($pending_orders as $order): ?>
-                        <div class="card order-card mb-3">
-                            <div class="card-body">
-                                <div class="row align-items-center">
-                                    <div class="col-auto">
-                                        <input type="checkbox" class="form-check-input order-checkbox"
-                                            value="<?php echo $order['id']; ?>">
-                                    </div>
-                                    <div class="col-auto">
-                                        <img src="<?php echo htmlspecialchars($order['thumbs']); ?>" class="product-image"
-                                            alt="<?php echo htmlspecialchars($order['name']); ?>">
-                                    </div>
-                                    <div class="col">
-                                        <h5 class="card-title mb-1"><?php echo htmlspecialchars($order['name']); ?></h5>
-                                        <p class="text-muted mb-1">Quantity: <?php echo $order['quantity']; ?></p>
-                                        <p class="mb-0">$<?php echo number_format($order['price'] * $order['quantity'], 2); ?>
-                                        </p>
-                                    </div>
-                                    <div class="col-auto">
-                                        <form method="POST" class="d-inline"
-                                            onsubmit="return confirm('Are you sure you want to move this item back to cart?');">
-                                            <input type="hidden" name="action" value="remove">
-                                            <input type="hidden" name="pending_order_id" value="<?php echo $order['id']; ?>">
-                                            <button type="submit" class="btn btn-outline-primary btn-sm">
-                                                <i class="fas fa-shopping-cart me-1"></i>Return to Cart
-                                            </button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
+<div class="profile-container">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar Navigation -->
+            <div class="col-lg-3">
+                <div class="profile-sidebar">
+                    <div class="profile-header text-center">
+                        <div class="profile-avatar">
+                            <i class="fas fa-user"></i>
                         </div>
-                    <?php endforeach; ?>
-                </div>
-                <div class="col-lg-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title mb-4">Order Summary</h5>
-                            <div class="d-flex justify-content-between mb-2">
-                                <span>Subtotal</span>
-                                <span>$<?php echo number_format($total, 2); ?></span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-2">
-                                <span>Shipping</span>
-                                <span class="text-success">Free</span>
-                            </div>
-                            <hr>
-                            <div class="d-flex justify-content-between mb-4">
-                                <strong>Total</strong>
-                                <strong class="text-primary">$<?php echo number_format($total, 2); ?></strong>
-                            </div>
-                            <button type="submit" form="checkout-form" class="btn btn-primary w-100">
-                                <i class="fas fa-lock me-2"></i>Proceed to Checkout
-                            </button>
-                        </div>
+                        <h4 class="profile-name"><?php echo htmlspecialchars($user['full_name']); ?></h4>
+                        <p class="profile-email"><?php echo htmlspecialchars($user['email']); ?></p>
+                    </div>
+                    <div class="profile-nav">
+                        <a href="profile.php" class="nav-item">
+                            <i class="fas fa-user-circle"></i>
+                            <span>My Profile</span>
+                        </a>
+                        <a href="orders.php" class="nav-item">
+                            <i class="fas fa-shopping-bag"></i>
+                            <span>My Orders</span>
+                        </a>
+                        <a href="pending_orders.php" class="nav-item active">
+                            <i class="fas fa-clock"></i>
+                            <span>Pending Orders</span>
+                        </a>
+                        <a href="wishlist.php" class="nav-item">
+                            <i class="fas fa-heart"></i>
+                            <span>Wishlist</span>
+                        </a>
+                        <a href="settings.php" class="nav-item">
+                            <i class="fas fa-cog"></i>
+                            <span>Settings</span>
+                        </a>
+                        <a href="logout.php" class="nav-item text-danger">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
                     </div>
                 </div>
             </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-9">
+                <div class="profile-content">
+                    <?php if (isset($_SESSION['success_message'])): ?>
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <?php
+                            echo $_SESSION['success_message'];
+                            unset($_SESSION['success_message']);
+                            ?>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if (isset($_SESSION['error_messages'])): ?>
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <ul class="mb-0">
+                                <?php
+                                foreach ($_SESSION['error_messages'] as $error) {
+                                    echo "<li>" . htmlspecialchars($error) . "</li>";
+                                }
+                                unset($_SESSION['error_messages']);
+                                ?>
+                            </ul>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    <?php endif; ?>
+
+                    <div class="content-header">
+                        <h2>Pending Orders</h2>
+                        <p class="text-muted">Complete payment for your pending orders</p>
+        </div>
+
+        <?php if (empty($pending_orders)): ?>
+                        <div class="text-center py-5">
+                            <div class="mb-4">
+                                <i class="fas fa-check-circle fa-4x text-success"></i>
+                            </div>
+                            <h3 class="mb-3">No Pending Orders</h3>
+                            <p class="text-muted mb-4">You have no orders waiting for payment.</p>
+                            <a href="../index.php" class="btn btn-primary btn-lg px-5">
+                                <i class="fas fa-shopping-cart me-2"></i>Start Shopping
+                            </a>
+            </div>
+        <?php else: ?>
+            <div class="row g-4">
+                            <?php foreach ($pending_orders as $order):
+                                $product_names = explode('||', $order['product_names']);
+                                $quantities = explode('||', $order['quantities']);
+                                $product_types = explode(',', $order['product_types']);
+                            ?>
+                                <div class="col-12">
+                                    <div class="card border-0 shadow-sm">
+                                        <div class="card-body p-4">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                <div>
+                                                    <h5 class="card-title mb-1">Order
+                                                        #<?php echo htmlspecialchars($order['id']); ?></h5>
+                                                    <p class="text-muted mb-0">
+                                                        Placed on <?php echo date('F j, Y', strtotime($order['created_at'])); ?>
+                                                    </p>
+                                </div>
+                                                <div class="text-end">
+                                                    <span class="badge bg-warning">Pending Payment</span>
+                                                    <p class="text-muted mb-0 mt-1">
+                                                        <small>Last updated:
+                                                            <?php echo date('M j, Y g:i A', strtotime($order['last_status_update'])); ?></small>
+                                </p>
+                                                </div>
+                                            </div>
+
+                                <div class="mb-3">
+                                                <h6 class="mb-2">Order Items:</h6>
+                                                <ul class="list-unstyled mb-0">
+                                                    <?php for ($i = 0; $i < count($product_names); $i++): ?>
+                                                        <li class="mb-1">
+                                                            <?php echo htmlspecialchars($product_names[$i]); ?>
+                                                            <span class="text-muted">(Qty: <?php echo $quantities[$i]; ?>)</span>
+                                                        </li>
+                                                    <?php endfor; ?>
+                                                </ul>
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <p class="mb-0">
+                                                        <strong>Total Amount:</strong>
+                                        $<?php echo number_format($order['total_amount'], 2); ?>
+                                                    </p>
+                                    </div>
+                                                <div class="text-end">
+                                                    <a href="../checkout/checkout.php?order_id=<?php echo $order['id']; ?>"
+                                                        class="btn btn-primary">
+                                                        <i class="fas fa-credit-card me-2"></i>Complete Payment
+                                    </a>
+                                                </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
         <?php endif; ?>
     </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .profile-container {
+        min-height: 100vh;
+        background: #f8f9fa;
+        padding: 2rem 0;
+    }
+
+    .profile-sidebar {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+        padding: 2rem;
+        height: 100%;
+    }
+
+    .profile-header {
+        padding-bottom: 2rem;
+        border-bottom: 1px solid #eee;
+        margin-bottom: 2rem;
+    }
+
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        background: linear-gradient(45deg, #007bff, #00bcd4);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+    }
+
+    .profile-avatar i {
+        font-size: 3.5rem;
+        color: white;
+    }
+
+    .profile-name {
+        color: #2c3e50;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .profile-email {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    .profile-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .nav-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        color: #2c3e50;
+        text-decoration: none;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .nav-item i {
+        width: 24px;
+        margin-right: 1rem;
+        font-size: 1.1rem;
+    }
+
+    .nav-item:hover {
+        background: #f8f9fa;
+        color: #007bff;
+    }
+
+    .nav-item.active {
+        background: #007bff;
+        color: white;
+    }
+
+    .profile-content {
+        padding: 0 1rem;
+    }
+
+    .content-header {
+        margin-bottom: 2rem;
+    }
+
+    .content-header h2 {
+        color: #2c3e50;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .card {
+        transition: transform 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+    }
+
+    .btn {
+        transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    @media (max-width: 991.98px) {
+        .profile-sidebar {
+            margin-bottom: 2rem;
+        }
+
+        .profile-content {
+            padding: 0;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .profile-container {
+            padding: 1rem;
+        }
+
+        .card {
+            margin-bottom: 1rem;
+        }
+    }
+</style>
 
     <?php include '../includes/layouts/footer.php'; ?>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const checkboxes = document.querySelectorAll('.order-checkbox');
-            const checkoutForm = document.getElementById('checkout-form');
-            const pendingOrderIds = document.getElementById('pending_order_ids');
-
-            checkboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', updateSelectedOrders);
-            });
-
-            function updateSelectedOrders() {
-                const selectedIds = Array.from(checkboxes)
-                    .filter(cb => cb.checked)
-                    .map(cb => cb.value);
-
-                pendingOrderIds.value = selectedIds.join(',');
-
-                // Enable/disable checkout button based on selection
-                const checkoutButton = checkoutForm.querySelector('button[type="submit"]');
-                checkoutButton.disabled = selectedIds.length === 0;
-            }
-
-            // Initial update
-            updateSelectedOrders();
-        });
-    </script>
-</body>
-
-</html>

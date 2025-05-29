@@ -28,15 +28,19 @@ require_once __DIR__ . '/../config/db.php';
 // Load functions
 require_once __DIR__ . '/functions.php';
 
+// Load encryption functions
+require_once __DIR__ . '/encryption.php';
+
 // Function to clean output buffer and send headers
-function cleanOutput() {
+function cleanOutput()
+{
     if (ob_get_length()) {
         ob_end_clean();
     }
 }
 
 // Register shutdown function
-register_shutdown_function(function() {
+register_shutdown_function(function () {
     $error = error_get_last();
     if ($error !== NULL && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR])) {
         cleanOutput();
@@ -47,4 +51,4 @@ register_shutdown_function(function() {
             sendJsonResponse(['error' => 'A fatal error occurred'], 500);
         }
     }
-}); 
+});

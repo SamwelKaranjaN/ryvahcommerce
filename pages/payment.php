@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!empty($missing_fields)) {
         debug($missing_fields, 'Missing Required Fields');
-        header('Location: checkout.php?error=' . urlencode('Missing required fields: ' . implode(', ', $missing_fields)));
+        header('Location: ../checkout/checkout?error=' . urlencode('Missing required fields: ' . implode(', ', $missing_fields)));
         exit;
     }
 
@@ -48,14 +48,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($cart_data['items'])) {
         debug('Cart is empty');
-        header('Location: checkout.php?error=' . urlencode('Your cart is empty'));
+        header('Location: ../checkout/checkout?error=' . urlencode('Your cart is empty'));
         exit;
     }
 
     // Validate user session
     if (!isset($_SESSION['user_id'])) {
         debug('No user ID in session');
-        header('Location: login.php?redirect=payment.php');
+        header('Location: ../pages/login?redirect=payment');
         exit;
     }
 
@@ -101,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } catch (Exception $e) {
         error_log("Error creating pending order: " . $e->getMessage());
-        header('Location: checkout.php?error=' . urlencode($e->getMessage()));
+        header('Location: ../checkout/checkout?error=' . urlencode($e->getMessage()));
         exit;
     }
 }
@@ -116,7 +116,7 @@ if (isset($_GET['pay']) && $_GET['pay'] === 'success' && $invoice_number) {
     // Validate user session
     if (!isset($_SESSION['user_id'])) {
         debug('No user ID in session');
-        header('Location: login.php?redirect=payment.php');
+        header('Location: ../pages/login?redirect=payment');
         exit;
     }
 
@@ -369,7 +369,7 @@ if ($invoice_number) {
                         No order found. Please complete the checkout process.
                     </div>
                     <div class="text-center mt-4">
-                        <a href="checkout.php" class="btn btn-primary">
+                        <a href="../checkout/checkout" class="btn btn-primary">
                             <i class="fas fa-shopping-cart me-2"></i>Return to Checkout
                         </a>
                     </div>

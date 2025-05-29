@@ -31,7 +31,7 @@ include '../includes/layouts/header.php';
         <div class="col">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="../index.php" class="text-decoration-none">Home</a></li>
+                    <li class="breadcrumb-item"><a href="../index" class="text-decoration-none">Home</a></li>
                     <li class="breadcrumb-item active" aria-current="page">Pending Payments</li>
                 </ol>
             </nav>
@@ -56,7 +56,7 @@ include '../includes/layouts/header.php';
         </div>
         <h3 class="mb-3">No pending payments</h3>
         <p class="text-muted mb-4">You don't have any pending payments at the moment.</p>
-        <a href="../index.php" class="btn btn-primary btn-lg px-5">
+        <a href="../index" class="btn btn-primary btn-lg px-5">
             <i class="fas fa-shopping-cart me-2"></i>Continue Shopping
         </a>
     </div>
@@ -89,7 +89,7 @@ include '../includes/layouts/header.php';
                             <p class="h5 mb-3">$<?php echo number_format($order['price'] * $order['quantity'], 2); ?>
                             </p>
                             <div class="d-grid gap-2">
-                                <a href="../checkout/checkout.php?retry=<?php echo $order['id']; ?>"
+                                <a href="../checkout/checkout?retry=<?php echo $order['id']; ?>"
                                     class="btn btn-primary">
                                     <i class="fas fa-credit-card me-2"></i>Retry Payment
                                 </a>

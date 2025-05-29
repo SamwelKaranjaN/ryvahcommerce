@@ -23,7 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Encrypt the provided password with AES-256-CBC
         $encrypted_password = openssl_encrypt($password, 'aes-256-cbc', $encryption_key, 0, $iv);
         if ($encrypted_password === false) {
-            header("Location: login.html?error=" . urlencode("Encryption failed"));
+            header("Location: login?error=" . urlencode("Encryption failed"));
             exit();
         }
 
@@ -31,14 +31,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (password_verify($encrypted_password, $user['password'])) {
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['email'] = $user['email'];
-            header("Location: dashboard.php");
+            header("Location: index");
             exit();
         } else {
-            header("Location: login.html?error=" . urlencode("Invalid email or password"));
+            header("Location: login?error=" . urlencode("Invalid email or password"));
             exit();
         }
     } else {
-        header("Location: login.html?error=" . urlencode("Invalid email or password"));
+        header("Location: login?error=" . urlencode("Invalid email or password"));
         exit();
     }
 

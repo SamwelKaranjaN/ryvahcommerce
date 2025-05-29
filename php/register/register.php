@@ -1,78 +1,87 @@
 <?php
-session_start();
+header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST');
+header('Access-Control-Allow-Headers: Content-Type');
 
-// Database connection
-require '../config/config.php';
+// Database configuration
+require_once "../../config/config.php";
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $full_name = mysqli_real_escape_string($conn, filter_var($_POST['full_name'] ?? '', FILTER_SANITIZE_STRING));
-    $email = mysqli_real_escape_string($conn, filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL));
-    $password = $_POST['password'] ?? '';
-    $confirm_password = $_POST['confirm_password'] ?? '';
-    $phone = mysqli_real_escape_string($conn, filter_var($_POST['phone'] ?? '', FILTER_SANITIZE_STRING)) ?: null;
-    $address = mysqli_real_escape_string($conn, filter_var($_POST['address'] ?? '', FILTER_SANITIZE_STRING)) ?: null;
-    $role = 'Client'; // Default role for new registrations
+// Get POST data
+$input = json_decode(file_get_contents('php://input'), true);
+$full_name = isset($input['full_name']) ? trim($input['full_name']) : '';
+$email = isset($input['email']) ? trim($input['email']) : '';
+$password = isset($input['password']) ? $input['password'] : '';
+$phone = isset($input['phone']) ? trim($input['phone']) : null;
+$address = isset($input['address']) ? trim($input['address']) : null;
+$city = isset($input['city']) ? trim($input['city']) : null;
+$state = isset($input['state']) ? trim($input['state']) : null;
+$postal_code = isset($input['postal_code']) ? trim($input['postal_code']) : null;
 
-    // Server-side validation
-    if (empty($full_name) || empty($email) || empty($password) || empty($confirm_password)) {
-        echo json_encode(['success' => false, 'error' => 'All required fields must be filled']);
-        exit();
-    }
-
-    if ($password !== $confirm_password) {
-        echo json_encode(['success' => false, 'error' => 'Passwords do not match']);
-        exit();
-    }
-
-    if (strlen($password) < 8) {
-        echo json_encode(['success' => false, 'error' => 'Password must be at least 8 characters long']);
-        exit();
-    }
-
-    // Check if email already exists
-    $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($result->num_rows > 0) {
-        echo json_encode(['success' => false, 'error' => 'Email already registered']);
-        exit();
-    }
-    $stmt->close();
-
-    // Generate AES-256 encryption key, salt, and IV
-    $encryption_key = openssl_random_pseudo_bytes(32); // 256-bit key
-    $salt = openssl_random_pseudo_bytes(16); // Unique salt per user
-    $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length('aes-256-cbc')); // IV for AES-256-CBC
-
-    // Encrypt password with AES-256-CBC
-    $encrypted_password = openssl_encrypt($password, 'aes-256-cbc', $encryption_key, 0, $iv);
-    if ($encrypted_password === false) {
-        echo json_encode(['success' => false, 'error' => 'Encryption failed']);
-        exit();
-    }
-
-    // Hash the encrypted password with bcrypt
-    $hashed_password = password_hash($encrypted_password, PASSWORD_DEFAULT);
-
-    // Store encryption key, salt, and IV securely (base64 encoded for database storage)
-    $encryption_key_b64 = base64_encode($encryption_key);
-    $salt_b64 = base64_encode($salt);
-    $iv_b64 = base64_encode($iv);
-
-    // Insert user into database
-    $stmt = $conn->prepare("INSERT INTO users (full_name, email, password, phone, address, role, encryption_key, salt, iv) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("sssssssss", $full_name, $email, $hashed_password, $phone, $address, $role, $encryption_key_b64, $salt_b64, $iv_b64);
-
-    if ($stmt->execute()) {
-        $_SESSION['user_id'] = $conn->insert_id;
-        $_SESSION['email'] = $email;
-        echo json_encode(['success' => true]);
-    } else {
-        echo json_encode(['success' => false, 'error' => 'Registration failed: ' . $conn->error]);
-    }
-
-    $stmt->close();
+// Validate required fields
+if (empty($full_name) || empty($email) || empty($password)) {
+    http_response_code(400);
+    echo json_encode(['error' => 'Full name, email, and password are required']);
+    exit;
 }
 
-$conn->close();
+// Validate email format
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    http_response_code(400);
+    echo json_encode(['error' => 'Invalid email format']);
+    exit;
+}
+
+// Check if email already exists
+$stmt = mysqli_prepare($conn, "SELECT id FROM users WHERE email = ?");
+mysqli_stmt_bind_param($stmt, 's', $email);
+mysqli_stmt_execute($stmt);
+mysqli_stmt_store_result($stmt);
+if (mysqli_stmt_num_rows($stmt) > 0) {
+    mysqli_stmt_close($stmt);
+    mysqli_close($conn);
+    http_response_code(400);
+    echo json_encode(['error' => 'Email already exists']);
+    exit;
+}
+mysqli_stmt_close($stmt);
+
+// Hash password
+$hashed_password = password_hash($password, PASSWORD_BCRYPT);
+
+// Generate encryption fields
+$encryption_key = bin2hex(openssl_random_pseudo_bytes(32)); // 256-bit key
+$salt = bin2hex(openssl_random_pseudo_bytes(16)); // Random salt
+$iv = bin2hex(openssl_random_pseudo_bytes(16)); // Initialization vector
+
+// Insert user into database (role is omitted to use table's default 'Client')
+$query = "INSERT INTO users (full_name, email, password, phone, encryption_key, salt, iv, address, city, state, postal_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+$stmt = mysqli_prepare($conn, $query);
+mysqli_stmt_bind_param(
+    $stmt,
+    'sssssssssss',
+    $full_name,
+    $email,
+    $hashed_password,
+    $phone,
+    $encryption_key,
+    $salt,
+    $iv,
+    $address,
+    $city,
+    $state,
+    $postal_code
+);
+
+if (mysqli_stmt_execute($stmt)) {
+    mysqli_stmt_close($stmt);
+    mysqli_close($conn);
+    http_response_code(201);
+    echo json_encode(['message' => 'User registered successfully']);
+} else {
+    mysqli_stmt_close($stmt);
+    mysqli_close($conn);
+    http_response_code(500);
+    echo json_encode(['error' => 'Failed to register user: ' . mysqli_error($conn)]);
+}
+?>

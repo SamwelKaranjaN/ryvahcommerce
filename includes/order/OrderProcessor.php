@@ -220,7 +220,6 @@ class OrderProcessor
             return false;
         }
     }
-<<<<<<< Updated upstream
 
     /**
      * Clear user's cart
@@ -243,6 +242,4 @@ class OrderProcessor
             error_log("Error clearing cart: " . $e->getMessage());
         }
     }
-=======
->>>>>>> Stashed changes
 }

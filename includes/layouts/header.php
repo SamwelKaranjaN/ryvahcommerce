@@ -5,500 +5,469 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Ryvah Books - Your Gateway to Digital Knowledge">
-    <meta name="theme-color" content="#007bff">
+    <meta name="theme-color" content="#2563eb">
     <title>Ryvah Books</title>
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/assets/images/favicon.png">
-
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <!-- Animate.css -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="/assets/css/main.css">
     <link rel="stylesheet" href="/assets/css/transitions.css">
 
     <style>
-        :root {
-            --navbar-height: 76px;
-            --primary-color: #007bff;
-            --secondary-color: #6c757d;
-            --success-color: #28a745;
-            --warning-color: #ffc107;
-            --danger-color: #dc3545;
-            --light-color: #f8f9fa;
-            --dark-color: #343a40;
-            --transition-normal: 0.3s;
-            --transition-smooth: cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+    :root {
+        --navbar-height: 70px;
+        --primary-color: #2563eb;
+        --secondary-color: #64748b;
+        --accent-color: #f59e0b;
+        --background-color: #ffffff;
+        --text-color: #1e293b;
+        --transition-base: 0.2s ease;
+    }
+
+    /* Modern Navbar Styles */
+    .navbar {
+        background: var(--background-color);
+        height: var(--navbar-height);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        transition: all var(--transition-base);
+    }
+
+    .navbar.scrolled {
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    }
+
+    .navbar-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 700;
+        color: var(--text-color) !important;
+        margin-right: 2rem;
+    }
+
+    .navbar-brand img {
+        height: 28px;
+        width: auto;
+        margin-right: 0.3rem;
+    }
+
+    .navbar-brand span {
+        font-size: 1.2rem;
+        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .navbar-toggler {
+        border: none;
+        background: transparent;
+        outline: none;
+        box-shadow: none !important;
+        padding: 0.3rem 0.6rem;
+        margin-left: 0.5rem;
+        z-index: 1100;
+    }
+
+    .navbar-toggler .icon-bar,
+    .navbar-toggler .icon-close {
+        display: block;
+        width: 28px;
+        height: 3px;
+        margin: 5px 0;
+        background: var(--text-color);
+        border-radius: 2px;
+        transition: all 0.3s cubic-bezier(.4, 2, .6, 1);
+    }
+
+    .navbar-toggler .icon-close {
+        width: 28px;
+        height: 28px;
+        background: none;
+        position: relative;
+    }
+
+    .navbar-toggler .icon-close:before,
+    .navbar-toggler .icon-close:after {
+        content: '';
+        position: absolute;
+        left: 6px;
+        top: 13px;
+        width: 16px;
+        height: 3px;
+        background: var(--text-color);
+        border-radius: 2px;
+    }
+
+    .navbar-toggler .icon-close:before {
+        transform: rotate(45deg);
+    }
+
+    .navbar-toggler .icon-close:after {
+        transform: rotate(-45deg);
+    }
+
+    .navbar .container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    /* Desktop styles (default) */
+    .navbar-collapse {
+        text-align: right;
+    }
+
+    .navbar-nav {
+        flex-direction: row;
+        align-items: center;
+        gap: 1.2rem;
+        margin-right: 2rem;
+    }
+
+    .nav-link {
+        padding: 0.5rem 1rem !important;
+        width: auto;
+        text-align: left;
+        color: var(--text-color) !important;
+        font-weight: 500;
+        position: relative;
+        transition: color var(--transition-base);
+    }
+
+    .nav-link:hover,
+    .nav-link.active {
+        color: var(--primary-color) !important;
+    }
+
+    .action-btn.laws-btn-animated {
+        margin: 0 1.5rem 0 0;
+        animation: bounceLaw 1.2s infinite alternate;
+        font-weight: bold;
+        font-size: 1.1rem;
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 16px -4px #f59e0b55;
+        border: none;
+        outline: none;
+        background: var(--accent-color);
+        color: #fff;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        border-radius: 2rem;
+        padding: 0.6rem 1.6rem;
+        transition: background 0.2s, box-shadow 0.2s;
+    }
+
+    .action-btn.laws-btn-animated:hover {
+        background: #d97706;
+        box-shadow: 0 8px 24px -6px #f59e0b99;
+    }
+
+    @keyframes bounceLaw {
+        0% {
+            transform: scale(1) translateY(0);
+            box-shadow: 0 4px 16px -4px #f59e0b55;
         }
 
-        /* Navbar Styles */
-        .navbar {
-            background-color: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(10px);
-            box-shadow: var(--shadow-md);
-            transition: all var(--transition-normal) var(--transition-smooth);
-            height: var(--navbar-height);
+        60% {
+            transform: scale(1.05) translateY(-4px);
+            box-shadow: 0 8px 24px -6px #f59e0b99;
         }
 
-        .navbar.scrolled {
-            background-color: white;
-            box-shadow: var(--shadow-lg);
+        100% {
+            transform: scale(1) translateY(0);
+            box-shadow: 0 4px 16px -4px #f59e0b55;
+        }
+    }
+
+    .desktop-icons {
+        display: flex;
+        align-items: center;
+        gap: 1.2rem;
+    }
+
+    .desktop-icons .nav-icon {
+        font-size: 1.4rem;
+        color: var(--text-color);
+        position: relative;
+        transition: color 0.2s;
+        padding: 0.3rem 0.5rem;
+    }
+
+    .desktop-icons .nav-icon:hover {
+        color: var(--primary-color);
+    }
+
+    .desktop-icons .cart-count {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        background: var(--primary-color);
+        color: white;
+        font-size: 0.75rem;
+        font-weight: 600;
+        width: 18px;
+        height: 18px;
+        border-radius: 9999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .icon-row {
+        display: none;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 991.98px) {
+        .navbar .container {
+            flex-direction: row;
+            justify-content: flex-end;
         }
 
         .navbar-brand {
-            font-weight: 800;
-            color: var(--primary-color) !important;
-            font-size: 1.5rem;
-            transition: all var(--transition-normal) var(--transition-bounce);
-            display: flex;
-            align-items: center;
+            margin-left: auto;
+            margin-right: 0;
+        }
+
+        .navbar-nav {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            width: 100%;
             gap: 0.5rem;
-        }
-
-        .navbar-brand:hover {
-            transform: translateY(-2px);
-        }
-
-        .navbar-brand i {
-            transition: transform var(--transition-normal) var(--transition-bounce);
-            font-size: 1.8rem;
-        }
-
-        .navbar-brand:hover i {
-            transform: rotate(-15deg);
+            margin-right: 0;
         }
 
         .nav-link {
-            color: var(--dark-color) !important;
-            font-weight: 500;
-            padding: 0.5rem 1rem !important;
-            transition: all var(--transition-normal) var(--transition-smooth);
-            position: relative;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .nav-link i {
-            font-size: 1.1rem;
-            transition: transform var(--transition-normal) var(--transition-bounce);
-        }
-
-        .nav-link:hover i {
-            transform: translateY(-2px);
-        }
-
-        .nav-link:after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: 0;
-            left: 50%;
-            background-color: var(--primary-color);
-            transition: all var(--transition-normal) var(--transition-smooth);
-            transform: translateX(-50%);
-        }
-
-        .nav-link:hover:after {
-            width: 80%;
-        }
-
-        .nav-link:hover {
-            color: var(--primary-color) !important;
-            transform: translateY(-2px);
-        }
-
-        .nav-link.active {
-            color: var(--primary-color) !important;
-        }
-
-        .nav-link.active:after {
-            width: 80%;
-        }
-
-        /* Nav Icons */
-        .nav-icon {
-            font-size: 1.2rem;
-            margin-left: 1.5rem;
-            color: var(--dark-color);
-            transition: all var(--transition-normal) var(--transition-smooth);
-            position: relative;
-            padding: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .nav-icon:hover {
-            color: var(--primary-color);
-            transform: translateY(-2px);
-        }
-
-        .nav-icon:after {
-            content: '';
-            position: absolute;
+            padding: 0.75rem 1rem !important;
             width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: rgba(0, 123, 255, 0.1);
-            transform: scale(0);
-            transition: transform var(--transition-normal) var(--transition-bounce);
-            z-index: -1;
+            text-align: left;
         }
 
-        .nav-icon:hover:after {
-            transform: scale(1.5);
+        .action-btn.laws-btn-animated {
+            width: 100%;
+            justify-content: center;
+            margin: 0.5rem 0;
+            border-radius: 2rem;
+            padding: 0.7rem 0;
         }
 
-        /* Cart Badge */
-        .cart-count {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: var(--primary-color);
-            color: white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            font-size: 0.7rem;
+        .icon-row {
+            display: flex !important;
+            justify-content: center;
+            align-items: center;
+            gap: 2.5rem;
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+
+        .icon-row a {
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all var(--transition-normal) var(--transition-bounce);
-            animation: pulse 2s infinite;
+            font-size: 1.5rem;
+            color: var(--text-color);
+            transition: color 0.2s;
         }
 
-        /* Checkout Button */
-        .checkout-btn {
-            position: relative;
-            overflow: hidden;
-            transition: all var(--transition-normal) var(--transition-smooth);
-            z-index: 1000;
-            box-shadow: var(--shadow-md);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-weight: 600;
-            padding: 0.5rem 1.2rem;
-            border-radius: 50px;
+        .icon-row a:hover {
+            color: var(--primary-color);
         }
 
-        .checkout-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .checkout-btn::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.2));
-            transform: translateX(-100%);
-            transition: transform 0.6s ease;
-        }
-
-        .checkout-btn:hover::after {
-            transform: translateX(100%);
-        }
-
-        /* Dropdown Menu */
-        .dropdown-menu {
+        .laws-btn-animated {
+            animation: bounceLaw 1.2s infinite alternate;
+            font-weight: bold;
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 16px -4px #f59e0b55;
             border: none;
-            box-shadow: var(--shadow-lg);
-            border-radius: 1rem;
-            padding: 0.5rem;
-            animation: slideDown 0.3s var(--transition-bounce);
+            outline: none;
         }
+    }
 
-        .dropdown-item {
-            border-radius: 0.5rem;
-            padding: 0.7rem 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all var(--transition-normal) var(--transition-smooth);
-        }
+    /* Action Buttons */
+    .action-btn {
+        padding: 0.5rem 1.25rem;
+        border-radius: 9999px;
+        font-weight: 600;
+        transition: all var(--transition-base);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
 
-        .dropdown-item:hover {
-            background-color: rgba(0, 123, 255, 0.1);
-            transform: translateX(5px);
-        }
+    .btn-primary {
+        background: var(--primary-color);
+        border: none;
+    }
 
-        .dropdown-item i {
-            width: 1.2rem;
-            text-align: center;
-        }
+    .btn-primary:hover {
+        background: #1d4ed8;
+        transform: translateY(-1px);
+    }
 
-        /* Toast Message */
-        .toast {
-            background: white;
-            border-radius: 1rem;
-            box-shadow: var(--shadow-lg);
-            animation: slideIn 0.3s var(--transition-bounce);
-            overflow: hidden;
-        }
+    .btn-warning {
+        background: var(--accent-color);
+        border: none;
+        color: white;
+    }
 
-        .toast-header {
-            border-top-left-radius: 1rem;
-            border-top-right-radius: 1rem;
-            padding: 0.8rem 1rem;
-        }
+    .btn-warning:hover {
+        background: #d97706;
+        color: white;
+        transform: translateY(-1px);
+    }
 
-        .toast-body {
-            padding: 1rem;
-            font-size: 0.95rem;
-        }
+    /* Cart & Profile Icons */
+    .nav-icon {
+        position: relative;
+        padding: 0.5rem;
+        color: var(--text-color);
+        transition: all var(--transition-base);
+    }
 
-        /* Responsive Styles */
-        @media (max-width: 991.98px) {
-            .navbar-collapse {
-                background: white;
-                padding: 1.5rem;
-                border-radius: 1rem;
-                box-shadow: var(--shadow-lg);
-                margin-top: 1rem;
-                animation: slideDown var(--transition-normal) var(--transition-bounce);
-            }
+    .nav-icon:hover {
+        color: var(--primary-color);
+    }
 
-            .nav-icon {
-                margin: 0.5rem 0;
-            }
+    .cart-count {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background: var(--primary-color);
+        color: white;
+        font-size: 0.75rem;
+        font-weight: 600;
+        width: 20px;
+        height: 20px;
+        border-radius: 9999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
-            .nav-link {
-                padding: 0.8rem 0 !important;
-            }
+    /* Dropdown Menu */
+    .dropdown-menu {
+        border: none;
+        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        border-radius: 0.75rem;
+        padding: 0.5rem;
+        min-width: 200px;
+    }
 
-            .nav-link:after {
-                display: none;
-            }
+    .dropdown-item {
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        transition: all var(--transition-base);
+    }
 
-            .navbar-nav {
-                flex-direction: column;
-                align-items: flex-start;
-                width: 100%;
-            }
+    .dropdown-item:hover {
+        background: rgba(37, 99, 235, 0.1);
+        color: var(--primary-color);
+    }
 
-            .nav-item {
-                width: 100%;
-                margin: 0.2rem 0;
-            }
+    .dropdown-item i {
+        width: 1.25rem;
+        text-align: center;
+    }
 
-            .nav-link,
-            .btn-warning {
-                width: 100%;
-                text-align: left;
-                font-size: 1.1rem;
-                padding: 0.8rem 1rem !important;
-            }
+    /* Toast Message */
+    .toast {
+        background: white;
+        border: none;
+        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        border-radius: 0.75rem;
+    }
 
-            .nav-item.d-flex {
-                justify-content: center !important;
-                margin: 0.5rem 0;
-            }
+    .toast-header {
+        border-bottom: none;
+        padding: 1rem;
+    }
 
-            .btn-warning {
-                font-size: 1rem;
-                margin: 0.5rem 0;
-            }
-
-            .d-flex.align-items-center {
-                flex-direction: row;
-                width: 100%;
-                justify-content: flex-end;
-            }
-
-            .checkout-btn {
-                margin: 0.5rem 0;
-                width: 100%;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .navbar-brand {
-                font-size: 1.1rem;
-            }
-
-            .btn-warning {
-                font-size: 0.95rem;
-                padding: 0.5rem 0.7rem;
-            }
-
-            .nav-link,
-            .btn-warning {
-                font-size: 1rem;
-                padding: 0.7rem 0.8rem !important;
-            }
-        }
-
-        /* Animations */
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideOut {
-            from {
-                transform: translateX(0);
-                opacity: 1;
-            }
-
-            to {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-        }
-
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.1);
-            }
-
-            100% {
-                transform: scale(1);
-            }
-        }
+    .toast-body {
+        padding: 1rem;
+    }
     </style>
 </head>
 
 <body class="page-enter">
+    <?php
+    // Include timeout modal if user is logged in
+    if (isset($_SESSION['user_id'])) {
+        include 'timeout_modal.php';
+    }
+    ?>
+
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+    <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container">
-            <a class="navbar-brand animate__animated animate__fadeIn" href="index">
-                <i class="fas fa-book-open"></i>
+            <a class="navbar-brand" href="../pages/index">
+                <img src="/resources/logo.jpeg" alt="RYVAH">
                 <span>Ryvah Books</span>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-label="Toggle navigation">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
+                <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'index' ? 'active' : ''; ?>"
-                            href="index">
-                            <i class="fas fa-home"></i>
-                            <span>Home</span>
-                        </a>
+                        <a class="nav-link" href="../pages/index"><i class="fas fa-home"></i> Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'categories' ? 'active' : ''; ?>"
-                            href="categories">
-                            <i class="fas fa-th-large"></i>
-                            <span>Categories</span>
-                        </a>
+                        <a class="nav-link" href="../pages/categories"><i class="fas fa-th-large"></i> Categories</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'about' ? 'active' : ''; ?>"
-                            href="about">
-                            <i class="fas fa-info-circle"></i>
-                            <span>About</span>
-                        </a>
+                        <a class="nav-link" href="../pages/about"><i class="fas fa-info-circle"></i> About</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'contact' ? 'active' : ''; ?>"
-                            href="contact">
-                            <i class="fas fa-envelope"></i>
-                            <span>Contact</span>
-                        </a>
-                    </li>
-                    <li class="nav-item d-flex align-items-center justify-content-center">
-                        <a href="/ryvahcommerce/lawsofryvah/laws"
-                            class="btn btn-warning fw-bold text-uppercase mx-3 animate__animated animate__pulse animate__infinite">
-                            <i class="fas fa-gavel me-2"></i>
-                            <span>READ THE LAWS OF RYVAH</span>
-                        </a>
+                        <a class="nav-link" href="../pages/contact"><i class="fas fa-envelope"></i> Contact</a>
                     </li>
                 </ul>
-                <div class="d-flex align-items-center">
-                    <?php
-                    try {
-                        require_once dirname(__DIR__) . '/cart.php';
-                        $cart_data = getCartItems();
-                        $cart_items = $cart_data['items'];
-                        $cart_count = count($cart_items);
-                    ?>
-                        <a href="cart" class="nav-icon position-relative">
-                            <i class="fas fa-shopping-cart"></i>
-                            <?php if ($cart_count > 0): ?>
-                                <span class="cart-count"><?php echo $cart_count; ?></span>
-                            <?php endif; ?>
-                        </a>
-                    <?php } catch (Exception $e) {
-                        error_log("Error in header.php: " . $e->getMessage());
-                    } ?>
-                    <div class="dropdown"> <a href="#" class="nav-icon" title="Profile" data-bs-toggle="dropdown">
+                <a href="../lawsofryvah/laws" class="btn btn-warning action-btn laws-btn-animated">
+                    <i class="fas fa-gavel"></i>
+                    <span>Laws of Ryvah</span>
+                </a>
+                <div class="desktop-icons">
+                    <a href="../pages/cart" class="nav-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                        <?php if (isset($cart_count) && $cart_count > 0): ?>
+                        <span class="cart-count"><?php echo $cart_count; ?></span>
+                        <?php endif; ?>
+                    </a>
+                    <div class="dropdown">
+                        <a href="#" class="nav-icon" data-bs-toggle="dropdown">
                             <i class="fas fa-user"></i>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <?php if (isset($_SESSION['user_id'])): ?>
-                                <li><a class="dropdown-item" href="profile.php">
-                                        <i class="fas fa-user"></i>
-                                        <span>My Profile</span>
-                                    </a></li>
-                                <li><a class="dropdown-item" href="orders.php">
-                                        <i class="fas fa-shopping-bag"></i>
-                                        <span>My Orders</span>
-                                    </a></li>
-                                <li><a class="dropdown-item" href="wishlist.php">
-                                        <i class="fas fa-heart"></i>
-                                        <span>Wishlist</span>
-                                    </a></li>
-                                <li><a class="dropdown-item" href="settings.php">
-                                        <i class="fas fa-cog"></i>
-                                        <span>Settings</span>
-                                    </a></li>
-                                <li>
-                                    <hr class="dropdown-divider">
-                                </li>
-                                <li><a class="dropdown-item" href="logout.php">
-                                        <i class="fas fa-sign-out-alt"></i>
-                                        <span>Logout</span>
-                                    </a></li>
+                            <li><a class="dropdown-item" href="../pages/profile"><i class="fas fa-user"></i> Profile</a>
+                            </li>
+                            <li><a class="dropdown-item" href="../pages/orders"><i class="fas fa-shopping-bag"></i>
+                                    Orders</a></li>
+                            <li><a class="dropdown-item" href="../pages/wishlist"><i class="fas fa-heart"></i>
+                                    Wishlist</a></li>
+                            <li><a class="dropdown-item" href="../pages/settings"><i class="fas fa-cog"></i>
+                                    Settings</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="../pages/logout"><i class="fas fa-sign-out-alt"></i>
+                                    Logout</a></li>
                             <?php else: ?>
-                                <li><a class="dropdown-item"
-                                        href="login.php?redirect=<?php echo urlencode($_SERVER['REQUEST_URI']); ?>">
-                                        <i class="fas fa-sign-in-alt"></i>
-                                        <span>Login</span>
-                                    </a></li>
-                                <li><a class="dropdown-item" href="register.php">
-                                        <i class="fas fa-user-plus"></i>
-                                        <span>Register</span>
-                                    </a></li>
+                            <li><a class="dropdown-item"
+                                    href="../pages/login?redirect=<?php echo urlencode($_SERVER['REQUEST_URI']); ?>">
+                                    <i class="fas fa-sign-in-alt"></i> Login</a></li>
+                            <li><a class="dropdown-item" href="../pages/register"><i class="fas fa-user-plus"></i>
+                                    Register</a></li>
                             <?php endif; ?>
                         </ul>
                     </div>
@@ -512,121 +481,107 @@
 
     <!-- Success Message Toast -->
     <?php if (isset($_SESSION['success_message'])): ?>
-        <div class="position-fixed top-0 end-0 p-3" style="z-index: 1050">
-            <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="toast-header bg-success text-white">
-                    <i class="fas fa-check-circle me-2"></i>
-                    <strong class="me-auto">Success</strong>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"
-                        aria-label="Close"></button>
-                </div>
-                <div class="toast-body">
-                    <?php
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 1050">
+        <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header bg-success text-white">
+                <i class="fas fa-check-circle me-2"></i>
+                <strong class="me-auto">Success</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"
+                    aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                <?php
                     echo htmlspecialchars($_SESSION['success_message']);
                     unset($_SESSION['success_message']);
                     ?>
-                </div>
             </div>
         </div>
+    </div>
     <?php endif; ?>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Include session timeout script if user is logged in -->
+    <?php if (isset($_SESSION['user_id'])): ?>
+    <script src="js/session-timeout.js"></script>
+    <?php endif; ?>
+
     <script>
-        // Add scroll effect to navbar
-        window.addEventListener('scroll', function() {
-            const navbar = document.querySelector('.navbar');
-            if (window.scrollY > 50) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
-            }
-        });
-
-        // Auto-hide success message after 5 seconds
-        document.addEventListener('DOMContentLoaded', function() {
-            const toast = document.querySelector('.toast');
-            if (toast) {
-                setTimeout(() => {
-                    const bsToast = new bootstrap.Toast(toast);
-                    bsToast.hide();
-                }, 5000);
-            }
-        });
-
-        // Update cart count via AJAX
-        function updateCartCount() {
-            fetch('../includes/cart.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: 'action=get'
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    const cartCount = document.querySelector('.cart-count');
-                    const checkoutBtn = document.querySelector('.checkout-btn');
-                    const overlay = document.getElementById('checkout-overlay');
-                    const overlayTotal = document.getElementById('overlay-cart-total');
-
-                    if (data.items && data.items.length > 0) {
-                        // Update cart count
-                        if (!cartCount) {
-                            const span = document.createElement('span');
-                            span.className = 'cart-count';
-                            span.textContent = data.items.length;
-                            document.querySelector('.nav-icon.position-relative').appendChild(span);
-                        } else {
-                            cartCount.textContent = data.items.length;
-                        }
-
-                        // Show checkout button if not present
-                        if (!checkoutBtn) {
-                            const btn = document.createElement('a');
-                            btn.href = 'checkout';
-                            btn.className = 'btn btn-primary me-3 checkout-btn';
-                            btn.innerHTML = '<i class="fas fa-lock"></i><span>Checkout</span>';
-                            document.querySelector('.d-flex.align-items-center').insertBefore(
-                                btn,
-                                document.querySelector('.nav-icon.position-relative')
-                            );
-                        }
-
-                        // Update checkout overlay
-                        if (overlay && overlayTotal) {
-                            let total = 0;
-                            data.items.forEach(item => {
-                                total += item.price * item.quantity;
-                            });
-                            overlayTotal.textContent = '$' + total.toFixed(2);
-                            overlay.style.display = 'flex';
-                        }
-                    } else {
-                        // Remove cart count and checkout button
-                        if (cartCount) cartCount.remove();
-                        if (checkoutBtn) checkoutBtn.remove();
-                        if (overlay) overlay.style.display = 'none';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error updating cart:', error);
-                });
+    // Navbar scroll effect
+    window.addEventListener('scroll', function() {
+        const navbar = document.querySelector('.navbar');
+        if (window.scrollY > 50) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
         }
+    });
 
-        // Update cart count every 5 seconds
-        setInterval(updateCartCount, 5000);
+    // Hamburger to X toggle
+    const toggler = document.querySelector('.navbar-toggler');
+    const navCollapse = document.getElementById('navbarNav');
 
-        // Initial cart count update
-        document.addEventListener('DOMContentLoaded', function() {
-            updateCartCount();
-        });
+    toggler.addEventListener('click', function(e) {
+        setTimeout(() => {
+            if (navCollapse.classList.contains('show')) {
+                toggler.innerHTML = '<span class="icon-close"></span>';
+            } else {
+                toggler.innerHTML =
+                    '<span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>';
+            }
+        }, 200);
+    });
+
+    document.addEventListener('click', function(event) {
+        if (navCollapse.classList.contains('show') && !navCollapse.contains(event.target) && !toggler.contains(
+                event.target)) {
+            toggler.click();
+        }
+    });
+
+    // Auto-hide success message
+    document.addEventListener('DOMContentLoaded', function() {
+        const toast = document.querySelector('.toast');
+        if (toast) {
+            setTimeout(() => {
+                const bsToast = new bootstrap.Toast(toast);
+                bsToast.hide();
+            }, 5000);
+        }
+    });
+
+    // Real-time cart count update
+    function updateCartCount() {
+        fetch('/includes/cart.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'action=get'
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Find the cart icon specifically (not just the first .nav-icon)
+                const cartIcon = document.querySelector('.nav-icon .fa-shopping-cart')?.parentElement;
+                let cartCount = cartIcon ? cartIcon.querySelector('.cart-count') : null;
+                if (data.items && data.items.length > 0) {
+                    if (!cartCount && cartIcon) {
+                        const span = document.createElement('span');
+                        span.className = 'cart-count';
+                        span.textContent = data.items.length;
+                        cartIcon.appendChild(span);
+                    } else if (cartCount) {
+                        cartCount.textContent = data.items.length;
+                    }
+                } else if (cartCount) {
+                    cartCount.remove();
+                }
+            });
+    }
+
+    setInterval(updateCartCount, 5000);
+    document.addEventListener('DOMContentLoaded', updateCartCount);
     </script>
 </body>
 

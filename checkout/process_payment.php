@@ -5,256 +5,179 @@ require_once '../vendor/autoload.php';
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
-    header('Location: ../login.php');
+    echo json_encode(['success' => false, 'message' => 'User not logged in']);
     exit();
 }
 
-// Check if billing information exists
-if (!isset($_SESSION['temp_billing'])) {
-    header('Location: checkout.php');
-    exit();
-}
-
+// Get POST data
+$data = json_decode(file_get_contents('php://input'), true);
 $user_id = $_SESSION['user_id'];
 $conn = getDBConnection();
 
-// PayPal Configuration
-$paypal_client_id = 'AfnlzZIeFsOcmqTOfERncgTQJqRV6vo6eLHfP1zf7G2S7WwSLV6-uUdvaK99zQ6mNk5D8A2qpjQbhkhE';
-$paypal_secret = 'EJWttkx-dg39VMrg4C76-vLfVMT8Fg3DFtpKDD54skY-_AoHMlA-6iBkObGoNISXCsvJUiVgbzO6gGmO';
-
-// Stripe Configuration
-$stripe_secret_key = 'YOUR_STRIPE_SECRET_KEY';
-\Stripe\Stripe::setApiKey($stripe_secret_key);
-
-// Get cart items and calculate total
-$sql = "SELECT c.*, p.name, p.price, p.type, p.thumbs 
-        FROM cart c 
-        JOIN products p ON c.product_id = p.id 
-        WHERE c.user_id = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$result = $stmt->get_result();
-
-$total = 0;
-$items = [];
-
-while ($row = $result->fetch_assoc()) {
-    $items[] = $row;
-    $total += $row['price'] * $row['quantity'];
-}
-
-// Format billing address
-$billing_info = $_SESSION['temp_billing'];
-$billing_address = sprintf(
-    "%s, %s, %s %s, Phone: %s",
-    $billing_info['address'],
-    $billing_info['city'],
-    $billing_info['state'],
-    $billing_info['postal'],
-    $billing_info['phone']
-);
-
-// Start transaction
-$conn->begin_transaction();
-
 try {
-    // Create order record
-    $sql = "INSERT INTO orders (user_id, total_amount, payment_status, billing_address, created_at) 
-            VALUES (?, ?, 'pending', ?, NOW())";
+    // Start transaction
+    $conn->begin_transaction();
+
+    // Create order
+    $sql = "INSERT INTO orders (user_id, total_amount, payment_status, payment_method, billing_address) 
+            VALUES (?, ?, 'pending', ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ids", $user_id, $total, $billing_address);
+
+    // Format billing address
+    $billing_address = sprintf(
+        "%s, %s, %s %s, %s, Phone: %s",
+        $data['billing_info']['postal_code'],
+        $data['billing_info']['city'],
+        $data['billing_info']['address'],
+        $data['billing_info']['postal_code'],
+        $data['billing_info']['city'],
+        $data['billing_info']['phone']
+    );
+
+    $stmt->bind_param("idss", $user_id, $data['amount'], $data['payment_method'], $billing_address);
     $stmt->execute();
     $order_id = $conn->insert_id;
 
-    // Insert order items
-    $sql = "INSERT INTO order_items (order_id, product_id, quantity, price, subtotal) 
-            VALUES (?, ?, ?, ?, ?)";
+    // Get cart items
+    $sql = "SELECT c.*, p.name, p.price, p.type 
+            FROM cart c 
+            JOIN products p ON c.product_id = p.id 
+            WHERE c.user_id = ?";
     $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $cart_items = $result->fetch_all(MYSQLI_ASSOC);
 
-    foreach ($items as $item) {
+    // Insert order items and create user purchases for ebooks
+    foreach ($cart_items as $item) {
+        // Insert into order_items
+        $sql = "INSERT INTO order_items (order_id, product_id, quantity, price, subtotal) 
+                VALUES (?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($sql);
         $subtotal = $item['price'] * $item['quantity'];
-        $stmt->bind_param(
-            "iiids",
-            $order_id,
-            $item['product_id'],
-            $item['quantity'],
-            $item['price'],
-            $subtotal
-        );
+        $stmt->bind_param("iiids", $order_id, $item['product_id'], $item['quantity'], $item['price'], $subtotal);
         $stmt->execute();
+
+        // If it's an ebook, create user_purchases entry
+        if ($item['type'] === 'ebook') {
+            $sql = "INSERT INTO user_purchases (user_id, product_id, order_id, download_count) 
+                    VALUES (?, ?, ?, 0)";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("iii", $user_id, $item['product_id'], $order_id);
+            $stmt->execute();
+        }
     }
 
-    // Store payment information
-    $payment_method = $_POST['payment_method'] ?? 'paypal';
-    $sql = "INSERT INTO order_payments (order_id, payment_method, amount, status, payment_date) 
-            VALUES (?, ?, ?, 'pending', NOW())";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("isd", $order_id, $payment_method, $total);
-    $stmt->execute();
-
-    // Add initial order status
-    $sql = "INSERT INTO order_status_history (order_id, status, notes) 
-            VALUES (?, 'pending', 'Order created')";
+    // Add initial status to order_status_history
+    $sql = "INSERT INTO order_status_history (order_id, status, notes) VALUES (?, 'pending', 'Order created')";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $order_id);
     $stmt->execute();
 
-    // Commit transaction
-    $conn->commit();
+    // Process payment based on method
+    if ($data['payment_method'] === 'stripe') {
+        // Process Stripe payment
+        $stripe_config = require_once '../config/stripe.php';
+        \Stripe\Stripe::setApiKey($stripe_config['secret_key']);
 
-    // Store order ID in session for payment processing
-    $_SESSION['current_order_id'] = $order_id;
+        try {
+            $charge = \Stripe\Charge::create([
+                'amount' => $data['amount'] * 100, // Convert to cents
+                'currency' => 'usd',
+                'source' => $data['token'],
+                'description' => "Order #$order_id"
+            ]);
 
-    // Redirect to appropriate payment processor
-    if ($payment_method === 'paypal') {
-        header('Location: process_paypal.php');
-    } else {
-        header('Location: process_stripe.php');
-    }
-    exit();
-} catch (Exception $e) {
-    // Rollback transaction on error
-    $conn->rollback();
-    error_log("Error processing order: " . $e->getMessage());
-    header('Location: checkout.php?error=1');
-    exit();
-}
-?>
+            // Update order status to completed
+            $sql = "UPDATE orders SET payment_status = 'completed' WHERE id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("i", $order_id);
+            $stmt->execute();
 
-<!DOCTYPE html>
-<html lang="en">
+            // Add status to history
+            $sql = "INSERT INTO order_status_history (order_id, status, notes) VALUES (?, 'completed', 'Payment successful via Stripe')";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("i", $order_id);
+            $stmt->execute();
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://js.stripe.com/v3/"></script>
-    <script src="https://www.paypal.com/sdk/js?client-id=<?php echo $paypal_client_id; ?>"></script>
-</head>
+            // Record payment
+            $sql = "INSERT INTO order_payments (order_id, payment_method, transaction_id, amount, status) 
+                    VALUES (?, 'stripe', ?, ?, 'completed')";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("isd", $order_id, $charge->id, $data['amount']);
+            $stmt->execute();
 
-<body>
-    <div class="container mt-5">
-        <h2>Payment Options</h2>
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h4>PayPal</h4>
-                    </div>
-                    <div class="card-body">
-                        <div id="paypal-button-container"></div>
-                    </div>
-                </div>
-            </div>
+            // Clear cart
+            $sql = "DELETE FROM cart WHERE user_id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("i", $user_id);
+            $stmt->execute();
 
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h4>Credit Card (Stripe)</h4>
-                    </div>
-                    <div class="card-body">
-                        <form id="payment-form">
-                            <div class="mb-3">
-                                <label for="card-element" class="form-label">Credit or Debit Card</label>
-                                <div id="card-element" class="form-control"></div>
-                                <div id="card-errors" class="text-danger mt-2"></div>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Pay with Card</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+            $conn->commit();
+            echo json_encode(['success' => true, 'order_id' => $order_id, 'message' => 'Payment successful']);
+        } catch (\Stripe\Exception\CardException $e) {
+            $conn->rollback();
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+    } else if ($data['payment_method'] === 'paypal') {
+        // Process PayPal payment
+        $paypal_config = require_once '../config/paypal.php';
 
-    <script>
-    // Initialize Stripe
-    const stripe = Stripe('YOUR_STRIPE_PUBLISHABLE_KEY');
-    const elements = stripe.elements();
-    const card = elements.create('card');
-    card.mount('#card-element');
+        // Verify PayPal payment
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "https://api.paypal.com/v2/checkout/orders/" . $data['payment_id']);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            "Authorization: Bearer " . $paypal_config['access_token'],
+            "Content-Type: application/json"
+        ]);
 
-    // Handle Stripe form submission
-    const form = document.getElementById('payment-form');
-    form.addEventListener('submit', async (event) => {
-        event.preventDefault();
+        $response = curl_exec($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
 
-        const {
-            token,
-            error
-        } = await stripe.createToken(card);
+        if ($http_code === 200) {
+            $payment_data = json_decode($response, true);
 
-        if (error) {
-            const errorElement = document.getElementById('card-errors');
-            errorElement.textContent = error.message;
-        } else {
-            // Send token to server
-            const response = await fetch('process_stripe.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    token: token.id,
-                    amount: <?php echo $total * 100; ?>, // Convert to cents
-                    order_id: <?php echo $order_id; ?>
-                })
-            });
+            if ($payment_data['status'] === 'COMPLETED') {
+                // Update order status to completed
+                $sql = "UPDATE orders SET payment_status = 'completed' WHERE id = ?";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("i", $order_id);
+                $stmt->execute();
 
-            const result = await response.json();
-            if (result.success) {
-                window.location.href = 'order_success.php?order_id=' + <?php echo $order_id; ?>;
+                // Add status to history
+                $sql = "INSERT INTO order_status_history (order_id, status, notes) VALUES (?, 'completed', 'Payment successful via PayPal')";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("i", $order_id);
+                $stmt->execute();
+
+                // Record payment
+                $sql = "INSERT INTO order_payments (order_id, payment_method, transaction_id, amount, status) 
+                        VALUES (?, 'paypal', ?, ?, 'completed')";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("isd", $order_id, $data['payment_id'], $data['amount']);
+                $stmt->execute();
+
+                // Clear cart
+                $sql = "DELETE FROM cart WHERE user_id = ?";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("i", $user_id);
+                $stmt->execute();
+
+                $conn->commit();
+                echo json_encode(['success' => true, 'order_id' => $order_id, 'message' => 'Payment successful']);
             } else {
-                alert('Payment failed: ' + result.message);
+                $conn->rollback();
+                echo json_encode(['success' => false, 'message' => 'PayPal payment not completed']);
             }
+        } else {
+            $conn->rollback();
+            echo json_encode(['success' => false, 'message' => 'Failed to verify PayPal payment']);
         }
-    });
-
-<<<<<<< Updated upstream
-    // Initialize PayPal
-    paypal.Buttons({
-        createOrder: function(data, actions) {
-            return actions.order.create({
-                purchase_units: [{
-                    amount: {
-                        value: '<?php echo $total; ?>'
-                    }
-                }]
-            });
-        },
-        onApprove: function(data, actions) {
-            return actions.order.capture().then(function(details) {
-                // Send payment details to server
-                fetch('process_paypal.php', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            payment_id: details.id,
-                            amount: <?php echo $total; ?>,
-                            order_id: <?php echo $order_id; ?>
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(result => {
-                        if (result.success) {
-                            window.location.href = 'order_success.php?order_id=' +
-                                <?php echo $order_id; ?>;
-                        } else {
-                            alert('Payment failed: ' + result.message);
-                        }
-                    });
-            });
-        }
-    }).render('#paypal-button-container');
-    </script>
-</body>
-
-</html>
-=======
-    return $data['access_token'];
+    }
+} catch (Exception $e) {
+    $conn->rollback();
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }
->>>>>>> Stashed changes

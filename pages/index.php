@@ -3,12 +3,18 @@ require_once '../includes/bootstrap.php';
 
 // Fetch books first, then paints
 try {
-    $sql_books = "SELECT * FROM products WHERE type = 'ebook' ORDER BY timestamp DESC";
+    $sql_books = "SELECT * FROM products WHERE type = 'book' ORDER BY timestamp DESC";
+    $sql_ebooks = "SELECT * FROM products WHERE type = 'ebook' ORDER BY timestamp DESC";
     $sql_paints = "SELECT * FROM products WHERE type = 'paint' ORDER BY timestamp DESC";
 
     $result_books = $conn->query($sql_books);
     if (!$result_books) {
         throw new Exception("Error fetching books: " . $conn->error);
+    }
+
+    $result_ebooks = $conn->query($sql_ebooks);
+    if (!$result_ebooks) {
+        throw new Exception("Error fetching ebooks: " . $conn->error);
     }
 
     $result_paints = $conn->query($sql_paints);
@@ -24,54 +30,39 @@ include '../includes/layouts/header.php';
 ?>
 
 <!-- Hero Section with Book-themed Background -->
-<section class="hero-section position-relative overflow-hidden">
+<section class="hero-section-bookshelf">
     <div class="hero-overlay"></div>
-    <div class="container position-relative" style="z-index: 2;">
-        <div class="hero-content text-center">
-            <h1 class="hero-title animate__animated animate__fadeInDown">
-                Welcome to Ryvah Books
-                <span class="hero-subtitle animate__animated animate__fadeInUp animate__delay-1s">
-                    Your Gateway to Digital Knowledge
-                </span>
-            </h1>
-            <p class="hero-description animate__animated animate__fadeInUp animate__delay-1s">
-                Discover Amazing Books and Artworks
-            </p>
-            <div class="hero-buttons animate__animated animate__fadeInUp animate__delay-2s">
-                <a href="#books" class="btn btn-primary btn-lg hero-btn">
-                    <i class="fas fa-book"></i> Explore Books
-                </a>
-                <a href="#paintings" class="btn btn-outline-light btn-lg hero-btn ms-3">
-                    <i class="fas fa-palette"></i> View Artworks
-                </a>
-                <a href="contact" class="btn btn-contact btn-lg hero-btn ms-3">
-                    <i class="fas fa-envelope"></i> Contact Us
-                </a>
+    <div class="container hero-flex">
+        <!-- Left: Fairy Book Cover -->
+        <div class="hero-fairy-col">
+            <img src="../resources/fairy.jpg" alt="Ryvah Fairy Book" class="hero-fairy-img">
+        </div>
+        <!-- Center: Main Content -->
+        <div class="hero-main-col text-center">
+            <img src="../resources/logo.jpeg" alt="RYVAH" class="hero-main-logo mb-3">
+            <h1 class="hero-title">Welcome to Ryvah Books</h1>
+            <div class="hero-subtitle">Your Gateway to Digital Knowledge</div>
+            <div class="hero-description">Discover Amazing Books and Artworks</div>
+            <div class="hero-btn-row">
+                <a href="#books" class="btn btn-primary btn-lg hero-btn"><i class="fas fa-book"></i> Explore Books</a>
+                <a href="#paintings" class="btn btn-dark btn-lg hero-btn"><i class="fas fa-palette"></i> View
+                    Artworks</a>
+                <a href="contact" class="btn btn-warning btn-lg hero-btn"><i class="fas fa-envelope"></i> Contact Us</a>
             </div>
-            <div class="hero-features animate__animated animate__fadeInUp animate__delay-2s">
-                <div class="feature">
-                    <i class="fas fa-shipping-fast"></i>
-                    <span>Instant Delivery</span>
-                </div>
-                <div class="feature">
-                    <i class="fas fa-lock"></i>
-                    <span>Secure Payment</span>
-                </div>
-                <div class="feature">
-                    <i class="fas fa-headset"></i>
-                    <span>24/7 Support</span>
-                </div>
+            <div class="hero-features mt-4">
+                <div class="feature"><i class="fas fa-shipping-fast"></i><span>Instant Delivery</span></div>
+                <div class="feature"><i class="fas fa-lock"></i><span>Secure Payment</span></div>
+                <div class="feature"><i class="fas fa-headset"></i><span>24/7 Support</span></div>
             </div>
         </div>
     </div>
-    <div class="hero-wave">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
-            <path fill="#ffffff" fill-opacity="1"
-                d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,149.3C960,160,1056,160,1152,138.7C1248,117,1344,75,1392,53.3L1440,32L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z">
-            </path>
-        </svg>
-    </div>
 </section>
+
+<!-- Sticky Proceed to Cart Button -->
+<button id="proceed-to-cart-btn" class="proceed-to-cart-btn" onclick="window.location.href='../checkout/checkout'">
+    <span><i class="fas fa-shopping-cart"></i> Checkout</span>
+    <span id="proceed-cart-count" class="cart-count-btn"></span>
+</button>
 
 <!-- Books Section -->
 <section id="books" class="py-5">
@@ -85,7 +76,7 @@ include '../includes/layouts/header.php';
             <div class="col-6 col-md-4 col-lg-3 animate__animated animate__fadeIn">
                 <div class="card h-100 book-card">
                     <div class="book-badge">
-                        <span class="badge bg-primary">E-Book</span>
+                        <span class="badge bg-primary">Book</span>
                     </div>
                     <div class="book-image-container">
                         <img src="../admin/<?php echo htmlspecialchars($book['thumbs']); ?>"
@@ -122,6 +113,61 @@ include '../includes/layouts/header.php';
                 }
             } else {
                 echo '<div class="col-12 text-center"><p>No books available at the moment.</p></div>';
+            }
+            ?>
+        </div>
+    </div>
+</section>
+
+<!-- Ebooks Section -->
+<section id="ebooks" class="py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-4 section-title">Featured Ebooks</h2>
+        <div class="row g-4">
+            <?php
+            if ($result_ebooks->num_rows > 0) {
+                while ($ebook = $result_ebooks->fetch_assoc()) {
+            ?>
+            <div class="col-6 col-md-4 col-lg-3 animate__animated animate__fadeIn">
+                <div class="card h-100 book-card">
+                    <div class="book-badge">
+                        <span class="badge bg-info">E-Book</span>
+                    </div>
+                    <div class="book-image-container">
+                        <img src="../admin/<?php echo htmlspecialchars($ebook['thumbs']); ?>"
+                            class="card-img-top book-image" alt="<?php echo htmlspecialchars($ebook['name']); ?>">
+                        <div class="book-overlay">
+                            <button class="btn btn-light btn-sm quick-view" data-bs-toggle="modal"
+                                data-bs-target="#productModal" data-id="<?php echo $ebook['id']; ?>"
+                                data-name="<?php echo htmlspecialchars($ebook['name']); ?>"
+                                data-price="<?php echo $ebook['price']; ?>"
+                                data-description="<?php echo htmlspecialchars($ebook['description']); ?>"
+                                data-author="<?php echo htmlspecialchars($ebook['author']); ?>"
+                                data-image="../admin/<?php echo htmlspecialchars($ebook['thumbs']); ?>"
+                                data-stock="<?php echo $ebook['stock_quantity']; ?>">
+                                <i class="fas fa-eye"></i> Quick View
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h6 class="card-title book-title text-truncate"><?php echo htmlspecialchars($ebook['name']); ?>
+                        </h6>
+                        <p class="card-text mb-2">
+                            <small class="text-muted"><i class="fas fa-pen-fancy"></i>
+                                <?php echo htmlspecialchars($ebook['author']); ?></small><br>
+                            <span class="price">$<?php echo number_format($ebook['price'], 2); ?></span>
+                        </p>
+                        <button class="btn btn-primary btn-sm w-100 add-to-cart"
+                            data-product-id="<?php echo $ebook['id']; ?>">
+                            <i class="fas fa-cart-plus"></i> Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <?php
+                }
+            } else {
+                echo '<div class="col-12 text-center"><p>No ebooks available at the moment.</p></div>';
             }
             ?>
         </div>
@@ -192,34 +238,41 @@ include '../includes/layouts/header.php';
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <img src="" alt="" class="img-fluid rounded product-modal-image">
+                <div class="row g-3">
+                    <div class="col-md-6 d-flex align-items-center justify-content-center">
+                        <img src="" alt="Product Image" class="img-fluid rounded product-modal-image"
+                            style="max-height:350px;object-fit:contain;background:#f8f9fa;">
                     </div>
                     <div class="col-md-6">
-                        <h4 class="product-modal-name"></h4>
-                        <p class="text-muted">By <span class="product-modal-author"></span></p>
-                        <h5 class="mb-3">$<span class="product-modal-price"></span></h5>
-                        <p class="product-modal-description"></p>
+                        <h4 class="product-modal-name mb-2"></h4>
+                        <p class="text-muted mb-1">By <span class="product-modal-author"></span></p>
+                        <h5 class="mb-3">Price: $<span class="product-modal-price"></span></h5>
+                        <div class="mb-2">
+                            <small class="text-muted">Stock: <span class="product-modal-stock"></span></small>
+                        </div>
                         <div class="quantity-selector mb-3">
                             <label class="form-label">Quantity:</label>
                             <div class="input-group" style="width: 150px;">
-                                <button class="btn btn-outline-secondary modal-decrease-qty" type="button">
-                                    <i class="fas fa-minus"></i>
-                                </button>
+                                <button class="btn btn-outline-secondary modal-decrease-qty" type="button"><i
+                                        class="fas fa-minus"></i></button>
                                 <input type="number" class="form-control text-center modal-qty" value="1" min="1">
-                                <button class="btn btn-outline-secondary modal-increase-qty" type="button">
-                                    <i class="fas fa-plus"></i>
-                                </button>
+                                <button class="btn btn-outline-secondary modal-increase-qty" type="button"><i
+                                        class="fas fa-plus"></i></button>
                             </div>
-                            <small class="text-muted">Available: <span class="product-modal-stock"></span></small>
                         </div>
                         <div class="mb-3">
-                            Total: $<span class="product-modal-total"></span>
+                            <strong>Total: $<span class="product-modal-total"></span></strong>
                         </div>
-                        <button class="btn btn-primary modal-add-to-cart" data-product-id="">
+                        <button class="btn btn-primary modal-add-to-cart w-100" data-product-id="">
                             <i class="fas fa-cart-plus"></i> Add to Cart
                         </button>
+                    </div>
+                    <div class="col-12 mt-3">
+                        <h6>Description</h6>
+                        <div class="product-modal-description-scroll"
+                            style="max-height:180px;overflow-y:auto;background:#f8f9fa;padding:1rem;border-radius:8px;">
+                            <p class="product-modal-description mb-0"></p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -289,10 +342,20 @@ include '../includes/layouts/header.php';
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
 
 <style>
-/* Enhanced Hero Section Styles */
-.hero-section {
-    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
-        url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3');
+/* Base styles for better responsiveness */
+html {
+    font-size: 16px;
+}
+
+body {
+    font-family: 'Montserrat', Arial, sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+/* Hero Section Responsive Styles */
+.hero-section-bookshelf {
+    background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -301,7 +364,8 @@ include '../includes/layouts/header.php';
     align-items: center;
     color: white;
     position: relative;
-    padding: 100px 0;
+    padding: 2rem 0;
+    overflow: hidden;
 }
 
 .hero-overlay {
@@ -310,162 +374,271 @@ include '../includes/layouts/header.php';
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(45deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.4));
+    background: linear-gradient(45deg, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.3));
+    z-index: 1;
 }
 
-.hero-content {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 0 20px;
+.hero-flex {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 2rem;
+    min-height: 100vh;
+    padding: 1rem;
+    width: 100%;
+}
+
+.hero-fairy-col {
+    flex: 0 0 300px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    margin-left: 0;
+    margin-top: 0;
+    position: relative;
+    z-index: 1;
+}
+
+.hero-fairy-img {
+    max-width: 100%;
+    max-height: 520px;
+    border-radius: 5px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+    object-fit: contain;
+}
+
+.hero-main-col {
+    flex: 1 1 500px;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 1rem;
+    position: relative;
+    z-index: 2;
+    background: rgba(0, 0, 0, 0.55);
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+}
+
+.hero-main-logo {
+    max-width: 280px;
+    width: 100%;
+    margin-bottom: 1.5rem;
 }
 
 .hero-title {
-    font-size: 3.5rem;
-    font-weight: 800;
-    margin-bottom: 1.5rem;
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
     line-height: 1.2;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .hero-subtitle {
-    display: block;
-    font-size: 1.5rem;
-    font-weight: 400;
+    font-size: clamp(1.2rem, 3vw, 1.5rem);
+    font-weight: 600;
     color: #ffd700;
-    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
 }
 
 .hero-description {
-    font-size: 1.25rem;
-    margin-bottom: 2rem;
-    opacity: 0.9;
+    font-size: clamp(1rem, 2.5vw, 1.2rem);
+    margin-bottom: 1.5rem;
 }
 
-.hero-buttons {
+.hero-btn-row {
     display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    justify-content: center;
-    align-items: center;
     gap: 1rem;
-    margin-bottom: 3rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
 }
 
 .hero-btn {
-    font-size: 1.08rem;
-    padding: 0.85rem 1.7rem;
-    border-radius: 50px;
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
     font-weight: 600;
-    letter-spacing: 0.5px;
-}
-
-.btn-primary {
-    background: linear-gradient(45deg, #007bff, #0056b3);
-    border: none;
-}
-
-.btn-outline-light {
-    border-width: 2px;
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    white-space: nowrap;
 }
 
 .hero-features {
     display: flex;
+    gap: 2rem;
     justify-content: center;
-    gap: 3rem;
-    margin-top: 2rem;
+    flex-wrap: wrap;
 }
 
 .feature {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
+    color: #ffd700;
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
 }
 
 .feature i {
-    font-size: 2rem;
-    color: #ffd700;
-    margin-bottom: 0.5rem;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    margin-bottom: 0.3rem;
 }
 
-.feature span {
-    font-size: 1rem;
-    font-weight: 500;
-}
-
-.hero-wave {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    line-height: 0;
-}
-
-/* Responsive Styles */
+/* Responsive Breakpoints */
 @media (max-width: 992px) {
-    .hero-title {
-        font-size: 2.8rem;
+    .hero-section-bookshelf {
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('../resources/fairy.jpg') center center/cover no-repeat !important;
     }
 
-    .hero-subtitle {
-        font-size: 1.3rem;
+    .hero-fairy-col,
+    .hero-main-logo {
+        display: none !important;
     }
 
-    .hero-description {
-        font-size: 1.1rem;
+    .hero-main-col {
+        width: 100%;
+        max-width: 600px;
+        /* background: rgba(0, 0, 0, 0.5); */
+        border-radius: 10px;
+        backdrop-filter: blur(5px);
+        padding: 2rem;
+        margin: 0 auto;
+        z-index: 2;
+    }
+
+    .hero-flex {
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 1rem;
     }
 }
 
 @media (max-width: 768px) {
-    .hero-section {
-        min-height: 80vh;
-        padding: 60px 0;
+    .hero-section-bookshelf {
+        padding: 1rem 0;
     }
 
-    .hero-title {
-        font-size: 2.2rem;
+    .hero-flex {
+        padding: 0.5rem;
     }
 
-    .hero-subtitle {
-        font-size: 1.1rem;
+    .hero-main-col {
+        padding: 1.5rem;
     }
 
-    .hero-buttons {
-        flex-direction: column !important;
-        gap: 0.7rem !important;
-        align-items: stretch !important;
-    }
-
-    .hero-btn {
-        width: 100%;
-        font-size: 1.05rem;
-        padding: 0.9rem 1.2rem;
-        margin: 0 !important;
+    .hero-btn-row {
+        gap: 0.75rem;
     }
 
     .hero-features {
-        flex-direction: column;
         gap: 1.5rem;
     }
 }
 
 @media (max-width: 576px) {
-    .hero-title {
-        font-size: 1.3rem;
+    .hero-section-bookshelf {
+        padding: 0.5rem 0;
     }
 
-    .hero-subtitle {
-        font-size: 0.95rem;
+    .hero-flex {
+        padding: 0.25rem;
     }
 
-    .hero-description {
-        font-size: 0.95rem;
+    .hero-main-col {
+        padding: 1rem 0.5rem;
+        max-width: 98vw;
     }
 
     .hero-btn {
-        font-size: 0.98rem;
-        padding: 0.8rem 1rem;
+        width: 100%;
+        max-width: 250px;
     }
+
+    .hero-features {
+        gap: 1rem;
+    }
+
+    .hero-fairy-col {
+        opacity: 0.2;
+    }
+}
+
+/* Product Cards Responsive Styles */
+.book-card,
+.paint-card {
+    height: 100%;
+    transition: transform 0.3s ease;
+}
+
+.book-image-container,
+.paint-image-container {
+    height: clamp(200px, 30vw, 320px);
+    padding: 0.75rem;
+}
+
+.book-image,
+.paint-image {
+    max-height: 100%;
+    width: auto;
+    margin: 0 auto;
+}
+
+.book-title,
+.paint-title {
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
+    margin-bottom: 0.5rem;
+}
+
+.price {
+    font-size: clamp(1rem, 2.5vw, 1.2rem);
+}
+
+/* Newsletter Section Responsive Styles */
+.newsletter-section {
+    padding: clamp(2rem, 5vw, 4rem) 0;
+}
+
+.newsletter-section h3 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+}
+
+.newsletter-section p {
+    font-size: clamp(1rem, 2.5vw, 1.2rem);
+}
+
+/* Footer Responsive Styles */
+footer {
+    font-size: clamp(0.9rem, 2vw, 1rem);
+}
+
+footer h5 {
+    font-size: clamp(1.1rem, 2.5vw, 1.3rem);
+    margin-bottom: 1rem;
+}
+
+.social-icon {
+    width: clamp(30px, 5vw, 35px);
+    height: clamp(30px, 5vw, 35px);
+    line-height: clamp(30px, 5vw, 35px);
+    font-size: clamp(0.9rem, 2vw, 1rem);
+}
+
+/* Utility Classes */
+.text-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.img-fluid {
+    max-width: 100%;
+    height: auto;
 }
 
 /* Animation Enhancements */
@@ -654,49 +827,15 @@ include '../includes/layouts/header.php';
     z-index: 1;
 }
 
-.book-title,
-.paint-title {
-    font-size: 1rem;
-    margin-bottom: 0.5rem;
-}
-
 .author,
 .artist {
     color: #666;
     font-size: 0.9rem;
 }
 
-.price {
-    color: #007bff;
-    font-weight: bold;
-}
-
-.description {
-    color: #666;
-    font-size: 0.9rem;
-    margin-top: 10px;
-    display: block;
-}
-
 .newsletter-section {
     background: linear-gradient(45deg, #2c3e50, #3498db);
     color: white;
-}
-
-.social-icon {
-    display: inline-block;
-    width: 35px;
-    height: 35px;
-    line-height: 35px;
-    text-align: center;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
-    transition: all 0.3s;
-}
-
-.social-icon:hover {
-    background: #007bff;
-    transform: translateY(-3px);
 }
 
 .pulse-animation {
@@ -812,238 +951,336 @@ include '../includes/layouts/header.php';
 }
 
 /* Checkout Overlay Styles */
-#checkout-overlay {
-    display: none;
+.checkout-overlay {
     position: fixed;
-    top: 0;
     left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.35);
-    z-index: 3000;
-    align-items: center;
+    right: 0;
+    bottom: 0;
+    z-index: 2050;
+    display: none;
     justify-content: center;
+    pointer-events: none;
+}
+
+.checkout-overlay.active {
+    display: flex;
+    animation: slideUpOverlay 0.5s cubic-bezier(.4, 0, .2, 1);
+    pointer-events: auto;
+}
+
+@keyframes slideUpOverlay {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
 .checkout-modal {
-    min-width: 260px;
-    max-width: 90vw;
-    border-radius: 1.5rem;
-    box-shadow: 0 4px 20px rgba(25, 135, 84, 0.25);
-    text-align: center;
-}
-
-@media (max-width: 768px) {
-    .checkout-modal {
-        min-width: unset;
-        width: 95vw;
-        padding: 1.5rem 0.5rem;
-    }
+    background: linear-gradient(135deg, #007bff, #00c6ff);
+    color: #fff;
+    border-radius: 2rem 2rem 0 0;
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.18);
+    min-width: 220px;
+    min-height: 80px;
+    padding: 1.2rem 2rem 1.2rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: auto;
 }
 
 @media (max-width: 576px) {
     .checkout-modal {
-        border-radius: 0.5rem;
-        padding: 1rem 0.2rem;
+        min-width: 90vw;
+        padding: 1rem 0.5rem;
+    }
+}
+
+.checkout-modal .btn {
+    transition: all 0.3s ease;
+}
+
+.checkout-modal .btn:hover {
+    transform: translateY(-1px);
+}
+
+.checkout-modal .btn-outline-light:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.success-toast {
+    z-index: 2000 !important;
+}
+
+.toast-content {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.toast-content i {
+    font-size: 24px;
+    color: #28a745;
+    margin-right: 10px;
+}
+
+.toast-content span {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* Sticky Proceed to Cart Button */
+.proceed-to-cart-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 2000;
+    background: linear-gradient(90deg, #007bff 60%, #00c6ff 100%);
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    padding: 1rem 2.2rem 1rem 2.2rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: background 0.2s, transform 0.2s;
+    cursor: pointer;
+    outline: none;
+    min-width: 220px;
+    justify-content: space-between;
+}
+
+.proceed-to-cart-btn:hover {
+    background: linear-gradient(90deg, #0056b3 60%, #007bff 100%);
+    transform: translateY(-2px) scale(1.03);
+}
+
+.cart-count-btn {
+    background: #fff;
+    color: #007bff;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-left: 10px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    animation: popIn 0.3s ease-out;
+}
+
+@keyframes popIn {
+    0% {
+        transform: scale(0);
+    }
+
+    50% {
+        transform: scale(1.2);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+@media (max-width: 576px) {
+    .proceed-to-cart-btn {
+        bottom: 10px;
+        right: 10px;
+        min-width: 150px;
+        padding: 0.7rem 1.2rem;
+        font-size: 1rem;
+    }
+
+    .cart-count-btn {
+        width: 22px;
+        height: 22px;
+        font-size: 0.95rem;
+    }
+}
+
+.hero-section-bookshelf {
+    animation: fadeInHero 1.2s cubic-bezier(.4, 0, .2, 1);
+}
+
+@keyframes fadeInHero {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* --- Modal ScrollNav & Responsiveness --- */
+#productModal .modal-dialog {
+    max-width: 600px;
+    width: 95vw;
+}
+
+#productModal .modal-content {
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+#productModal .modal-body {
+    overflow-y: auto;
+    flex: 1 1 auto;
+    padding-bottom: 0;
+}
+
+.product-modal-scrollnav {
+    position: sticky;
+    top: 0;
+    background: rgba(255, 255, 255, 0.95);
+    z-index: 2;
+    display: flex;
+    gap: 1.5rem;
+    border-bottom: 1px solid #eee;
+    padding: 0.5rem 0;
+    margin-bottom: 1rem;
+}
+
+.product-modal-scrollnav a {
+    color: #007bff;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+}
+
+.product-modal-scrollnav a.active,
+.product-modal-scrollnav a:hover {
+    background: #e9f5ff;
+}
+
+/* --- Hero Section Readability --- */
+@media (max-width: 576px) {
+    .hero-title {
+        font-size: 1.5rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1.1rem;
+    }
+
+    .hero-description {
+        font-size: 1rem;
     }
 }
 </style>
 
 <!-- Custom JavaScript for quantity and price calculation -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Product Modal Functionality
-    const productModal = document.getElementById('productModal');
-    const modal = new bootstrap.Modal(productModal);
-
-    productModal.addEventListener('show.bs.modal', function(event) {
-        const button = event.relatedTarget;
-
-        // Update modal content
-        this.querySelector('.modal-title').textContent = button.dataset.name;
-        this.querySelector('.product-modal-name').textContent = button.dataset.name;
-        this.querySelector('.product-modal-author').textContent = button.dataset.author;
-        this.querySelector('.product-modal-price').textContent = button.dataset.price;
-        this.querySelector('.product-modal-description').textContent = button.dataset.description;
-        this.querySelector('.product-modal-image').src = button.dataset.image;
-        this.querySelector('.product-modal-stock').textContent = button.dataset.stock;
-        this.querySelector('.modal-add-to-cart').dataset.productId = button.dataset.id;
-
-        // Reset quantity to 1
-        this.querySelector('.modal-qty').value = 1;
-
-        // Set initial total
-        updateModalTotal();
-    });
-
-    // Quantity controls in modal
-    const modalQty = productModal.querySelector('.modal-qty');
-    const modalDecreaseBtn = productModal.querySelector('.modal-decrease-qty');
-    const modalIncreaseBtn = productModal.querySelector('.modal-increase-qty');
-
-    modalDecreaseBtn.addEventListener('click', function() {
-        if (modalQty.value > 1) {
-            modalQty.value = parseInt(modalQty.value) - 1;
-            updateModalTotal();
-        }
-    });
-
-    modalIncreaseBtn.addEventListener('click', function() {
-        const maxStock = parseInt(productModal.querySelector('.product-modal-stock').textContent);
-        if (parseInt(modalQty.value) < maxStock) {
-            modalQty.value = parseInt(modalQty.value) + 1;
-            updateModalTotal();
-        }
-    });
-
-    modalQty.addEventListener('change', function() {
-        const maxStock = parseInt(productModal.querySelector('.product-modal-stock').textContent);
-        if (this.value < 1) this.value = 1;
-        if (this.value > maxStock) this.value = maxStock;
-        updateModalTotal();
-    });
-
-    function updateModalTotal() {
-        const price = parseFloat(productModal.querySelector('.product-modal-price').textContent);
-        const quantity = parseInt(modalQty.value);
-        const total = price * quantity;
-        productModal.querySelector('.product-modal-total').textContent = total.toFixed(2);
-    }
-
-    // Handle add to cart
-    document.querySelectorAll('.add-to-cart').forEach(button => {
-        button.addEventListener('click', function() {
-            const productId = this.dataset.productId;
-            const quantity = 1; // Default quantity
-
-            fetch('../includes/cart.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `action=add&product_id=${productId}&quantity=${quantity}`
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Show success toast
-                        showToast('Success', 'Item added to cart', 'success');
-                        // Update cart count
-                        updateCartCount();
-                    } else {
-                        showToast('Error', data.message, 'danger');
-                    }
-                });
-        });
-    });
-
-    // Handle modal add to cart
-    document.querySelector('.modal-add-to-cart').addEventListener('click', function() {
-        const productId = this.dataset.productId;
-        const quantity = document.querySelector('.modal-qty').value;
-
-        fetch('../includes/cart.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `action=add&product_id=${productId}&quantity=${quantity}`
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Hide modal
-                    const modal = bootstrap.Modal.getInstance(document.getElementById(
-                        'productModal'));
-                    modal.hide();
-                    // Show success toast
-                    showToast('Success', 'Item added to cart', 'success');
-                    // Update cart count
-                    updateCartCount();
-                } else {
-                    showToast('Error', data.message, 'danger');
-                }
-            });
-    });
-
-    // Update cart count function
-    function updateCartCount() {
-        fetch('../includes/cart.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: 'action=get'
-            })
-            .then(response => response.json())
-            .then(data => {
-                const cartCount = document.querySelector('.cart-count');
-                if (data.items && data.items.length > 0) {
-                    if (!cartCount) {
-                        const span = document.createElement('span');
-                        span.className = 'cart-count';
-                        span.textContent = data.items.length;
-                        document.querySelector('.nav-icon.position-relative').appendChild(span);
-                    } else {
-                        cartCount.textContent = data.items.length;
-                    }
-                } else if (cartCount) {
-                    cartCount.remove();
-                }
-            });
-    }
-
-    // Show toast notification
-    function showToast(title, message, type = 'success') {
-        const toast = document.createElement('div');
-        toast.className = 'position-fixed bottom-0 end-0 p-3';
-        toast.style.zIndex = '5';
-        toast.innerHTML = `
-            <div class="toast show" role="alert">
-                <div class="toast-header bg-${type} text-white">
-                    <strong class="me-auto">${title}</strong>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
-                </div>
-                <div class="toast-body">
-                    ${message}
-                </div>
-            </div>
-        `;
+// --- Modern Toast Logic ---
+function showToast(type, message) {
+    let toast = document.getElementById('modern-toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'modern-toast';
+        toast.style.position = 'fixed';
+        toast.style.bottom = '30px';
+        toast.style.right = '30px';
+        toast.style.zIndex = '3000';
+        toast.style.minWidth = '220px';
+        toast.style.maxWidth = '90vw';
+        toast.style.display = 'flex';
+        toast.style.alignItems = 'center';
+        toast.style.gap = '1rem';
+        toast.style.padding = '1rem 1.5rem';
+        toast.style.borderRadius = '1rem';
+        toast.style.boxShadow = '0 4px 24px rgba(0,0,0,0.18)';
+        toast.style.fontSize = '1rem';
+        toast.style.transition = 'opacity 0.3s, transform 0.3s';
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(40px)';
+        toast.innerHTML =
+            `<span id="toast-icon"></span><span id="toast-msg"></span><button id="toast-close" style="background:none;border:none;font-size:1.2rem;color:#fff;cursor:pointer;margin-left:auto;">&times;</button>`;
         document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
+        document.getElementById('toast-close').onclick = () => hideToast();
     }
-
-    // Initial cart count update
-    updateCartCount();
-});
-</script>
-
-<!-- Checkout Overlay (hidden by default) -->
-<div id="checkout-overlay"
-    style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.35); z-index:3000; align-items:center; justify-content:center;">
-    <div class="checkout-modal bg-success text-white shadow-lg rounded-4 p-4 d-flex flex-column align-items-center animate__animated animate__fadeInUp"
-        style="min-width:260px; max-width:90vw;">
-        <button type="button" class="btn-close btn-close-white align-self-end mb-2" aria-label="Close"
-            onclick="toggleCheckoutOverlay(false)"></button>
-        <div class="d-flex align-items-center mb-3">
-            <i class="fas fa-shopping-cart fa-2x me-3"></i>
-            <span class="fs-4 fw-bold">Proceed to Checkout</span>
-        </div>
-        <div class="mb-3">
-            <span id="overlay-cart-total" class="badge bg-light text-dark fs-5 fw-bold"></span>
-        </div>
-        <button class="btn btn-light btn-lg fw-bold px-4" onclick="window.location.href='../checkout/checkout'">Go to
-            Checkout</button>
-    </div>
-</div>
-
-<script>
-// Overlay logic
-function toggleCheckoutOverlay(show) {
-    document.getElementById('checkout-overlay').style.display = show ? 'flex' : 'none';
+    // Set icon and color
+    const icon = document.getElementById('toast-icon');
+    const msg = document.getElementById('toast-msg');
+    if (type === 'success') {
+        toast.style.background = 'linear-gradient(90deg,#28a745,#43e97b)';
+        icon.innerHTML = '<i class="fas fa-check-circle"></i>';
+    } else {
+        toast.style.background = 'linear-gradient(90deg,#dc3545,#ff7675)';
+        icon.innerHTML = '<i class="fas fa-times-circle"></i>';
+    }
+    icon.style.fontSize = '1.5rem';
+    icon.style.color = '#fff';
+    msg.textContent = message;
+    msg.style.color = '#fff';
+    toast.style.opacity = '1';
+    toast.style.transform = 'translateY(0)';
+    setTimeout(hideToast, 3500);
 }
-// Update overlay cart total and show/hide overlay button
-function updateCheckoutOverlayBtn() {
+
+function hideToast() {
+    const toast = document.getElementById('modern-toast');
+    if (toast) {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(40px)';
+        setTimeout(() => {
+            if (toast.parentNode) toast.parentNode.removeChild(toast);
+        }, 400);
+    }
+}
+
+// --- Cart Count & Overlay Logic (Event-Driven) ---
+function updateCartUI(data) {
+    // Update cart count in header
+    const cartCount = document.querySelector('.cart-count');
+    const navIcon = document.querySelector('.nav-icon.position-relative');
+    if (data.items && data.items.length > 0) {
+        if (!cartCount) {
+            const span = document.createElement('span');
+            span.className = 'cart-count';
+            span.textContent = data.items.length;
+            navIcon.appendChild(span);
+        } else {
+            cartCount.textContent = data.items.length;
+        }
+    } else if (cartCount) {
+        cartCount.remove();
+    }
+    // Update checkout overlay
+    const overlay = document.getElementById('checkout-overlay');
+    const total = document.getElementById('overlay-cart-total');
+    if (data.items && data.items.length > 0) {
+        let sum = 0;
+        data.items.forEach(item => {
+            sum += item.price * item.quantity;
+        });
+        total.textContent = '$' + sum.toFixed(2);
+        overlay.classList.add('active');
+    } else {
+        overlay.classList.remove('active');
+    }
+}
+
+function fetchCartAndUpdateUI(showToastType, toastMsg) {
     fetch('../includes/cart.php', {
             method: 'POST',
             headers: {
@@ -1053,32 +1290,150 @@ function updateCheckoutOverlayBtn() {
         })
         .then(response => response.json())
         .then(data => {
-            const overlay = document.getElementById('checkout-overlay');
-            const total = document.getElementById('overlay-cart-total');
-            if (data.items && data.items.length > 0) {
-                let sum = 0;
-                data.items.forEach(item => {
-                    sum += item.price * item.quantity;
-                });
-                total.textContent = '$' + sum.toFixed(2);
-                // Show overlay if not already open
-                toggleCheckoutOverlay(true);
-                overlay.classList.add('showing');
+            updateCartUI(data);
+            if (showToastType && toastMsg) showToast(showToastType, toastMsg);
+        });
+}
+
+// Add to cart event
+function addToCart(productId, quantity) {
+    fetch('../includes/cart.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: `action=add&product_id=${productId}&quantity=${quantity}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                fetchCartAndUpdateUI('success', 'Item added to cart');
             } else {
-                toggleCheckoutOverlay(false);
-                overlay.classList.remove('showing');
+                showToast('error', data.message || 'Failed to add item');
             }
         });
 }
-// Show overlay on page load if cart has items
-window.addEventListener('DOMContentLoaded', function() {
-    updateCheckoutOverlayBtn();
-    document.querySelectorAll('.add-to-cart').forEach(btn => {
-        btn.addEventListener('click', function() {
-            setTimeout(updateCheckoutOverlayBtn, 700);
-        });
+
+document.querySelectorAll('.add-to-cart').forEach(button => {
+    button.addEventListener('click', function() {
+        const productId = this.dataset.productId;
+        addToCart(productId, 1);
     });
 });
+
+// Modal add to cart
+const modalAddBtn = document.querySelector('.modal-add-to-cart');
+if (modalAddBtn) {
+    modalAddBtn.addEventListener('click', function() {
+        const productId = this.dataset.productId;
+        const quantity = document.querySelector('.modal-qty').value;
+        addToCart(productId, quantity);
+    });
+}
+
+// On page load, update cart UI
+window.addEventListener('DOMContentLoaded', function() {
+    fetchCartAndUpdateUI();
+});
+
+// Product Modal Functionality (Quick View) - Robust Event Delegation
+(function() {
+    const productModal = document.getElementById('productModal');
+    if (!productModal) return;
+    // Use event delegation for all .quick-view buttons
+    document.body.addEventListener('click', function(event) {
+        const button = event.target.closest('.quick-view');
+        if (button) {
+            // Set modal fields
+            productModal.querySelector('.modal-title').textContent = button.dataset.name || '';
+            productModal.querySelector('.product-modal-name').textContent = button.dataset.name || '';
+            productModal.querySelector('.product-modal-author').textContent = button.dataset.author || '';
+            productModal.querySelector('.product-modal-price').textContent = button.dataset.price || '';
+            productModal.querySelector('.product-modal-stock').textContent = button.dataset.stock || '';
+            productModal.querySelector('.modal-add-to-cart').dataset.productId = button.dataset.id || '';
+            // Set image or placeholder
+            const img = productModal.querySelector('.product-modal-image');
+            img.src = button.dataset.image && button.dataset.image !== '../admin/' ? button.dataset.image :
+                'https://via.placeholder.com/300x400?text=No+Image';
+            img.alt = button.dataset.name || 'Product Image';
+            // Set description (scrollable)
+            productModal.querySelector('.product-modal-description').textContent = button.dataset
+                .description || 'No description available.';
+            // Reset quantity and total
+            productModal.querySelector('.modal-qty').value = 1;
+            updateModalTotal();
+        }
+    });
+    // Quantity controls in modal
+    const modalQty = productModal.querySelector('.modal-qty');
+    const modalDecreaseBtn = productModal.querySelector('.modal-decrease-qty');
+    const modalIncreaseBtn = productModal.querySelector('.modal-increase-qty');
+    modalDecreaseBtn.addEventListener('click', function() {
+        if (modalQty.value > 1) {
+            modalQty.value = parseInt(modalQty.value) - 1;
+            updateModalTotal();
+        }
+    });
+    modalIncreaseBtn.addEventListener('click', function() {
+        const maxStock = parseInt(productModal.querySelector('.product-modal-stock').textContent) || 9999;
+        if (parseInt(modalQty.value) < maxStock) {
+            modalQty.value = parseInt(modalQty.value) + 1;
+            updateModalTotal();
+        }
+    });
+    modalQty.addEventListener('change', function() {
+        const maxStock = parseInt(productModal.querySelector('.product-modal-stock').textContent) || 9999;
+        if (this.value < 1) this.value = 1;
+        if (this.value > maxStock) this.value = maxStock;
+        updateModalTotal();
+    });
+
+    function updateModalTotal() {
+        const price = parseFloat(productModal.querySelector('.product-modal-price').textContent) || 0;
+        const quantity = parseInt(modalQty.value) || 1;
+        const total = price * quantity;
+        productModal.querySelector('.product-modal-total').textContent = total.toFixed(2);
+    }
+})();
+</script>
+
+<!-- Checkout Overlay -->
+<div id="checkout-overlay" class="checkout-overlay">
+    <div
+        class="checkout-modal bg-success text-white shadow-lg rounded-4 p-3 d-flex flex-column align-items-center animate__animated animate__fadeInUp">
+        <div class="d-flex align-items-center mb-2">
+            <i class="fas fa-shopping-cart me-2"></i>
+            <span class="fs-6 fw-bold">Your Cart</span>
+        </div>
+        <div class="mb-2">
+            <span id="overlay-cart-total" class="badge bg-light text-dark fs-6 fw-bold"></span>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-light btn-sm fw-bold px-3" onclick="window.location.href='../checkout/checkout'">
+                <i class="fas fa-arrow-right me-1"></i> Checkout
+            </button>
+            <button class="btn btn-outline-light btn-sm fw-bold px-3" onclick="continueShopping()">
+                <i class="fas fa-shopping-bag me-1"></i> Continue
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Success Toast -->
+<div id="success-toast" class="success-toast" style="display:none;">
+    <div class="toast-content">
+        <i class="fas fa-check-circle"></i>
+        <span id="success-toast-message"></span>
+    </div>
+</div>
+
+<script>
+function continueShopping() {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+}
 </script>
 </body>
 
