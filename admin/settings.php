@@ -1,6 +1,5 @@
 <?php
 require_once 'header.php';
-require_once 'php/db_connect.php';
 
 // Handle settings update
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_settings'])) {
@@ -49,8 +48,8 @@ while ($row = $result->fetch_assoc()) {
                 <h3>General Settings</h3>
                 <div class="form-group">
                     <label for="site_name">Site Name</label>
-                    <input type="text" id="site_name" name="site_name" 
-                           value="<?php echo htmlspecialchars($settings['site_name'] ?? ''); ?>" required>
+                    <input type="text" id="site_name" name="site_name"
+                        value="<?php echo htmlspecialchars($settings['site_name'] ?? ''); ?>" required>
                 </div>
                 <div class="form-group">
                     <label for="site_description">Site Description</label>
@@ -65,20 +64,23 @@ while ($row = $result->fetch_assoc()) {
                 <div class="form-group">
                     <label for="currency">Currency</label>
                     <select id="currency" name="currency">
-                        <option value="USD" <?php echo ($settings['currency'] ?? '') === 'USD' ? 'selected' : ''; ?>>USD ($)</option>
-                        <option value="EUR" <?php echo ($settings['currency'] ?? '') === 'EUR' ? 'selected' : ''; ?>>EUR (€)</option>
-                        <option value="GBP" <?php echo ($settings['currency'] ?? '') === 'GBP' ? 'selected' : ''; ?>>GBP (£)</option>
+                        <option value="USD" <?php echo ($settings['currency'] ?? '') === 'USD' ? 'selected' : ''; ?>>USD
+                            ($)</option>
+                        <option value="EUR" <?php echo ($settings['currency'] ?? '') === 'EUR' ? 'selected' : ''; ?>>EUR
+                            (€)</option>
+                        <option value="GBP" <?php echo ($settings['currency'] ?? '') === 'GBP' ? 'selected' : ''; ?>>GBP
+                            (£)</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label for="tax_rate">Tax Rate (%)</label>
                     <input type="number" id="tax_rate" name="tax_rate" step="0.01" min="0" max="100"
-                           value="<?php echo htmlspecialchars($settings['tax_rate'] ?? '0'); ?>">
+                        value="<?php echo htmlspecialchars($settings['tax_rate'] ?? '0'); ?>">
                 </div>
                 <div class="form-group">
                     <label for="shipping_cost">Default Shipping Cost</label>
                     <input type="number" id="shipping_cost" name="shipping_cost" step="0.01" min="0"
-                           value="<?php echo htmlspecialchars($settings['shipping_cost'] ?? '0'); ?>">
+                        value="<?php echo htmlspecialchars($settings['shipping_cost'] ?? '0'); ?>">
                 </div>
             </div>
 
@@ -86,15 +88,15 @@ while ($row = $result->fetch_assoc()) {
                 <h3>System Settings</h3>
                 <div class="form-group checkbox-group">
                     <label>
-                        <input type="checkbox" name="email_notifications" 
-                               <?php echo ($settings['email_notifications'] ?? '') ? 'checked' : ''; ?>>
+                        <input type="checkbox" name="email_notifications"
+                            <?php echo ($settings['email_notifications'] ?? '') ? 'checked' : ''; ?>>
                         Enable Email Notifications
                     </label>
                 </div>
                 <div class="form-group checkbox-group">
                     <label>
                         <input type="checkbox" name="maintenance_mode"
-                               <?php echo ($settings['maintenance_mode'] ?? '') ? 'checked' : ''; ?>>
+                            <?php echo ($settings['maintenance_mode'] ?? '') ? 'checked' : ''; ?>>
                         Maintenance Mode
                     </label>
                 </div>
@@ -118,7 +120,7 @@ while ($row = $result->fetch_assoc()) {
     padding: 20px;
     background: #fff;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .settings-section h3 {
@@ -190,4 +192,4 @@ while ($row = $result->fetch_assoc()) {
 }
 </style>
 
-<?php require_once 'footer.php'; ?> 
+<?php require_once 'footer.php'; ?>

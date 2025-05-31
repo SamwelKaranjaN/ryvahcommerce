@@ -1,6 +1,8 @@
 {
     "require": {
-        "stripe/stripe-php": "^10.0",
-        "paypal/paypal-server-sdk": "^1.0"
+        "ext-json": "*",
+        "ext-curl": "*",
+        "paypal/paypal-checkout-sdk": "^1.0",
+        "paypal/paypal-server-sdk": "^1.1"
     }
-} 
+}

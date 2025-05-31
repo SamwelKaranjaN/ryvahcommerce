@@ -31,7 +31,7 @@ function getCartItems()
     if (isset($_SESSION['user_id'])) {
         // Get items from database for logged-in users
         $stmt = $conn->prepare("
-            SELECT c.*, p.name, p.price, p.thumbs, p.stock 
+            SELECT c.*, p.name, p.price, p.thumbs, p.stock, p.type 
             FROM cart c 
             JOIN products p ON c.product_id = p.id 
             WHERE c.user_id = ?
@@ -47,7 +47,8 @@ function getCartItems()
                 'price' => $row['price'],
                 'quantity' => $row['quantity'],
                 'stock' => $row['stock'],
-                'thumbs' => $row['thumbs']
+                'thumbs' => $row['thumbs'],
+                'type' => $row['type']
             ];
             $total += $row['price'] * $row['quantity'];
         }
@@ -58,7 +59,7 @@ function getCartItems()
             $product_ids = array_keys($cart);
             $placeholders = str_repeat('?,', count($product_ids) - 1) . '?';
 
-            $sql = "SELECT id, name, price, stock, thumbs FROM products WHERE id IN ($placeholders)";
+            $sql = "SELECT id, name, price, stock, thumbs, type FROM products WHERE id IN ($placeholders)";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param(str_repeat('i', count($product_ids)), ...$product_ids);
             $stmt->execute();
@@ -72,7 +73,8 @@ function getCartItems()
                     'price' => $product['price'],
                     'quantity' => $quantity,
                     'stock' => $product['stock'],
-                    'thumbs' => $product['thumbs']
+                    'thumbs' => $product['thumbs'],
+                    'type' => $product['type']
                 ];
                 $total += $product['price'] * $quantity;
             }

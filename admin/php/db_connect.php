@@ -15,4 +15,10 @@ if ($conn->connect_error) {
 
 // Set charset to utf8mb4
 $conn->set_charset("utf8mb4");
-?> 
+
+// Function to get database connection
+function getDBConnection()
+{
+    global $conn;
+    return $conn;
+}

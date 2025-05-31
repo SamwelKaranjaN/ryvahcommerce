@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit86a04a6aa64db30ea11da5513439e03e
+class ComposerStaticInit8a31eccf5a55cca2f80ffaf022cdf982
 {
     public static $prefixLengthsPsr4 = array (
         'a' => 
@@ -17,12 +17,14 @@ class ComposerStaticInit86a04a6aa64db30ea11da5513439e03e
         ),
         'S' => 
         array (
-            'Stripe\\' => 7,
+            'Sample\\' => 7,
         ),
         'P' => 
         array (
             'Psr\\Log\\' => 8,
             'PaypalServerSdkLib\\' => 19,
+            'PayPalHttp\\' => 11,
+            'PayPalCheckoutSdk\\' => 18,
         ),
         'C' => 
         array (
@@ -40,9 +42,9 @@ class ComposerStaticInit86a04a6aa64db30ea11da5513439e03e
         array (
             0 => __DIR__ . '/..' . '/apimatic/unirest-php/src',
         ),
-        'Stripe\\' => 
+        'Sample\\' => 
         array (
-            0 => __DIR__ . '/..' . '/stripe/stripe-php/lib',
+            0 => __DIR__ . '/..' . '/paypal/paypal-checkout-sdk/samples',
         ),
         'Psr\\Log\\' => 
         array (
@@ -51,6 +53,14 @@ class ComposerStaticInit86a04a6aa64db30ea11da5513439e03e
         'PaypalServerSdkLib\\' => 
         array (
             0 => __DIR__ . '/..' . '/paypal/paypal-server-sdk/src',
+        ),
+        'PayPalHttp\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/paypal/paypalhttp/lib/PayPalHttp',
+        ),
+        'PayPalCheckoutSdk\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/paypal/paypal-checkout-sdk/lib/PayPalCheckoutSdk',
         ),
         'Core\\' => 
         array (
@@ -79,10 +89,10 @@ class ComposerStaticInit86a04a6aa64db30ea11da5513439e03e
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit86a04a6aa64db30ea11da5513439e03e::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit86a04a6aa64db30ea11da5513439e03e::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInit86a04a6aa64db30ea11da5513439e03e::$prefixesPsr0;
-            $loader->classMap = ComposerStaticInit86a04a6aa64db30ea11da5513439e03e::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit8a31eccf5a55cca2f80ffaf022cdf982::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit8a31eccf5a55cca2f80ffaf022cdf982::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit8a31eccf5a55cca2f80ffaf022cdf982::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInit8a31eccf5a55cca2f80ffaf022cdf982::$classMap;
 
         }, null, ClassLoader::class);
     }

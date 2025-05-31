@@ -10,6 +10,28 @@ $cart_data = getCartItems();
 $cart_items = $cart_data['items'];
 $cart_total = $cart_data['total'];
 
+// Calculate tax
+$tax_rates = [];
+$tax_amount = 0;
+
+// Get tax rates from database
+$stmt = $conn->prepare("SELECT product_type, tax_rate FROM tax_settings WHERE is_active = 1");
+$stmt->execute();
+$result = $stmt->get_result();
+while ($row = $result->fetch_assoc()) {
+    $tax_rates[$row['product_type']] = $row['tax_rate'];
+}
+
+// Calculate tax for each item
+foreach ($cart_items as $item) {
+    if (isset($tax_rates[$item['type']])) {
+        $item_tax = ($item['price'] * $item['quantity']) * ($tax_rates[$item['type']] / 100);
+        $tax_amount += $item_tax;
+    }
+}
+
+$grand_total = $cart_total + $tax_amount;
+
 include '../includes/layouts/header.php';
 ?>
 
@@ -121,13 +143,17 @@ include '../includes/layouts/header.php';
                         <span id="cart-subtotal">$<?php echo number_format($cart_total, 2); ?></span>
                     </div>
                     <div class="d-flex justify-content-between mb-3">
+                        <span>Tax (7.75%)</span>
+                        <span id="cart-tax">$<?php echo number_format($tax_amount, 2); ?></span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
                         <span>Shipping</span>
                         <span class="text-success">Free</span>
                     </div>
                     <hr>
                     <div class="d-flex justify-content-between mb-4">
                         <strong>Total</strong>
-                        <strong id="cart-total">$<?php echo number_format($cart_total, 2); ?></strong>
+                        <strong id="cart-total">$<?php echo number_format($grand_total, 2); ?></strong>
                     </div>
                     <?php if (!$is_logged_in): ?>
                     <div class="alert alert-info mb-4">
@@ -397,12 +423,20 @@ async function updateCartTotals() {
 
         if (data.success && data.items) {
             let subtotal = 0;
+            let taxAmount = 0;
+            const taxRate = 7.75; // 7.75% tax rate
+
             data.items.forEach(item => {
-                subtotal += item.price * item.quantity;
+                const itemTotal = item.price * item.quantity;
+                subtotal += itemTotal;
+                taxAmount += itemTotal * (taxRate / 100);
             });
 
+            const grandTotal = subtotal + taxAmount;
+
             document.getElementById('cart-subtotal').textContent = `$${subtotal.toFixed(2)}`;
-            document.getElementById('cart-total').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('cart-tax').textContent = `$${taxAmount.toFixed(2)}`;
+            document.getElementById('cart-total').textContent = `$${grandTotal.toFixed(2)}`;
         }
     } catch (error) {
         console.error('Error updating totals:', error);

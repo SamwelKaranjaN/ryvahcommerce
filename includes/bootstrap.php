@@ -1,4 +1,11 @@
 <?php
+// Set session settings before starting the session
+ini_set('session.cookie_httponly', 1);
+ini_set('session.cookie_secure', isset($_SERVER['HTTPS']));
+ini_set('session.cookie_samesite', 'Lax');
+ini_set('session.use_strict_mode', 1);
+ini_set('session.use_only_cookies', 1);
+
 // Start session if not already started
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -6,7 +13,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // Set error reporting
 error_reporting(E_ALL);
-ini_set('display_errors', 0);
+ini_set('display_errors', 1); // Temporarily enable error display for debugging
 ini_set('log_errors', 1);
 ini_set('error_log', __DIR__ . '/../php_errors.log');
 
@@ -19,11 +26,21 @@ header('Content-Type: text/html; charset=utf-8');
 // Start output buffering
 ob_start();
 
+// Include security headers
+require_once __DIR__ . '/security_headers.php';
+
 // Load configuration
-$config = require_once __DIR__ . '/../config/config.php';
+$config = require_once __DIR__ . '/config.php';
+
+// Define getConfig function
+function getConfig($key)
+{
+    global $config;
+    return $config[$key] ?? null;
+}
 
 // Load database connection
-require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/db.php';
 
 // Load functions
 require_once __DIR__ . '/functions.php';
