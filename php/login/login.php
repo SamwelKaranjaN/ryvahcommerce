@@ -1,6 +1,6 @@
 <?php
 header('Content-Type: application/json');
-require_once '../db_connect.php';
+require_once '../../includes/bootstrap.php';
 
 // Get JSON data from request
 $json = file_get_contents('php://input');
@@ -27,11 +27,6 @@ try {
     if ($result->num_rows === 1) {
         $user = $result->fetch_assoc();
         if (password_verify($password, $user['password'])) {
-            // Start session if not already started
-            if (session_status() === PHP_SESSION_NONE) {
-                session_start();
-            }
-
             // Set session variables
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_email'] = $user['email'];
@@ -51,25 +46,62 @@ try {
                 setcookie('remember_token', $token, [
                     'expires' => $expires,
                     'path' => '/',
-                    'secure' => true,
+                    'secure' => false, // Set to true in production with HTTPS
                     'httponly' => true,
                     'samesite' => 'Strict'
                 ]);
             }
 
             // Transfer session cart to database if exists
-            if (isset($_SESSION['cart'])) {
-                require_once '../../includes/cart.php';
-                transferSessionCartToDatabase($user['id']);
+            require_once '../../includes/cart.php';
+            $hasSessionCart = !empty($_SESSION['cart']);
+            $transferResult = transferSessionCartToDatabase($user['id']);
+
+            // Clean up any orphaned cart items
+            verifyAndCleanCart($user['id']);
+
+            // Log any transfer errors
+            if (!$transferResult['success']) {
+                error_log("Session cart transfer errors: " . implode(', ', $transferResult['errors']));
+            } else if ($transferResult['transferred'] > 0) {
+                error_log("Successfully transferred {$transferResult['transferred']} items from session cart to database");
             }
 
-            // Get redirect URL from session or default to index
-            $redirect = isset($_SESSION['redirect_after_login']) ? $_SESSION['redirect_after_login'] : 'index.php';
-            unset($_SESSION['redirect_after_login']);
+            // Handle temp cart merge
+            if (isset($_SESSION['temp_cart'])) {
+                foreach ($_SESSION['temp_cart'] as $item) {
+                    addToCart($item['id'], $item['quantity']);
+                }
+                unset($_SESSION['temp_cart']);
+            }
 
-            // Ensure the redirect URL is valid
+            // Determine redirect URL
+            $redirect = 'index';
+
+            // Check for redirect URL from request
+            if (isset($data['redirect']) && !empty($data['redirect'])) {
+                $redirect = $data['redirect'];
+            }
+
+            // Check for redirect_after_login in session
+            if (isset($_SESSION['redirect_after_login'])) {
+                $redirect = $_SESSION['redirect_after_login'];
+                unset($_SESSION['redirect_after_login']);
+            }
+
+            // If there was a session cart, redirect to cart page
+            if ($hasSessionCart) {
+                $redirect = 'cart';
+            }
+
+            // Ensure the redirect URL is valid (alphanumeric, hyphens, underscores, dots, slashes)
             if (!preg_match('/^[a-zA-Z0-9_\-\.\/]+$/', $redirect)) {
-                $redirect = 'index.php';
+                $redirect = 'index';
+            }
+
+            // Add .php extension if not present and not a directory-style URL
+            if (!str_contains($redirect, '.') && !str_contains($redirect, '/')) {
+                $redirect = $redirect . '.php';
             }
 
             // Return success response

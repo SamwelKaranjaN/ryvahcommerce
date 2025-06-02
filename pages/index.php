@@ -57,13 +57,6 @@ include '../includes/layouts/header.php';
         </div>
     </div>
 </section>
-
-<!-- Sticky Proceed to Cart Button -->
-<button id="proceed-to-cart-btn" class="proceed-to-cart-btn" onclick="window.location.href='../checkout/checkout'">
-    <span><i class="fas fa-shopping-cart"></i> Checkout</span>
-    <span id="proceed-cart-count" class="cart-count-btn"></span>
-</button>
-
 <!-- Books Section -->
 <section id="books" class="py-5">
     <div class="container">
@@ -118,7 +111,56 @@ include '../includes/layouts/header.php';
         </div>
     </div>
 </section>
+<!-- Modern Checkout Overlay -->
+<div id="checkout-overlay" class="checkout-overlay" style="display: none;">
+    <div class="checkout-overlay-content">
+        <div class="checkout-header">
+            <div class="checkout-icon">
+                <i class="fas fa-shopping-cart"></i>
+            </div>
+            <div class="checkout-info">
+                <div class="checkout-title">Ready to Checkout?</div>
+                <div class="checkout-subtitle">
+                    <span id="overlay-cart-count">0</span> items in your cart
+                </div>
+            </div>
+            <div class="checkout-total">
+                <div class="total-label">Total</div>
+                <div class="total-amount" id="overlay-cart-total">$0.00</div>
+            </div>
+        </div>
+        <div class="checkout-actions">
+            <a href="../pages/cart" class="btn-overlay btn-view-cart">
+                <i class="fas fa-eye me-2"></i>View Cart
+            </a>
+            <a href="../checkout" class="btn-overlay btn-checkout">
+                <i class="fas fa-credit-card me-2"></i>Checkout Now
+            </a>
+        </div>
+        <button class="checkout-close" onclick="hideCheckoutOverlay()">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+</div>
 
+<!-- Success Message Toast -->
+<?php if (isset($_SESSION['success_message'])): ?>
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 1050">
+    <div class="toast show" role="alert">
+        <div class="toast-header bg-success text-white">
+            <i class="fas fa-check-circle me-2"></i>
+            <strong class="me-auto">Success</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+        </div>
+        <div class="toast-body">
+            <?php
+                echo htmlspecialchars($_SESSION['success_message']);
+                unset($_SESSION['success_message']);
+                ?>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
 <!-- Ebooks Section -->
 <section id="ebooks" class="py-5 bg-light">
     <div class="container">
@@ -280,62 +322,8 @@ include '../includes/layouts/header.php';
     </div>
 </div>
 
-<!-- Newsletter Section with Book-themed Background -->
-<section class="py-5 newsletter-section">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-8 text-center">
-                <h3 class="animate__animated animate__fadeIn">Join Our Book Club</h3>
-                <p class="animate__animated animate__fadeIn animate__delay-1s">Get updates on new releases and exclusive
-                    offers</p>
-                <form class="row g-3 justify-content-center animate__animated animate__fadeIn animate__delay-2s">
-                    <div class="col-md-8">
-                        <input type="email" class="form-control form-control-lg" placeholder="Enter your email">
-                    </div>
-                    <div class="col-md-4">
-                        <button type="submit" class="btn btn-primary btn-lg w-100 pulse-animation">Subscribe</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</section>
 
-<!-- Footer -->
-<footer class="bg-dark text-light py-4">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-4">
-                <h5>About Ryvah Books</h5>
-                <p>Your premier destination for digital books and original artwork. Discover amazing stories and
-                    beautiful art pieces.</p>
-            </div>
-            <div class="col-md-4">
-                <h5>Quick Links</h5>
-                <ul class="list-unstyled">
-                    <li><a href="#" class="text-light"><i class="fas fa-angle-right"></i> About Us</a></li>
-                    <li><a href="#" class="text-light"><i class="fas fa-angle-right"></i> Contact Us</a></li>
-                    <li><a href="#" class="text-light"><i class="fas fa-angle-right"></i> Terms & Conditions</a></li>
-                    <li><a href="#" class="text-light"><i class="fas fa-angle-right"></i> Privacy Policy</a></li>
-                </ul>
-            </div>
-            <div class="col-md-4">
-                <h5>Connect With Us</h5>
-                <div class="social-links">
-                    <a href="#" class="text-light me-2 social-icon"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" class="text-light me-2 social-icon"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="text-light me-2 social-icon"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="text-light social-icon"><i class="fab fa-linkedin-in"></i></a>
-                </div>
-            </div>
-        </div>
-        <hr class="my-4">
-        <div class="text-center">
-            <p class="mb-0">&copy; 2024 Ryvah Books. All rights reserved.</p>
-        </div>
-    </div>
-</footer>
-
+<?php include '../includes/layouts/footer.php'; ?>
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <!-- Animate.css -->
@@ -355,7 +343,7 @@ body {
 
 /* Hero Section Responsive Styles */
 .hero-section-bookshelf {
-    background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3');
+    background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('../resources/book.jpeg');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -953,22 +941,20 @@ footer h5 {
 /* Checkout Overlay Styles */
 .checkout-overlay {
     position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    bottom: 20px;
+    right: 20px;
     z-index: 2050;
+    max-width: 400px;
+    width: 90vw;
     display: none;
-    justify-content: center;
-    pointer-events: none;
+    animation: slideUp 0.3s ease-out;
 }
 
 .checkout-overlay.active {
-    display: flex;
-    animation: slideUpOverlay 0.5s cubic-bezier(.4, 0, .2, 1);
-    pointer-events: auto;
+    display: block;
 }
 
-@keyframes slideUpOverlay {
+@keyframes slideUp {
     from {
         transform: translateY(100%);
         opacity: 0;
@@ -980,152 +966,144 @@ footer h5 {
     }
 }
 
-.checkout-modal {
-    background: linear-gradient(135deg, #007bff, #00c6ff);
-    color: #fff;
-    border-radius: 2rem 2rem 0 0;
-    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.18);
-    min-width: 220px;
-    min-height: 80px;
-    padding: 1.2rem 2rem 1.2rem 2rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    pointer-events: auto;
+.checkout-overlay-content {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    position: relative;
 }
 
-@media (max-width: 576px) {
-    .checkout-modal {
-        min-width: 90vw;
-        padding: 1rem 0.5rem;
-    }
-}
-
-.checkout-modal .btn {
-    transition: all 0.3s ease;
-}
-
-.checkout-modal .btn:hover {
-    transform: translateY(-1px);
-}
-
-.checkout-modal .btn-outline-light:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-}
-
-.success-toast {
-    z-index: 2000 !important;
-}
-
-.toast-content {
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    padding: 15px;
+.checkout-header {
+    padding: 20px;
     display: flex;
     align-items: center;
-    justify-content: center;
+    gap: 15px;
 }
 
-.toast-content i {
-    font-size: 24px;
-    color: #28a745;
-    margin-right: 10px;
-}
-
-.toast-content span {
-    font-size: 18px;
-    font-weight: bold;
-}
-
-/* Sticky Proceed to Cart Button */
-.proceed-to-cart-btn {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    z-index: 2000;
-    background: linear-gradient(90deg, #007bff 60%, #00c6ff 100%);
-    color: #fff;
-    border: none;
-    border-radius: 50px;
-    padding: 1rem 2.2rem 1rem 2.2rem;
-    font-size: 1.2rem;
-    font-weight: 700;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    transition: background 0.2s, transform 0.2s;
-    cursor: pointer;
-    outline: none;
-    min-width: 220px;
-    justify-content: space-between;
-}
-
-.proceed-to-cart-btn:hover {
-    background: linear-gradient(90deg, #0056b3 60%, #007bff 100%);
-    transform: translateY(-2px) scale(1.03);
-}
-
-.cart-count-btn {
-    background: #fff;
-    color: #007bff;
+.checkout-icon {
+    background: rgba(255, 255, 255, 0.2);
     border-radius: 50%;
-    width: 28px;
-    height: 28px;
+    width: 50px;
+    height: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.1rem;
-    font-weight: bold;
-    margin-left: 10px;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-    animation: popIn 0.3s ease-out;
+    font-size: 20px;
 }
 
-@keyframes popIn {
-    0% {
-        transform: scale(0);
-    }
+.checkout-info {
+    flex: 1;
+}
 
-    50% {
-        transform: scale(1.2);
-    }
+.checkout-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
 
-    100% {
-        transform: scale(1);
-    }
+.checkout-subtitle {
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+.checkout-total {
+    text-align: right;
+}
+
+.total-label {
+    font-size: 12px;
+    opacity: 0.8;
+    text-transform: uppercase;
+}
+
+.total-amount {
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.checkout-actions {
+    padding: 0 20px 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.btn-overlay {
+    flex: 1;
+    padding: 12px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    text-align: center;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-view-cart {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.btn-view-cart:hover {
+    background: rgba(255, 255, 255, 0.3);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.btn-checkout {
+    background: #28a745;
+    color: white;
+}
+
+.btn-checkout:hover {
+    background: #218838;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.checkout-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s;
+}
+
+.checkout-close:hover {
+    background: rgba(255, 255, 255, 0.2);
 }
 
 @media (max-width: 576px) {
-    .proceed-to-cart-btn {
+    .checkout-overlay {
         bottom: 10px;
         right: 10px;
-        min-width: 150px;
-        padding: 0.7rem 1.2rem;
-        font-size: 1rem;
+        left: 10px;
+        max-width: none;
+        width: calc(100% - 20px);
     }
 
-    .cart-count-btn {
-        width: 22px;
-        height: 22px;
-        font-size: 0.95rem;
-    }
-}
-
-.hero-section-bookshelf {
-    animation: fadeInHero 1.2s cubic-bezier(.4, 0, .2, 1);
-}
-
-@keyframes fadeInHero {
-    from {
-        opacity: 0;
-        transform: translateY(40px);
+    .checkout-header {
+        padding: 15px;
     }
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
+    .checkout-actions {
+        flex-direction: column;
+        padding: 0 15px 15px;
     }
 }
 
@@ -1265,18 +1243,49 @@ function updateCartUI(data) {
     } else if (cartCount) {
         cartCount.remove();
     }
+
     // Update checkout overlay
     const overlay = document.getElementById('checkout-overlay');
+    const overlayCartCount = document.getElementById('overlay-cart-count');
     const total = document.getElementById('overlay-cart-total');
+
     if (data.items && data.items.length > 0) {
         let sum = 0;
         data.items.forEach(item => {
             sum += item.price * item.quantity;
         });
-        total.textContent = '$' + sum.toFixed(2);
-        overlay.classList.add('active');
+
+        // Update overlay content
+        if (overlayCartCount) {
+            overlayCartCount.textContent = data.items.length;
+        }
+        if (total) {
+            total.textContent = '$' + sum.toFixed(2);
+        }
+
+        // Show overlay
+        showCheckoutOverlay();
     } else {
+        // Hide overlay
+        hideCheckoutOverlay();
+    }
+}
+
+function showCheckoutOverlay() {
+    const overlay = document.getElementById('checkout-overlay');
+    if (overlay) {
+        overlay.style.display = 'block';
+        overlay.classList.add('active');
+    }
+}
+
+function hideCheckoutOverlay() {
+    const overlay = document.getElementById('checkout-overlay');
+    if (overlay) {
         overlay.classList.remove('active');
+        setTimeout(() => {
+            overlay.style.display = 'none';
+        }, 300); // Wait for animation to complete
     }
 }
 
@@ -1397,35 +1406,6 @@ window.addEventListener('DOMContentLoaded', function() {
 })();
 </script>
 
-<!-- Checkout Overlay -->
-<div id="checkout-overlay" class="checkout-overlay">
-    <div
-        class="checkout-modal bg-success text-white shadow-lg rounded-4 p-3 d-flex flex-column align-items-center animate__animated animate__fadeInUp">
-        <div class="d-flex align-items-center mb-2">
-            <i class="fas fa-shopping-cart me-2"></i>
-            <span class="fs-6 fw-bold">Your Cart</span>
-        </div>
-        <div class="mb-2">
-            <span id="overlay-cart-total" class="badge bg-light text-dark fs-6 fw-bold"></span>
-        </div>
-        <div class="d-flex gap-2">
-            <button class="btn btn-light btn-sm fw-bold px-3" onclick="window.location.href='../checkout/checkout'">
-                <i class="fas fa-arrow-right me-1"></i> Checkout
-            </button>
-            <button class="btn btn-outline-light btn-sm fw-bold px-3" onclick="continueShopping()">
-                <i class="fas fa-shopping-bag me-1"></i> Continue
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Success Toast -->
-<div id="success-toast" class="success-toast" style="display:none;">
-    <div class="toast-content">
-        <i class="fas fa-check-circle"></i>
-        <span id="success-toast-message"></span>
-    </div>
-</div>
 
 <script>
 function continueShopping() {
@@ -1434,6 +1414,51 @@ function continueShopping() {
         behavior: 'smooth'
     });
 }
+</script>
+
+<script>
+// Override the page's addToCart function to use the header's global function
+document.addEventListener('DOMContentLoaded', function() {
+    // Re-bind all add to cart buttons to use the header's function
+    document.querySelectorAll('.add-to-cart').forEach(button => {
+        // Remove existing event listeners by cloning the button
+        const newButton = button.cloneNode(true);
+        button.parentNode.replaceChild(newButton, button);
+
+        // Add new event listener
+        newButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            const productId = this.dataset.productId;
+
+            // Use the header's addToCart function if available
+            if (typeof window.addToCart === 'function') {
+                window.addToCart(productId, 1);
+            } else {
+                // Fallback to original function
+                addToCart(productId, 1);
+            }
+        });
+    });
+
+    // Also update modal add to cart button
+    const modalAddBtn = document.querySelector('.modal-add-to-cart');
+    if (modalAddBtn) {
+        modalAddBtn.removeEventListener('click', modalAddBtn.clickHandler);
+        modalAddBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const productId = this.dataset.productId;
+            const quantity = document.querySelector('.modal-qty').value;
+
+            // Use the header's addToCart function if available
+            if (typeof window.addToCart === 'function') {
+                window.addToCart(productId, quantity);
+            } else {
+                // Fallback to original function
+                addToCart(productId, quantity);
+            }
+        });
+    }
+});
 </script>
 </body>
 

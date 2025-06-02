@@ -1,6 +1,13 @@
 {
+    "name": "ryvahcommerce/ecommerce",
+    "description": "Ryvah Commerce e-commerce application",
     "require": {
-        "stripe/stripe-php": "^17.2",
-        "paypal/rest-api-sdk-php": "^1.14"
+        "php": ">=7.4",
+        "paypal/paypal-checkout-sdk": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "RyvahCommerce\\": "includes/"
+        }
     }
 }

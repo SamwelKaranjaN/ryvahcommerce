@@ -1,270 +1,204 @@
-[29-May-2025 11:05:37 UTC] Getting cart items
-[29-May-2025 11:05:37 UTC] Cart Data: Array
+[02-Jun-2025 14:23:33 UTC] Adding to cart: Array
 (
-    [items] => Array
-        (
-        )
-
-    [total] => 0
+    [product_id] => 4
+    [quantity] => 1
 )
 
-[29-May-2025 11:09:24 UTC] Getting cart items
-[29-May-2025 11:09:24 UTC] Cart Data: Array
+[02-Jun-2025 14:23:33 UTC] Add to cart result: Array
 (
-    [items] => Array
-        (
-        )
-
-    [total] => 0
+    [success] => 1
 )
 
-[29-May-2025 11:09:38 UTC] Getting cart items
-[29-May-2025 11:09:38 UTC] Cart Data: Array
+[02-Jun-2025 14:23:37 UTC] Getting cart items
+[02-Jun-2025 14:23:37 UTC] Cart Data: Array
 (
     [items] => Array
         (
+            [0] => Array
+                (
+                    [id] => 4
+                    [name] => React Essentials
+                    [price] => 11.99
+                    [quantity] => 1
+                    [stock] => 0
+                    [thumbs] => thumbs/react_essentials.jpg
+                    [type] => book
+                )
+
+            [1] => Array
+                (
+                    [id] => 7
+                    [name] => Ocean Blue - 5
+                    [price] => 0.01
+                    [quantity] => 1
+                    [stock] => 0
+                    [thumbs] => thumbs/ocean_blue.jpg
+                    [type] => ebook
+                )
+
         )
 
-    [total] => 0
+    [total] => 12
 )
 
-[29-May-2025 11:12:17 UTC] Getting cart items
-[29-May-2025 11:12:17 UTC] Cart Data: Array
+[02-Jun-2025 14:25:18 UTC] Adding to cart: Array
 (
-    [items] => Array
-        (
-        )
-
-    [total] => 0
+    [product_id] => 4
+    [quantity] => 1
 )
 
-[29-May-2025 11:12:35 UTC] Getting cart items
-[29-May-2025 11:12:35 UTC] Cart Data: Array
+[02-Jun-2025 14:25:24 UTC] Getting cart items
+[02-Jun-2025 14:25:24 UTC] Cart Data: Array
 (
     [items] => Array
         (
+            [0] => Array
+                (
+                    [id] => 4
+                    [name] => React Essentials
+                    [price] => 11.99
+                    [quantity] => 1
+                    [stock] => 0
+                    [thumbs] => thumbs/react_essentials.jpg
+                    [type] => book
+                )
+
         )
 
-    [total] => 0
+    [total] => 11.99
 )
 
-[29-May-2025 11:12:37 UTC] Getting cart items
-[29-May-2025 11:12:37 UTC] Cart Data: Array
+[02-Jun-2025 14:31:29 UTC] Adding to cart: Array
 (
-    [items] => Array
-        (
-        )
-
-    [total] => 0
+    [product_id] => 12
+    [quantity] => 1
 )
 
-[29-May-2025 11:35:50 UTC] Getting cart items
-[29-May-2025 11:35:50 UTC] Cart Data: Array
+[02-Jun-2025 14:31:34 UTC] Getting cart items
+[02-Jun-2025 14:31:34 UTC] Cart Data: Array
 (
     [items] => Array
         (
+            [0] => Array
+                (
+                    [id] => 4
+                    [name] => React Essentials
+                    [price] => 11.99
+                    [quantity] => 1
+                    [stock] => 0
+                    [thumbs] => thumbs/react_essentials.jpg
+                    [type] => book
+                )
+
+            [1] => Array
+                (
+                    [id] => 12
+                    [name] => Plight of the Faries 
+                    [price] => 24.95
+                    [quantity] => 1
+                    [stock] => 0
+                    [thumbs] => Uploads/thumbs/output.jpg
+                    [type] => book
+                )
+
         )
 
-    [total] => 0
+    [total] => 36.94
 )
 
-[29-May-2025 11:58:23 UTC] Getting cart items
-[29-May-2025 11:58:23 UTC] Cart Data: Array
+[02-Jun-2025 20:02:09 UTC] Getting cart items
+[02-Jun-2025 20:02:10 UTC] Cart Data: Array
 (
     [items] => Array
         (
+            [0] => Array
+                (
+                    [id] => 4
+                    [name] => React Essentials
+                    [price] => 11.99
+                    [quantity] => 1
+                    [stock] => 0
+                    [thumbs] => thumbs/react_essentials.jpg
+                    [type] => book
+                )
+
+            [1] => Array
+                (
+                    [id] => 7
+                    [name] => Ocean Blue - 5
+                    [price] => 0.01
+                    [quantity] => 1
+                    [stock] => 0
+                    [thumbs] => thumbs/ocean_blue.jpg
+                    [type] => ebook
+                )
+
         )
 
-    [total] => 0
+    [total] => 12
 )
 
-[29-May-2025 11:58:41 UTC] Getting cart items
-[29-May-2025 11:58:41 UTC] Cart Data: Array
+[02-Jun-2025 20:02:15 UTC] Getting cart items
+[02-Jun-2025 20:02:15 UTC] Cart Data: Array
 (
     [items] => Array
         (
+            [0] => Array
+                (
+                    [id] => 4
+                    [name] => React Essentials
+                    [price] => 11.99
+                    [quantity] => 1
+                    [stock] => 0
+                    [thumbs] => thumbs/react_essentials.jpg
+                    [type] => book
+                )
+
+            [1] => Array
+                (
+                    [id] => 7
+                    [name] => Ocean Blue - 5
+                    [price] => 0.01
+                    [quantity] => 1
+                    [stock] => 0
+                    [thumbs] => thumbs/ocean_blue.jpg
+                    [type] => ebook
+                )
+
         )
 
-    [total] => 0
+    [total] => 12
 )
 
-[29-May-2025 11:58:59 UTC] Getting cart items
-[29-May-2025 11:58:59 UTC] Cart Data: Array
+[02-Jun-2025 20:04:18 UTC] Getting cart items
+[02-Jun-2025 20:04:18 UTC] Cart Data: Array
 (
     [items] => Array
         (
+            [0] => Array
+                (
+                    [id] => 4
+                    [name] => React Essentials
+                    [price] => 11.99
+                    [quantity] => 1
+                    [stock] => 0
+                    [thumbs] => thumbs/react_essentials.jpg
+                    [type] => book
+                )
+
+            [1] => Array
+                (
+                    [id] => 7
+                    [name] => Ocean Blue - 5
+                    [price] => 0.01
+                    [quantity] => 1
+                    [stock] => 0
+                    [thumbs] => thumbs/ocean_blue.jpg
+                    [type] => ebook
+                )
+
         )
 
-    [total] => 0
-)
-
-[29-May-2025 12:00:06 UTC] Getting cart items
-[29-May-2025 12:00:06 UTC] Cart Data: Array
-(
-    [items] => Array
-        (
-        )
-
-    [total] => 0
-)
-
-[29-May-2025 12:00:10 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Table 'ryvahcommerce.wishlist' doesn't exist in C:\wamp64\www\ryvahcommerce\pages\wishlist.php:16
-Stack trace:
-#0 C:\wamp64\www\ryvahcommerce\pages\wishlist.php(16): mysqli->prepare('SELECT w.*, p.*...')
-#1 {main}
-  thrown in C:\wamp64\www\ryvahcommerce\pages\wishlist.php on line 16
-[29-May-2025 12:00:10 UTC] Fatal Error: Uncaught mysqli_sql_exception: Table 'ryvahcommerce.wishlist' doesn't exist in C:\wamp64\www\ryvahcommerce\pages\wishlist.php:16
-Stack trace:
-#0 C:\wamp64\www\ryvahcommerce\pages\wishlist.php(16): mysqli->prepare('SELECT w.*, p.*...')
-#1 {main}
-  thrown in C:\wamp64\www\ryvahcommerce\pages\wishlist.php on line 16
-[29-May-2025 12:00:13 UTC] Getting cart items
-[29-May-2025 12:00:13 UTC] Cart Data: Array
-(
-    [items] => Array
-        (
-        )
-
-    [total] => 0
-)
-
-[29-May-2025 12:08:44 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Table 'ryvahcommerce.wishlist' doesn't exist in C:\wamp64\www\ryvahcommerce\pages\profile.php:29
-Stack trace:
-#0 C:\wamp64\www\ryvahcommerce\pages\profile.php(29): mysqli->prepare('SELECT COUNT(*)...')
-#1 {main}
-  thrown in C:\wamp64\www\ryvahcommerce\pages\profile.php on line 29
-[29-May-2025 12:08:44 UTC] Fatal Error: Uncaught mysqli_sql_exception: Table 'ryvahcommerce.wishlist' doesn't exist in C:\wamp64\www\ryvahcommerce\pages\profile.php:29
-Stack trace:
-#0 C:\wamp64\www\ryvahcommerce\pages\profile.php(29): mysqli->prepare('SELECT COUNT(*)...')
-#1 {main}
-  thrown in C:\wamp64\www\ryvahcommerce\pages\profile.php on line 29
-[29-May-2025 12:08:51 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Table 'ryvahcommerce.wishlist' doesn't exist in C:\wamp64\www\ryvahcommerce\pages\profile.php:29
-Stack trace:
-#0 C:\wamp64\www\ryvahcommerce\pages\profile.php(29): mysqli->prepare('SELECT COUNT(*)...')
-#1 {main}
-  thrown in C:\wamp64\www\ryvahcommerce\pages\profile.php on line 29
-[29-May-2025 12:08:51 UTC] Fatal Error: Uncaught mysqli_sql_exception: Table 'ryvahcommerce.wishlist' doesn't exist in C:\wamp64\www\ryvahcommerce\pages\profile.php:29
-Stack trace:
-#0 C:\wamp64\www\ryvahcommerce\pages\profile.php(29): mysqli->prepare('SELECT COUNT(*)...')
-#1 {main}
-  thrown in C:\wamp64\www\ryvahcommerce\pages\profile.php on line 29
-[29-May-2025 12:09:21 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Table 'ryvahcommerce.wishlist' doesn't exist in C:\wamp64\www\ryvahcommerce\pages\profile.php:29
-Stack trace:
-#0 C:\wamp64\www\ryvahcommerce\pages\profile.php(29): mysqli->prepare('SELECT COUNT(*)...')
-#1 {main}
-  thrown in C:\wamp64\www\ryvahcommerce\pages\profile.php on line 29
-[29-May-2025 12:09:21 UTC] Fatal Error: Uncaught mysqli_sql_exception: Table 'ryvahcommerce.wishlist' doesn't exist in C:\wamp64\www\ryvahcommerce\pages\profile.php:29
-Stack trace:
-#0 C:\wamp64\www\ryvahcommerce\pages\profile.php(29): mysqli->prepare('SELECT COUNT(*)...')
-#1 {main}
-  thrown in C:\wamp64\www\ryvahcommerce\pages\profile.php on line 29
-[29-May-2025 12:26:44 UTC] Getting cart items
-[29-May-2025 12:26:45 UTC] Cart Data: Array
-(
-    [items] => Array
-        (
-        )
-
-    [total] => 0
-)
-
-[29-May-2025 12:31:57 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Table 'ryvahcommerce.wishlist' doesn't exist in C:\wamp64\www\ryvahcommerce\pages\wishlist.php:16
-Stack trace:
-#0 C:\wamp64\www\ryvahcommerce\pages\wishlist.php(16): mysqli->prepare('SELECT w.*, p.*...')
-#1 {main}
-  thrown in C:\wamp64\www\ryvahcommerce\pages\wishlist.php on line 16
-[29-May-2025 12:31:57 UTC] Fatal Error: Uncaught mysqli_sql_exception: Table 'ryvahcommerce.wishlist' doesn't exist in C:\wamp64\www\ryvahcommerce\pages\wishlist.php:16
-Stack trace:
-#0 C:\wamp64\www\ryvahcommerce\pages\wishlist.php(16): mysqli->prepare('SELECT w.*, p.*...')
-#1 {main}
-  thrown in C:\wamp64\www\ryvahcommerce\pages\wishlist.php on line 16
-[29-May-2025 12:41:02 UTC] Getting cart items
-[29-May-2025 12:41:02 UTC] Cart Data: Array
-(
-    [items] => Array
-        (
-        )
-
-    [total] => 0
-)
-
-[29-May-2025 12:41:07 UTC] Getting cart items
-[29-May-2025 12:41:08 UTC] Cart Data: Array
-(
-    [items] => Array
-        (
-        )
-
-    [total] => 0
-)
-
-[29-May-2025 12:42:07 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Table 'ryvahcommerce.wishlist' doesn't exist in C:\wamp64\www\ryvahcommerce\pages\wishlist.php:16
-Stack trace:
-#0 C:\wamp64\www\ryvahcommerce\pages\wishlist.php(16): mysqli->prepare('SELECT w.*, p.*...')
-#1 {main}
-  thrown in C:\wamp64\www\ryvahcommerce\pages\wishlist.php on line 16
-[29-May-2025 12:42:07 UTC] Fatal Error: Uncaught mysqli_sql_exception: Table 'ryvahcommerce.wishlist' doesn't exist in C:\wamp64\www\ryvahcommerce\pages\wishlist.php:16
-Stack trace:
-#0 C:\wamp64\www\ryvahcommerce\pages\wishlist.php(16): mysqli->prepare('SELECT w.*, p.*...')
-#1 {main}
-  thrown in C:\wamp64\www\ryvahcommerce\pages\wishlist.php on line 16
-[29-May-2025 12:44:17 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Table 'ryvahcommerce.wishlist' doesn't exist in C:\wamp64\www\ryvahcommerce\pages\wishlist.php:16
-Stack trace:
-#0 C:\wamp64\www\ryvahcommerce\pages\wishlist.php(16): mysqli->prepare('SELECT w.*, p.*...')
-#1 {main}
-  thrown in C:\wamp64\www\ryvahcommerce\pages\wishlist.php on line 16
-[29-May-2025 12:44:17 UTC] Fatal Error: Uncaught mysqli_sql_exception: Table 'ryvahcommerce.wishlist' doesn't exist in C:\wamp64\www\ryvahcommerce\pages\wishlist.php:16
-Stack trace:
-#0 C:\wamp64\www\ryvahcommerce\pages\wishlist.php(16): mysqli->prepare('SELECT w.*, p.*...')
-#1 {main}
-  thrown in C:\wamp64\www\ryvahcommerce\pages\wishlist.php on line 16
-[29-May-2025 12:59:18 UTC] Getting cart items
-[29-May-2025 12:59:18 UTC] Cart Data: Array
-(
-    [items] => Array
-        (
-        )
-
-    [total] => 0
-)
-
-[29-May-2025 13:09:38 UTC] Getting cart items
-[29-May-2025 13:09:38 UTC] Cart Data: Array
-(
-    [items] => Array
-        (
-        )
-
-    [total] => 0
-)
-
-[29-May-2025 13:10:33 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'email_notifications' in 'field list' in C:\wamp64\www\ryvahcommerce\pages\update_notifications.php:24
-Stack trace:
-#0 C:\wamp64\www\ryvahcommerce\pages\update_notifications.php(24): mysqli->prepare('UPDATE users SE...')
-#1 {main}
-  thrown in C:\wamp64\www\ryvahcommerce\pages\update_notifications.php on line 24
-[29-May-2025 13:10:33 UTC] Fatal Error: Uncaught mysqli_sql_exception: Unknown column 'email_notifications' in 'field list' in C:\wamp64\www\ryvahcommerce\pages\update_notifications.php:24
-Stack trace:
-#0 C:\wamp64\www\ryvahcommerce\pages\update_notifications.php(24): mysqli->prepare('UPDATE users SE...')
-#1 {main}
-  thrown in C:\wamp64\www\ryvahcommerce\pages\update_notifications.php on line 24
-[29-May-2025 13:37:09 UTC] Getting cart items
-[29-May-2025 13:37:09 UTC] Cart Data: Array
-(
-    [items] => Array
-        (
-        )
-
-    [total] => 0
-)
-
-[29-May-2025 14:28:21 UTC] Getting cart items
-[29-May-2025 14:28:21 UTC] Cart Data: Array
-(
-    [items] => Array
-        (
-        )
-
-    [total] => 0
+    [total] => 12
 )
 

@@ -50,7 +50,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     // Transfer session cart to database if exists
                     require_once '../includes/cart.php';
                     $hasSessionCart = !empty($_SESSION['cart']);
-                    transferSessionCartToDatabase($user['id']);
+                    $transferResult = transferSessionCartToDatabase($user['id']);
+
+                    // Clean up any orphaned cart items
+                    verifyAndCleanCart($user['id']);
+
+                    // Log any transfer errors
+                    if (!$transferResult['success']) {
+                        error_log("Session cart transfer errors: " . implode(', ', $transferResult['errors']));
+                    } else if ($transferResult['transferred'] > 0) {
+                        error_log("Successfully transferred {$transferResult['transferred']} items from session cart to database");
+                    }
 
                     // Check for redirect URL
                     $redirect = isset($_GET['redirect']) ? $_GET['redirect'] : 'index';
@@ -173,368 +183,368 @@ include '../includes/layouts/header.php';
 </div>
 
 <style>
-.login-container {
-    min-height: 100vh;
-    background: #f8f9fa;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-}
-
-.login-wrapper {
-    display: flex;
-    width: 700px;
-    max-width: 100%;
-    background: white;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-    min-height: 0;
-}
-
-.login-left {
-    flex: 1;
-    position: relative;
-    display: none;
-}
-
-.login-image {
-    height: 100%;
-    background: linear-gradient(45deg, #2c3e50, #3498db);
-    position: relative;
-    overflow: hidden;
-}
-
-.login-image::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3') center/cover;
-    opacity: 0.2;
-}
-
-.overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(45deg, rgba(44, 62, 80, 0.9), rgba(52, 152, 219, 0.9));
-}
-
-.content {
-    position: relative;
-    z-index: 1;
-    color: white;
-    padding: 3rem;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.content h2 {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-    font-weight: 700;
-}
-
-.content p {
-    font-size: 1.1rem;
-    opacity: 0.9;
-}
-
-.login-right {
-    flex: 1;
-    padding: 1.5rem 1rem;
-    min-width: 0;
-}
-
-.login-form-container {
-    max-width: 350px;
-    margin: 0 auto;
-}
-
-.login-header {
-    text-align: center;
-    margin-bottom: 1.2rem;
-}
-
-.login-header h1 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #2c3e50;
-    margin-bottom: 0.3rem;
-}
-
-.login-header p {
-    color: #6c757d;
-    font-size: 1rem;
-}
-
-.form-floating {
-    position: relative;
-}
-
-.form-floating>.form-control {
-    padding: 0.5rem 0.75rem;
-    height: calc(2.2rem + 2px);
-    line-height: 1.1;
-    font-size: 0.98rem;
-}
-
-.form-floating>label {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.98rem;
-}
-
-.password-container {
-    position: relative;
-}
-
-.password-toggle {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    color: #6c757d;
-    cursor: pointer;
-    z-index: 10;
-}
-
-.login-btn {
-    padding: 0.6rem;
-    font-size: 1rem;
-}
-
-.login-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
-}
-
-.forgot-password {
-    color: #6c757d;
-    text-decoration: none;
-    font-size: 0.9rem;
-}
-
-.forgot-password:hover {
-    color: #007bff;
-    text-decoration: underline;
-}
-
-.register-link {
-    text-align: center;
-    margin-top: 1rem;
-    font-size: 0.98rem;
-}
-
-.register-link a {
-    color: #007bff;
-    text-decoration: none;
-    font-weight: 600;
-}
-
-.register-link a:hover {
-    text-decoration: underline;
-}
-
-@media (min-width: 992px) {
-    .login-left {
-        display: block;
+    .login-container {
+        min-height: 100vh;
+        background: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
     }
-}
 
-@media (max-width: 991px) {
     .login-wrapper {
-        width: 100%;
-        max-width: 400px;
-    }
-
-    .login-right {
-        padding: 1rem 0.5rem;
-    }
-
-    .login-header h1 {
-        font-size: 1.2rem;
-    }
-}
-
-@media (max-width: 600px) {
-    .login-wrapper {
-        flex-direction: column;
-        width: 100%;
+        display: flex;
+        width: 700px;
         max-width: 100%;
-        border-radius: 0;
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        min-height: 0;
+    }
+
+    .login-left {
+        flex: 1;
+        position: relative;
+        display: none;
+    }
+
+    .login-image {
+        height: 100%;
+        background: linear-gradient(45deg, #2c3e50, #3498db);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .login-image::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3') center/cover;
+        opacity: 0.2;
+    }
+
+    .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, rgba(44, 62, 80, 0.9), rgba(52, 152, 219, 0.9));
+    }
+
+    .content {
+        position: relative;
+        z-index: 1;
+        color: white;
+        padding: 3rem;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .content h2 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        font-weight: 700;
+    }
+
+    .content p {
+        font-size: 1.1rem;
+        opacity: 0.9;
     }
 
     .login-right {
-        padding: 0.5rem 0.2rem;
+        flex: 1;
+        padding: 1.5rem 1rem;
+        min-width: 0;
     }
 
     .login-form-container {
-        max-width: 100%;
-    }
-}
-
-/* Animation classes */
-.fade-in {
-    animation: fadeIn 0.5s ease-in;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
+        max-width: 350px;
+        margin: 0 auto;
     }
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
+    .login-header {
+        text-align: center;
+        margin-bottom: 1.2rem;
     }
-}
 
-.alert {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 1050;
-    min-width: 300px;
-    max-width: 500px;
-    border: none;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
+    .login-header h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 0.3rem;
+    }
 
-.alert-danger {
-    background-color: #fff5f5;
-    color: #dc3545;
-}
+    .login-header p {
+        color: #6c757d;
+        font-size: 1rem;
+    }
 
-.alert-success {
-    background-color: #f0fff4;
-    color: #28a745;
-}
+    .form-floating {
+        position: relative;
+    }
 
-.alert i {
-    font-size: 1.2rem;
-}
+    .form-floating>.form-control {
+        padding: 0.5rem 0.75rem;
+        height: calc(2.2rem + 2px);
+        line-height: 1.1;
+        font-size: 0.98rem;
+    }
+
+    .form-floating>label {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.98rem;
+    }
+
+    .password-container {
+        position: relative;
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #6c757d;
+        cursor: pointer;
+        z-index: 10;
+    }
+
+    .login-btn {
+        padding: 0.6rem;
+        font-size: 1rem;
+    }
+
+    .login-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+    }
+
+    .forgot-password {
+        color: #6c757d;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+
+    .forgot-password:hover {
+        color: #007bff;
+        text-decoration: underline;
+    }
+
+    .register-link {
+        text-align: center;
+        margin-top: 1rem;
+        font-size: 0.98rem;
+    }
+
+    .register-link a {
+        color: #007bff;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .register-link a:hover {
+        text-decoration: underline;
+    }
+
+    @media (min-width: 992px) {
+        .login-left {
+            display: block;
+        }
+    }
+
+    @media (max-width: 991px) {
+        .login-wrapper {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-right {
+            padding: 1rem 0.5rem;
+        }
+
+        .login-header h1 {
+            font-size: 1.2rem;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .login-wrapper {
+            flex-direction: column;
+            width: 100%;
+            max-width: 100%;
+            border-radius: 0;
+        }
+
+        .login-right {
+            padding: 0.5rem 0.2rem;
+        }
+
+        .login-form-container {
+            max-width: 100%;
+        }
+    }
+
+    /* Animation classes */
+    .fade-in {
+        animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .alert {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1050;
+        min-width: 300px;
+        max-width: 500px;
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .alert-danger {
+        background-color: #fff5f5;
+        color: #dc3545;
+    }
+
+    .alert-success {
+        background-color: #f0fff4;
+        color: #28a745;
+    }
+
+    .alert i {
+        font-size: 1.2rem;
+    }
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Password visibility toggle
-    window.togglePassword = function() {
-        const passwordInput = document.getElementById('password');
-        const icon = document.querySelector('.password-toggle i');
+    document.addEventListener('DOMContentLoaded', function() {
+        // Password visibility toggle
+        window.togglePassword = function() {
+            const passwordInput = document.getElementById('password');
+            const icon = document.querySelector('.password-toggle i');
 
-        if (passwordInput.type === 'password') {
-            passwordInput.type = 'text';
-            icon.classList.remove('fa-eye');
-            icon.classList.add('fa-eye-slash');
-        } else {
-            passwordInput.type = 'password';
-            icon.classList.remove('fa-eye-slash');
-            icon.classList.add('fa-eye');
-        }
-    }
-
-    // Form submission handling
-    const form = document.getElementById('loginForm');
-    const loginBtn = document.querySelector('.login-btn');
-    const btnText = loginBtn.querySelector('.btn-text');
-    const spinner = loginBtn.querySelector('.spinner-border');
-    const errorDiv = document.getElementById('error');
-    const successDiv = document.getElementById('success');
-    const errorMessage = document.getElementById('error-message');
-    const successMessage = document.getElementById('success-message');
-
-    form.addEventListener('submit', async function(e) {
-        e.preventDefault();
-
-        // Show loading state
-        btnText.classList.add('d-none');
-        spinner.classList.remove('d-none');
-        loginBtn.disabled = true;
-        errorDiv.style.display = 'none';
-        successDiv.style.display = 'none';
-
-        const formData = {
-            email: document.getElementById('email').value,
-            password: document.getElementById('password').value,
-            remember: document.getElementById('remember').checked
-        };
-
-        try {
-            const response = await fetch('../php/login/login.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            });
-            const data = await response.json();
-
-            if (response.ok) {
-                successMessage.textContent = 'Login successful! Redirecting...';
-                successDiv.style.display = 'block';
-
-                // Store any success message in session storage
-                if (data.message) {
-                    sessionStorage.setItem('successMessage', data.message);
-                }
-
-                // Redirect after a short delay
-                setTimeout(() => {
-                    window.location.href = data.redirect || 'index';
-                }, 1000);
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
             } else {
-                errorMessage.textContent = data.error || 'Invalid email or password';
-                errorDiv.style.display = 'block';
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
             }
-        } catch (err) {
-            errorMessage.textContent = 'Failed to connect to the server';
-            errorDiv.style.display = 'block';
-        } finally {
-            // Reset button state
-            btnText.classList.remove('d-none');
-            spinner.classList.add('d-none');
-            loginBtn.disabled = false;
+        }
+
+        // Form submission handling
+        const form = document.getElementById('loginForm');
+        const loginBtn = document.querySelector('.login-btn');
+        const btnText = loginBtn.querySelector('.btn-text');
+        const spinner = loginBtn.querySelector('.spinner-border');
+        const errorDiv = document.getElementById('error');
+        const successDiv = document.getElementById('success');
+        const errorMessage = document.getElementById('error-message');
+        const successMessage = document.getElementById('success-message');
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // Show loading state
+            btnText.classList.add('d-none');
+            spinner.classList.remove('d-none');
+            loginBtn.disabled = true;
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+
+            const formData = {
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                remember: document.getElementById('remember').checked
+            };
+
+            try {
+                const response = await fetch('../php/login/login.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    successMessage.textContent = 'Login successful! Redirecting...';
+                    successDiv.style.display = 'block';
+
+                    // Store any success message in session storage
+                    if (data.message) {
+                        sessionStorage.setItem('successMessage', data.message);
+                    }
+
+                    // Redirect after a short delay
+                    setTimeout(() => {
+                        window.location.href = data.redirect || 'index';
+                    }, 1000);
+                } else {
+                    errorMessage.textContent = data.error || 'Invalid email or password';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (err) {
+                errorMessage.textContent = 'Failed to connect to the server';
+                errorDiv.style.display = 'block';
+            } finally {
+                // Reset button state
+                btnText.classList.remove('d-none');
+                spinner.classList.add('d-none');
+                loginBtn.disabled = false;
+            }
+        });
+
+        // Add animation classes
+        document.querySelectorAll('.form-floating').forEach((element, index) => {
+            element.style.animationDelay = `${index * 0.1}s`;
+            element.classList.add('fade-in');
+        });
+
+        // Auto-dismiss alerts after 5 seconds
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            setTimeout(() => {
+                const closeBtn = alert.querySelector('.btn-close');
+                if (closeBtn) {
+                    closeBtn.click();
+                }
+            }, 5000);
+        });
+
+        // Check for success message in session storage
+        const successMsg = sessionStorage.getItem('successMessage');
+        if (successMsg) {
+            successMessage.textContent = successMsg;
+            successDiv.style.display = 'block';
+            sessionStorage.removeItem('successMessage');
         }
     });
-
-    // Add animation classes
-    document.querySelectorAll('.form-floating').forEach((element, index) => {
-        element.style.animationDelay = `${index * 0.1}s`;
-        element.classList.add('fade-in');
-    });
-
-    // Auto-dismiss alerts after 5 seconds
-    const alerts = document.querySelectorAll('.alert');
-    alerts.forEach(alert => {
-        setTimeout(() => {
-            const closeBtn = alert.querySelector('.btn-close');
-            if (closeBtn) {
-                closeBtn.click();
-            }
-        }, 5000);
-    });
-
-    // Check for success message in session storage
-    const successMsg = sessionStorage.getItem('successMessage');
-    if (successMsg) {
-        successMessage.textContent = successMsg;
-        successDiv.style.display = 'block';
-        sessionStorage.removeItem('successMessage');
-    }
-});
 </script>
 
 <?php include '../includes/layouts/footer.php'; ?>

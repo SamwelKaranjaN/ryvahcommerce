@@ -1,0 +1,477 @@
+/* NFT Showcase Styles */
+.nft-showcase {
+    color: #ffffff;
+    font-family: Arial, sans-serif;
+}
+
+.nft-details-panel {
+    background: #f5f5dc;
+    color: #000;
+    position: relative;
+}
+
+/* Document styling to match the left side of the image */
+.nft-document {
+    width: 100%;
+    height: 100%;
+    padding: 40px;
+    background: #f5f5dc;
+    font-family: 'Times New Roman', serif;
+}
+
+.document-header {
+    margin-bottom: 30px;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 20px;
+}
+
+.nft-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #8B4513;
+    margin-bottom: 15px;
+    font-family: Arial, sans-serif;
+}
+
+.coming-soon-badge {
+    display: inline-block;
+    background: #666;
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 3px;
+    font-size: 0.8rem;
+    font-family: Arial, sans-serif;
+}
+
+/* Document Image Styles */
+.document-image-container {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.document-image {
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border: 2px solid #ddd;
+}
+
+.document-image-placeholder {
+    width: 100%;
+    max-width: 500px;
+    height: 400px;
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+    border: 2px dashed #adb5bd;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+    transition: all 0.3s ease;
+}
+
+.document-image-placeholder:hover {
+    background: linear-gradient(135deg, #dee2e6 0%, #ced4da 100%);
+    border-color: #6c757d;
+}
+
+.placeholder-content {
+    text-align: center;
+}
+
+.document-credits {
+    margin-top: 20px;
+}
+
+.document-content {
+    flex-grow: 1;
+    line-height: 1.4;
+}
+
+.document-section {
+    margin-bottom: 25px;
+}
+
+.document-text {
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin-bottom: 15px;
+    color: #000;
+    text-align: justify;
+    font-family: 'Times New Roman', serif;
+    word-wrap: break-word;
+    -webkit-hyphens: auto;
+    hyphens: auto;
+}
+
+.document-text strong {
+    font-weight: bold;
+}
+
+.document-text em {
+    font-style: italic;
+}
+
+/* Right panel - artwork with FIXED HEIGHT */
+.nft-artwork-panel {
+    background: linear-gradient(45deg, #ff6b6b 0%, #4ecdc4 25%, #45b7d1 50%, #96ceb4 75%, #ffa726 100%);
+    position: relative;
+    overflow: hidden;
+    height: 600px;
+    /* FIXED HEIGHT */
+}
+
+.artwork-container {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 20px;
+}
+
+.character-illustration {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+/* RYVAH Branding */
+.ryvah-branding {
+    position: absolute;
+    top: 30px;
+    left: 30px;
+    z-index: 4;
+}
+
+.ryvah-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    margin: 0;
+    font-family: Arial, sans-serif;
+    letter-spacing: 3px;
+}
+
+/* Character Image Styles - FIXED DIMENSIONS */
+.character-image {
+    width: 350px;
+    height: 450px;
+    z-index: 2;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.character-artwork {
+    width: 100%;
+    height: 100%;
+    max-height: 450px;
+    border-radius: 10px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    border: 3px solid #fff;
+    object-fit: cover;
+}
+
+/* Enhanced character placeholder with FIXED SIZE */
+.character-placeholder {
+    width: 350px;
+    height: 450px;
+    background: linear-gradient(45deg, #ff9a9e 0%, #fad0c4 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    border: 3px solid #fff;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.character-placeholder:hover {
+    transform: scale(1.02);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+}
+
+.anime-character-placeholder {
+    text-align: center;
+    color: #fff;
+}
+
+.character-silhouette {
+    width: 120px;
+    height: 160px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    margin: 0 auto 20px auto;
+    position: relative;
+}
+
+.character-silhouette::before {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 30px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+}
+
+.character-label {
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    margin: 0;
+}
+
+.upload-hint {
+    display: block;
+    margin-top: 10px;
+    font-size: 0.8rem;
+    opacity: 0.8;
+    font-style: italic;
+}
+
+.website-badge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 25px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    z-index: 3;
+    font-family: Arial, sans-serif;
+}
+
+/* Corner Portrait Styles */
+.corner-portrait {
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
+    width: 100px;
+    height: 100px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 3px solid #fff;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    z-index: 3;
+}
+
+.portrait-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.portrait-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    flex-direction: column;
+}
+
+.mini-portrait {
+    width: 40px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    margin-bottom: 5px;
+}
+
+.portrait-hint {
+    font-size: 0.6rem;
+    color: #fff;
+    text-align: center;
+}
+
+/* FLOWING TEXT CONTENT SECTION */
+.nft-content-flow {
+    background: #f5f5dc;
+    min-height: 400px;
+    padding: 0;
+}
+
+.document-content-extended {
+    padding: 40px 60px;
+    max-width: 1200px;
+    margin: 0 auto;
+    columns: 2;
+    column-gap: 40px;
+    column-rule: 1px solid #ddd;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .nft-showcase {
+        min-height: auto;
+    }
+
+    .nft-details-panel,
+    .nft-artwork-panel {
+        height: auto;
+        min-height: 400px;
+    }
+
+    .nft-artwork-panel {
+        height: 500px;
+        /* Fixed height for mobile */
+    }
+
+    .nft-title {
+        font-size: 2rem;
+    }
+
+    .nft-document {
+        padding: 20px;
+    }
+
+    .document-text {
+        font-size: 0.85rem;
+    }
+
+    .document-image,
+    .document-image-placeholder {
+        max-width: 250px;
+        height: 150px;
+    }
+
+    .artwork-container {
+        padding: 15px;
+    }
+
+    .character-image,
+    .character-placeholder {
+        width: 250px;
+        height: 350px;
+    }
+
+    .ryvah-title {
+        font-size: 1.8rem;
+    }
+
+    .corner-portrait {
+        width: 70px;
+        height: 70px;
+        bottom: 15px;
+        right: 15px;
+    }
+
+    .document-content-extended {
+        padding: 30px 20px;
+        columns: 1;
+        column-rule: none;
+    }
+}
+
+/* Animation Effects */
+.character-image,
+.character-placeholder {
+    animation: floatAnimation 6s ease-in-out infinite;
+}
+
+@keyframes floatAnimation {
+
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+.coming-soon-badge {
+    animation: pulseGlow 2s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.05);
+        opacity: 0.8;
+    }
+}
+
+/* Background pattern overlay for right panel */
+.nft-artwork-panel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g fill="%23ffffff" fill-opacity="0.1"><circle cx="30" cy="30" r="4"/></g></svg>');
+    z-index: 1;
+}
+
+/* Document styling enhancements */
+.nft-details-panel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><g fill="%23f5f5dc" fill-opacity="0.02"><rect width="20" height="20"/></g></svg>');
+    z-index: 0;
+}
+
+.nft-document {
+    position: relative;
+    z-index: 1;
+}
+
+/* Text flow improvements */
+.document-text {
+    max-width: 100%;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+/* Hover effects */
+.character-placeholder:hover,
+.character-image:hover {
+    transform: translateY(-10px) scale(1.02);
+    transition: all 0.3s ease;
+}
+
+.corner-portrait:hover {
+    transform: scale(1.1);
+    transition: all 0.3s ease;
+}
+
+.website-badge:hover {
+    background: rgba(0, 0, 0, 0.9);
+    transform: scale(1.05);
+    transition: all 0.3s ease;
+}
+
+.document-image:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}

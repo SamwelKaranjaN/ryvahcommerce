@@ -150,14 +150,17 @@ include '../includes/layouts/header.php';
                                                     <h5 class="card-title mb-1">Order
                                                         #<?php echo htmlspecialchars($order['id']); ?></h5>
                                                     <p class="text-muted mb-0">
-                                                        Placed on <?php echo date('F j, Y', strtotime($order['created_at'])); ?>
+                                                        Placed on <?php echo $order['created_at'] ? date('F j, Y', strtotime($order['created_at'])) : 'N/A'; ?>
                                                     </p>
                                 </div>
                                                 <div class="text-end">
                                                     <span class="badge bg-warning">Pending Payment</span>
                                                     <p class="text-muted mb-0 mt-1">
                                                         <small>Last updated:
-                                                            <?php echo date('M j, Y g:i A', strtotime($order['last_status_update'])); ?></small>
+                                                            <?php 
+                                                            $lastUpdate = $order['last_status_update'] ?? $order['created_at'];
+                                                            echo $lastUpdate ? date('M j, Y g:i A', strtotime($lastUpdate)) : 'N/A'; 
+                                                            ?></small>
                                 </p>
                                                 </div>
                                             </div>

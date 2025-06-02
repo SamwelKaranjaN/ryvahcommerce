@@ -29,9 +29,12 @@ function getCartItems()
     $total = 0;
 
     if (isset($_SESSION['user_id'])) {
+        // Clean cart first (remove orphaned items)
+        verifyAndCleanCart($_SESSION['user_id']);
+
         // Get items from database for logged-in users
         $stmt = $conn->prepare("
-            SELECT c.*, p.name, p.price, p.thumbs, p.stock 
+            SELECT c.*, p.name, p.price, p.thumbs, p.stock, p.type 
             FROM cart c 
             JOIN products p ON c.product_id = p.id 
             WHERE c.user_id = ?
@@ -47,7 +50,8 @@ function getCartItems()
                 'price' => $row['price'],
                 'quantity' => $row['quantity'],
                 'stock' => $row['stock'],
-                'thumbs' => $row['thumbs']
+                'thumbs' => $row['thumbs'],
+                'type' => $row['type']
             ];
             $total += $row['price'] * $row['quantity'];
         }
@@ -58,7 +62,7 @@ function getCartItems()
             $product_ids = array_keys($cart);
             $placeholders = str_repeat('?,', count($product_ids) - 1) . '?';
 
-            $sql = "SELECT id, name, price, stock, thumbs FROM products WHERE id IN ($placeholders)";
+            $sql = "SELECT id, name, price, stock, thumbs, type FROM products WHERE id IN ($placeholders)";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param(str_repeat('i', count($product_ids)), ...$product_ids);
             $stmt->execute();
@@ -72,7 +76,8 @@ function getCartItems()
                     'price' => $product['price'],
                     'quantity' => $quantity,
                     'stock' => $product['stock'],
-                    'thumbs' => $product['thumbs']
+                    'thumbs' => $product['thumbs'],
+                    'type' => $product['type']
                 ];
                 $total += $product['price'] * $quantity;
             }
@@ -288,53 +293,115 @@ function isCartEmpty()
 /**
  * Transfer session cart to database when user logs in
  * @param int $user_id User ID
- * @return void
+ * @return array Result with success status and message
  */
 function transferSessionCartToDatabase($user_id)
 {
     global $conn;
 
     debug('Transferring session cart to database for user: ' . $user_id);
-    debug($_SESSION['cart'], 'Session cart before transfer');
+    debug($_SESSION['cart'] ?? [], 'Session cart before transfer');
+
+    $result = ['success' => true, 'transferred' => 0, 'errors' => []];
 
     if (!empty($_SESSION['cart'])) {
         foreach ($_SESSION['cart'] as $product_id => $quantity) {
             try {
+                // Validate product exists
+                $stmt = $conn->prepare("SELECT id FROM products WHERE id = ?");
+                $stmt->bind_param("i", $product_id);
+                $stmt->execute();
+                $product_result = $stmt->get_result();
+
+                if ($product_result->num_rows === 0) {
+                    $error_msg = "Product ID {$product_id} not found, skipping transfer";
+                    debug($error_msg);
+                    $result['errors'][] = $error_msg;
+                    continue;
+                }
+
                 // Check if item already exists in cart
                 $stmt = $conn->prepare("SELECT quantity FROM cart WHERE user_id = ? AND product_id = ?");
                 $stmt->bind_param("ii", $user_id, $product_id);
                 $stmt->execute();
-                $result = $stmt->get_result();
+                $cart_result = $stmt->get_result();
 
-                if ($result->num_rows > 0) {
+                if ($cart_result->num_rows > 0) {
                     // Update quantity
-                    $row = $result->fetch_assoc();
+                    $row = $cart_result->fetch_assoc();
                     $new_quantity = $row['quantity'] + $quantity;
                     $stmt = $conn->prepare("UPDATE cart SET quantity = ? WHERE user_id = ? AND product_id = ?");
                     $stmt->bind_param("iii", $new_quantity, $user_id, $product_id);
+                    debug("Updating existing cart item: product_id={$product_id}, old_qty={$row['quantity']}, new_qty={$new_quantity}");
                 } else {
                     // Insert new item
                     $stmt = $conn->prepare("INSERT INTO cart (user_id, product_id, quantity) VALUES (?, ?, ?)");
                     $stmt->bind_param("iii", $user_id, $product_id, $quantity);
+                    debug("Inserting new cart item: product_id={$product_id}, quantity={$quantity}");
                 }
 
-                if (!$stmt->execute()) {
-                    debug("Error transferring item to cart: " . $stmt->error);
+                if ($stmt->execute()) {
+                    $result['transferred']++;
+                    debug("Successfully transferred product {$product_id}");
+                } else {
+                    $error_msg = "Error transferring product {$product_id}: " . $stmt->error;
+                    debug($error_msg);
+                    $result['errors'][] = $error_msg;
+                    $result['success'] = false;
                 }
             } catch (Exception $e) {
-                debug("Exception transferring item to cart: " . $e->getMessage());
+                $error_msg = "Exception transferring product {$product_id}: " . $e->getMessage();
+                debug($error_msg);
+                $result['errors'][] = $error_msg;
+                $result['success'] = false;
             }
         }
-        // Clear session cart
-        $_SESSION['cart'] = [];
-        debug('Session cart cleared after transfer');
+
+        // Clear session cart only if transfer was successful
+        if ($result['success'] || $result['transferred'] > 0) {
+            $_SESSION['cart'] = [];
+            debug('Session cart cleared after transfer');
+        }
     } else {
         debug('No items in session cart to transfer');
     }
+
+    debug($result, 'Transfer result');
+    return $result;
+}
+
+/**
+ * Verify and clean cart items (remove items referencing non-existent products)
+ * @param int $user_id User ID
+ * @return int Number of items cleaned
+ */
+function verifyAndCleanCart($user_id = null)
+{
+    global $conn;
+
+    if ($user_id === null && isset($_SESSION['user_id'])) {
+        $user_id = $_SESSION['user_id'];
+    }
+
+    if (!$user_id) {
+        return 0;
+    }
+
+    // Remove any cart items that reference non-existent products
+    $stmt = $conn->prepare("DELETE c FROM cart c LEFT JOIN products p ON c.product_id = p.id WHERE c.user_id = ? AND p.id IS NULL");
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+
+    $deleted = $stmt->affected_rows;
+    if ($deleted > 0) {
+        debug("Cleaned {$deleted} orphaned cart items for user {$user_id}");
+    }
+
+    return $deleted;
 }
 
 // Handle AJAX requests
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST' && !defined('PAYPAL_ORDER_PROCESSING')) {
     $response = ['success' => false, 'message' => 'Invalid action'];
 
     if (isset($_POST['action'])) {
@@ -366,6 +433,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 break;
             case 'get':
                 $cart_items = [];
+                $total = 0;
                 if (isset($_SESSION['user_id'])) {
                     $user_id = $_SESSION['user_id'];
                     $stmt = $conn->prepare("SELECT c.product_id, c.quantity, p.name, p.price FROM cart c JOIN products p ON c.product_id = p.id WHERE c.user_id = ?");
@@ -374,6 +442,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $result = $stmt->get_result();
                     while ($row = $result->fetch_assoc()) {
                         $cart_items[] = $row;
+                        $total += $row['price'] * $row['quantity'];
                     }
                 } else {
                     // For guest users, retrieve from session
@@ -390,10 +459,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         while ($row = $result->fetch_assoc()) {
                             $row['quantity'] = $_SESSION['cart'][$row['product_id']];
                             $cart_items[] = $row;
+                            $total += $row['price'] * $row['quantity'];
                         }
                     }
                 }
-                echo json_encode(['success' => true, 'items' => $cart_items]);
+                echo json_encode(['success' => true, 'items' => $cart_items, 'total' => $total]);
                 break;
         }
     }
