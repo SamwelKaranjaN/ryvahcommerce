@@ -202,3 +202,35 @@
     [total] => 12
 )
 
+[02-Jun-2025 20:20:56 UTC] Getting cart items
+[02-Jun-2025 20:20:56 UTC] Cart Data: Array
+(
+    [items] => Array
+        (
+            [0] => Array
+                (
+                    [id] => 4
+                    [name] => React Essentials
+                    [price] => 11.99
+                    [quantity] => 1
+                    [stock] => 0
+                    [thumbs] => thumbs/react_essentials.jpg
+                    [type] => book
+                )
+
+            [1] => Array
+                (
+                    [id] => 7
+                    [name] => Ocean Blue - 5
+                    [price] => 0.01
+                    [quantity] => 1
+                    [stock] => 0
+                    [thumbs] => thumbs/ocean_blue.jpg
+                    [type] => ebook
+                )
+
+        )
+
+    [total] => 12
+)
+
