@@ -12,122 +12,111 @@ $success = '';
 
 include '../includes/layouts/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Join Us</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-
-<body>
-    <div id="error" class="alert alert-danger alert-dismissible fade show" style="display: none;" role="alert">
-        <div class="d-flex align-items-center">
-            <i class="fas fa-exclamation-circle me-2"></i>
-            <div id="error-message"></div>
-        </div>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+<div id="error" class="alert alert-danger alert-dismissible fade show" style="display: none;" role="alert">
+    <div class="d-flex align-items-center">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <div id="error-message"></div>
     </div>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
 
-    <div id="redirect" class="alert alert-success alert-dismissible fade show" style="display: none;" role="alert">
-        <div class="d-flex align-items-center">
-            <i class="fas fa-check-circle me-2"></i>
-            <div id="redirect-message"></div>
-        </div>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+<div id="redirect" class="alert alert-success alert-dismissible fade show" style="display: none;" role="alert">
+    <div class="d-flex align-items-center">
+        <i class="fas fa-check-circle me-2"></i>
+        <div id="redirect-message"></div>
     </div>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
 
-    <div class="register-container">
-        <div class="register-wrapper">
-            <!-- Left side - Image/Illustration -->
-            <div class="register-left">
-                <div class="register-image">
-                    <div class="overlay"></div>
-                    <div class="content">
-                        <h2>Join Our Community</h2>
-                        <p>Create an account to explore our collection of books and artworks</p>
-                    </div>
+<div class="register-container">
+    <div class="register-wrapper">
+        <!-- Left side - Image/Illustration -->
+        <div class="register-left">
+            <div class="register-image">
+                <div class="overlay"></div>
+                <div class="content">
+                    <h2>Join Our Community</h2>
+                    <p>Create an account to explore our collection of books and artworks</p>
                 </div>
             </div>
+        </div>
 
-            <!-- Right side - Registration Form -->
-            <div class="register-right">
-                <div class="register-form-container">
-                    <div class="register-header">
-                        <h1>Create Account</h1>
-                        <p>Fill in your details to get started</p>
+        <!-- Right side - Registration Form -->
+        <div class="register-right">
+            <div class="register-form-container">
+                <div class="register-header">
+                    <h1>Create Account</h1>
+                    <p>Fill in your details to get started</p>
+                </div>
+
+                <form id="registrationForm" class="register-form">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="full_name" name="full_name"
+                            placeholder="John Doe" required>
+                        <label for="full_name">Full Name</label>
                     </div>
 
-                    <form id="registrationForm" class="register-form">
-                        <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="full_name" name="full_name"
-                                placeholder="John Doe" required>
-                            <label for="full_name">Full Name</label>
-                        </div>
+                    <div class="form-floating mb-3">
+                        <input type="email" class="form-control" id="email" name="email"
+                            placeholder="info@ryvahcommerce.com" required>
+                        <label for="email">Email address</label>
+                    </div>
 
-                        <div class="form-floating mb-3">
-                            <input type="email" class="form-control" id="email" name="email"
-                                placeholder="info@ryvahcommerce.com" required>
-                            <label for="email">Email address</label>
-                        </div>
-
-                        <div class="form-floating mb-3 password-container stylish-password">
-                            <input type="password" class="form-control" id="password" name="password"
-                                placeholder="Password" required>
-                            <label for="password">Password</label>
-                            <button type="button" class="password-toggle" onclick="togglePassword()" tabindex="-1">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </div>
-
-                        <div class="form-row mb-3">
-                            <div class="form-floating flex-grow-1 me-2">
-                                <input type="tel" class="form-control" id="phone" name="phone"
-                                    placeholder="Phone Number">
-                                <label for="phone">Phone Number</label>
-                            </div>
-                            <div class="form-floating flex-grow-1 me-2">
-                                <input type="text" class="form-control" id="city" name="city" placeholder="City">
-                                <label for="city">City</label>
-                            </div>
-                            <div class="form-floating flex-grow-1">
-                                <input type="text" class="form-control" id="state" name="state" placeholder="State">
-                                <label for="state">State</label>
-                            </div>
-                        </div>
-
-                        <div class="form-row mb-4">
-                            <div class="form-floating flex-grow-2 me-2">
-                                <input type="text" class="form-control" id="address" name="address"
-                                    placeholder="Address">
-                                <label for="address">Address</label>
-                            </div>
-                            <div class="form-floating flex-grow-1">
-                                <input type="text" class="form-control" id="postal_code" name="postal_code"
-                                    placeholder="Postal Code">
-                                <label for="postal_code">Postal Code</label>
-                            </div>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary btn-lg w-100 register-btn">
-                            <span class="btn-text">Create Account</span>
-                            <span class="spinner-border spinner-border-sm d-none" role="status"
-                                aria-hidden="true"></span>
+                    <div class="form-floating mb-3 password-container stylish-password">
+                        <input type="password" class="form-control" id="password" name="password"
+                            placeholder="Password" required>
+                        <label for="password">Password</label>
+                        <button type="button" class="password-toggle" onclick="togglePassword()" tabindex="-1">
+                            <i class="fas fa-eye"></i>
                         </button>
-                    </form>
-
-                    <div class="login-link">
-                        <p>Already have an account? <a href="login">Login here</a></p>
                     </div>
+
+                    <div class="form-row mb-3">
+                        <div class="form-floating flex-grow-1 me-2">
+                            <input type="tel" class="form-control" id="phone" name="phone"
+                                placeholder="Phone Number">
+                            <label for="phone">Phone Number</label>
+                        </div>
+                        <div class="form-floating flex-grow-1 me-2">
+                            <input type="text" class="form-control" id="city" name="city" placeholder="City">
+                            <label for="city">City</label>
+                        </div>
+                        <div class="form-floating flex-grow-1">
+                            <input type="text" class="form-control" id="state" name="state" placeholder="State">
+                            <label for="state">State</label>
+                        </div>
+                    </div>
+
+                    <div class="form-row mb-4">
+                        <div class="form-floating flex-grow-2 me-2">
+                            <input type="text" class="form-control" id="address" name="address"
+                                placeholder="Address">
+                            <label for="address">Address</label>
+                        </div>
+                        <div class="form-floating flex-grow-1">
+                            <input type="text" class="form-control" id="postal_code" name="postal_code"
+                                placeholder="Postal Code">
+                            <label for="postal_code">Postal Code</label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg w-100 register-btn">
+                        <span class="btn-text">Create Account</span>
+                        <span class="spinner-border spinner-border-sm d-none" role="status"
+                            aria-hidden="true"></span>
+                    </button>
+                </form>
+
+                <div class="login-link">
+                    <p>Already have an account? <a href="login">Login here</a></p>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <style>
+<style>
     .register-container {
         min-height: 350px;
         background: #f8f9fa;
@@ -412,10 +401,9 @@ include '../includes/layouts/header.php';
         outline: none;
         color: #3498db;
     }
-    </style>
+</style>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
+<script>
     document.addEventListener('DOMContentLoaded', function() {
         // Password visibility toggle
         window.togglePassword = function() {
@@ -480,7 +468,7 @@ include '../includes/layouts/header.php';
                     redirectDiv.style.display = 'block';
                     sessionStorage.setItem('successMessage', data.message);
                     setTimeout(() => {
-                        window.location.href = 'login.php';
+                        window.location.href = 'login';
                     }, 2000);
                 } else {
                     errorMessage.textContent = data.error;
@@ -514,7 +502,6 @@ include '../includes/layouts/header.php';
             }, 5000);
         });
     });
-    </script>
-</body>
+</script>
 
-</html>
+<?php include '../includes/layouts/footer.php'; ?>

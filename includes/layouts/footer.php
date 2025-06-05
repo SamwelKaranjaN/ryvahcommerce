@@ -5,7 +5,8 @@
             <!-- Company Info -->
             <div class="col-lg-4">
                 <h5 class="mb-4">About Ryvah Books</h5>
-                <p class="mb-4">Your premier destination for digital books and original artwork. Discover amazing stories and beautiful art pieces from talented creators worldwide.</p>
+                <p class="mb-4">Your premier destination for digital books and original artwork. Discover amazing
+                    stories and beautiful art pieces from talented creators worldwide.</p>
                 <div class="social-links">
                     <a href="#" class="text-light me-3 social-icon"><i class="fab fa-facebook-f"></i></a>
                     <a href="#" class="text-light me-3 social-icon"><i class="fab fa-twitter"></i></a>
@@ -58,7 +59,7 @@
         <hr class="my-4">
         <div class="row">
             <div class="col-md-6 text-center text-md-start">
-                <p class="mb-0">&copy; 2024 Ryvah Books. All rights reserved.</p>
+                <p class="mb-0">&copy; <?php echo date('Y'); ?> Ryvah Books. All rights reserved.</p>
             </div>
             <div class="col-md-6 text-center text-md-end">
                 <a href="#" class="text-light text-decoration-none me-3">Privacy Policy</a>
@@ -85,7 +86,7 @@
     line-height: 35px;
     text-align: center;
     border-radius: 50%;
-    background: rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.1);
     transition: all 0.3s ease;
 }
 
@@ -95,23 +96,23 @@
 }
 
 .newsletter-form .form-control {
-    background: rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.1);
     border: none;
     color: white;
 }
 
 .newsletter-form .form-control:focus {
-    background: rgba(255,255,255,0.15);
+    background: rgba(255, 255, 255, 0.15);
     box-shadow: none;
     color: white;
 }
 
 .newsletter-form .form-control::placeholder {
-    color: rgba(255,255,255,0.5);
+    color: rgba(255, 255, 255, 0.5);
 }
 
 .newsletter-form .btn {
     padding-left: 1.5rem;
     padding-right: 1.5rem;
 }
-</style> 
+</style>

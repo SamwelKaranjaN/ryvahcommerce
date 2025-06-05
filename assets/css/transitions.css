@@ -1,20 +1,137 @@
-/* Transitions */
+/* Transitions CSS for Ryvah Commerce */
+
+/* Base transition variables */
 :root {
-    --transition-base: 0.3s ease;
-    --transition-slow: 0.5s ease;
-    --transition-fast: 0.15s ease;
+    --transition-fast: 0.15s ease-in-out;
+    --transition-base: 0.2s ease-in-out;
+    --transition-slow: 0.3s ease-in-out;
 }
 
-/* Page Transitions */
+/* Smooth transitions for common elements */
+a,
+button,
+input,
+select,
+textarea {
+    transition: all var(--transition-base);
+}
+
+/* Hover effects */
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Focus effects */
+.form-control:focus,
+.form-select:focus {
+    transform: scale(1.02);
+}
+
+/* Page transitions */
 .page-enter {
     opacity: 0;
-    transform: translateY(20px);
-    transition: opacity var(--transition-base), transform var(--transition-base);
+    transform: translateY(10px);
 }
 
 .page-enter-active {
     opacity: 1;
     transform: translateY(0);
+    transition: opacity var(--transition-base), transform var(--transition-base);
+}
+
+.page-exit {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.page-exit-active {
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity var(--transition-base), transform var(--transition-base);
+}
+
+/* Loading animations */
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(0);
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* Animation classes */
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+.fade-in {
+    animation: fadeIn var(--transition-base);
+}
+
+.slide-in {
+    animation: slideIn var(--transition-base);
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
 }
 
 /* Fade Transitions */
@@ -76,4 +193,4 @@
 .scale-exit-active {
     transform: scale(0.9);
     opacity: 0;
-} 
+}

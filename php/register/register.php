@@ -5,7 +5,10 @@ header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type');
 
 // Database configuration
-require_once "../../config/config.php";
+require_once "../../config/database.php";
+
+// Get the database connection
+$conn = getDBConnection();
 
 // Get POST data
 $input = json_decode(file_get_contents('php://input'), true);
@@ -39,7 +42,6 @@ mysqli_stmt_execute($stmt);
 mysqli_stmt_store_result($stmt);
 if (mysqli_stmt_num_rows($stmt) > 0) {
     mysqli_stmt_close($stmt);
-    mysqli_close($conn);
     http_response_code(400);
     echo json_encode(['error' => 'Email already exists']);
     exit;
@@ -75,13 +77,10 @@ mysqli_stmt_bind_param(
 
 if (mysqli_stmt_execute($stmt)) {
     mysqli_stmt_close($stmt);
-    mysqli_close($conn);
     http_response_code(201);
     echo json_encode(['message' => 'User registered successfully']);
 } else {
     mysqli_stmt_close($stmt);
-    mysqli_close($conn);
     http_response_code(500);
     echo json_encode(['error' => 'Failed to register user: ' . mysqli_error($conn)]);
 }
-?>
