@@ -15,7 +15,7 @@
                     out.</p>
             </div>
             <div class="modal-footer border-0 justify-content-center">
-                <a href="login.php" class="btn btn-primary">Login Again</a>
+                <a href="../pages/login" class="btn btn-primary">Login Again</a>
             </div>
         </div>
     </div>

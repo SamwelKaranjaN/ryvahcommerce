@@ -12,13 +12,22 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 $conn = getDBConnection();
 
-// Get user's purchased ebooks
-$sql = "SELECT up.*, p.name, p.author, p.filepath, p.thumbs, p.price, o.invoice_number, o.order_date
-        FROM user_purchases up
-        JOIN products p ON up.product_id = p.id
-        JOIN orders o ON up.order_id = o.id
-        WHERE up.user_id = ? AND p.type = 'ebook'
-        ORDER BY up.last_download DESC";
+// Get user's purchased ebooks with proper expiration and download count checking
+$sql = "SELECT ed.*, p.name, p.author, p.thumbs, p.price, p.type, p.filepath,
+               o.invoice_number, o.order_date, o.payment_status,
+               CASE 
+                   WHEN ed.expires_at <= NOW() THEN 1 
+                   ELSE 0 
+               END as is_expired,
+               CASE 
+                   WHEN ed.download_count >= ed.max_downloads THEN 1 
+                   ELSE 0 
+               END as limit_reached
+        FROM ebook_downloads ed
+        JOIN products p ON ed.product_id = p.id
+        JOIN orders o ON ed.order_id = o.id
+        WHERE ed.user_id = ? AND p.type = 'ebook' AND o.payment_status = 'completed'
+        ORDER BY ed.created_at DESC";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -34,10 +43,12 @@ include '../includes/layouts/header.php';
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="../index.php" class="text-decoration-none">Home</a></li>
+                    <li class="breadcrumb-item"><a href="orders.php" class="text-decoration-none">My Orders</a></li>
                     <li class="breadcrumb-item active" aria-current="page">My Ebooks</li>
                 </ol>
             </nav>
             <h2 class="mb-0">My Ebooks</h2>
+            <p class="text-muted">Download your purchased ebooks</p>
         </div>
     </div>
 
@@ -75,25 +86,41 @@ include '../includes/layouts/header.php';
                         </p>
                         <p class="mb-1">
                             <small class="text-muted">Downloads remaining:</small><br>
-                            <?php echo 3 - $ebook['download_count']; ?> of 3
+                            <span class="<?php echo ($ebook['limit_reached']) ? 'text-danger' : 'text-success'; ?>">
+                                <?php echo $ebook['max_downloads'] - $ebook['download_count']; ?> of
+                                <?php echo $ebook['max_downloads']; ?>
+                            </span>
+                        </p>
+                        <p class="mb-1">
+                            <small class="text-muted">Expires on:</small><br>
+                            <span class="<?php echo ($ebook['is_expired']) ? 'text-danger' : 'text-info'; ?>">
+                                <?php echo date('F j, Y g:i A', strtotime($ebook['expires_at'])); ?>
+                                <?php if ($ebook['is_expired']): ?>
+                                <i class="fas fa-exclamation-triangle text-danger ms-1" title="Expired"></i>
+                                <?php endif; ?>
+                            </span>
                         </p>
                         <?php if ($ebook['last_download']): ?>
                         <p class="mb-0">
                             <small class="text-muted">Last downloaded:</small><br>
-                            <?php echo date('F j, Y', strtotime($ebook['last_download'])); ?>
+                            <?php echo date('F j, Y g:i A', strtotime($ebook['last_download'])); ?>
                         </p>
                         <?php endif; ?>
                     </div>
 
-                    <?php if ($ebook['download_count'] < 3): ?>
-                    <a href="../download.php?product_id=<?php echo $ebook['product_id']; ?>"
+                    <?php if ($ebook['is_expired']): ?>
+                    <button class="btn btn-danger w-100" disabled>
+                        <i class="fas fa-clock me-2"></i>Download Expired
+                    </button>
+                    <?php elseif ($ebook['limit_reached']): ?>
+                    <button class="btn btn-secondary w-100" disabled>
+                        <i class="fas fa-ban me-2"></i>Download Limit Reached
+                    </button>
+                    <?php else: ?>
+                    <a href="../includes/download.php?token=<?php echo htmlspecialchars($ebook['download_token']); ?>"
                         class="btn btn-primary w-100">
                         <i class="fas fa-download me-2"></i>Download Ebook
                     </a>
-                    <?php else: ?>
-                    <button class="btn btn-secondary w-100" disabled>
-                        <i class="fas fa-download me-2"></i>Download Limit Reached
-                    </button>
                     <?php endif; ?>
                 </div>
             </div>
@@ -112,13 +139,25 @@ include '../includes/layouts/header.php';
     transform: translateY(-5px);
 }
 
-.btn-primary {
+.btn {
     transition: all 0.3s ease;
 }
 
-.btn-primary:hover {
+.btn:hover:not(:disabled) {
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.text-success {
+    font-weight: 600;
+}
+
+.text-danger {
+    font-weight: 600;
+}
+
+.text-info {
+    font-weight: 600;
 }
 
 @media (max-width: 768px) {

@@ -6,6 +6,7 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
+    'Stripe\\' => array($vendorDir . '/stripe/stripe-php/lib'),
     'Sample\\' => array($vendorDir . '/paypal/paypal-checkout-sdk/samples'),
     'RyvahCommerce\\' => array($baseDir . '/includes'),
     'PayPalHttp\\' => array($vendorDir . '/paypal/paypalhttp/lib/PayPalHttp'),

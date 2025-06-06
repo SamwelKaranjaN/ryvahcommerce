@@ -31,7 +31,7 @@
                 <div class="contact-info-card text-center p-4 shadow-sm rounded">
                     <i class="fas fa-envelope fa-3x text-primary mb-3"></i>
                     <h4>Email Address</h4>
-                    <p>info@ryvahbooks.com<br>support@ryvahbooks.com</p>
+                    <p>info@ryvahcommerce.com</p>
                 </div>
             </div>
         </div>

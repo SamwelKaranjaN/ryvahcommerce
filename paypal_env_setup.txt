@@ -1,0 +1,27 @@
+PayPal Environment Variables Setup
+===================================
+
+Your PayPal configuration has been updated to use environment variables for security.
+
+REQUIRED: Set these environment variables on your server:
+
+PAYPAL_PRODUCTION_CLIENT_ID=your_production_client_id_here
+PAYPAL_PRODUCTION_CLIENT_SECRET=your_production_client_secret_here
+
+OPTIONAL (for testing):
+PAYPAL_SANDBOX_CLIENT_ID=your_sandbox_client_id_here
+PAYPAL_SANDBOX_CLIENT_SECRET=your_sandbox_client_secret_here
+
+How to set them:
+1. Contact your hosting provider for server-level environment variables
+2. Or use .htaccess: SetEnv PAYPAL_PRODUCTION_CLIENT_ID "your_value"
+3. Or create a .env file and load it in your bootstrap
+
+Changes made to your config:
+- Environment: sandbox → production
+- Domain: localhost → https://ryvahcommerce.com
+- Credentials: hardcoded → environment variables
+- Sandbox credentials: commented out (still available)
+- SSL bypass: disabled for production security
+
+Get your credentials from: https://developer.paypal.com/ 

@@ -103,9 +103,9 @@ include '../includes/layouts/header.php';
                     <?php if (isset($_SESSION['success_message'])): ?>
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
                         <?php
-                echo $_SESSION['success_message'];
-                unset($_SESSION['success_message']);
-                ?>
+                            echo $_SESSION['success_message'];
+                            unset($_SESSION['success_message']);
+                            ?>
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                     <?php endif; ?>
@@ -122,19 +122,19 @@ include '../includes/layouts/header.php';
                         </div>
                         <h3 class="mb-3">No orders found</h3>
                         <p class="text-muted mb-4">You haven't placed any orders yet.</p>
-                        <a href="../index.php" class="btn btn-primary btn-lg px-5">
+                        <a href="../index" class="btn btn-primary btn-lg px-5">
                             <i class="fas fa-shopping-cart me-2"></i>Start Shopping
                         </a>
                     </div>
                     <?php else: ?>
                     <div class="row g-4">
                         <?php foreach ($orders as $order):
-                    $product_names = explode('||', $order['product_names']);
-                    $quantities = explode('||', $order['quantities']);
-                    $product_types = explode(',', $order['product_types']);
-                    $has_ebooks = in_array('ebook', $product_types);
-                    $has_physical = in_array('book', $product_types) || in_array('paint', $product_types);
-                ?>
+                                $product_names = explode('||', $order['product_names']);
+                                $quantities = explode('||', $order['quantities']);
+                                $product_types = explode(',', $order['product_types']);
+                                $has_ebooks = in_array('ebook', $product_types);
+                                $has_physical = in_array('book', $product_types) || in_array('paint', $product_types);
+                            ?>
                         <div class="col-12">
                             <div class="card border-0 shadow-sm">
                                 <div class="card-body p-4">
@@ -234,33 +234,122 @@ include '../includes/layouts/header.php';
                                     </div>
                                     <div class="modal-body">
                                         <?php
-                                        // Get order status history
-                                        $sql = "SELECT * FROM order_status_history 
-                                WHERE order_id = ? 
-                                ORDER BY created_at DESC";
-                                        $stmt = $conn->prepare($sql);
-                                        $stmt->bind_param("i", $order['id']);
-                                        $stmt->execute();
-                                        $result = $stmt->get_result();
-                                        $status_history = $result->fetch_all(MYSQLI_ASSOC);
-                                        ?>
+                                                    // Get comprehensive order status history and tracking information
+                                                    $sql = "SELECT osh.*, 
+                                       CASE 
+                                           WHEN osh.status = 'pending' THEN 'Order placed and payment initiated'
+                                           WHEN osh.status = 'processing' THEN 'Payment confirmed, preparing your order'
+                                           WHEN osh.status = 'completed' THEN 'Order completed successfully'
+                                           WHEN osh.status = 'failed' THEN 'Payment failed or order cancelled'
+                                           WHEN osh.status = 'refunded' THEN 'Order refunded'
+                                           ELSE 'Status update'
+                                       END as status_description
+                                FROM order_status_history osh
+                                WHERE osh.order_id = ? 
+                                ORDER BY osh.created_at ASC";
+                                                    $stmt = $conn->prepare($sql);
+                                                    $stmt->bind_param("i", $order['id']);
+                                                    $stmt->execute();
+                                                    $result = $stmt->get_result();
+                                                    $status_history = $result->fetch_all(MYSQLI_ASSOC);
+
+                                                    // If no status history exists, create a basic one from order data
+                                                    if (empty($status_history)) {
+                                                        $status_history = [
+                                                            [
+                                                                'status' => $order['payment_status'] ?? 'pending',
+                                                                'status_description' => 'Order placed',
+                                                                'created_at' => $order['created_at'],
+                                                                'notes' => 'Order created on ' . date('F j, Y g:i A', strtotime($order['created_at']))
+                                                            ]
+                                                        ];
+                                                    }
+                                                    ?>
                                         <div class="timeline">
-                                            <?php foreach ($status_history as $status): ?>
-                                            <div class="timeline-item">
-                                                <div class="timeline-marker"></div>
+                                            <?php
+                                                        $statusOrder = ['pending', 'processing', 'completed'];
+                                                        $currentStatusIndex = -1;
+
+                                                        // Find current status index
+                                                        foreach ($status_history as $status) {
+                                                            $index = array_search($status['status'], $statusOrder);
+                                                            if ($index !== false && $index > $currentStatusIndex) {
+                                                                $currentStatusIndex = $index;
+                                                            }
+                                                        }
+
+                                                        foreach ($status_history as $index => $status):
+                                                            $statusIndex = array_search($status['status'], $statusOrder);
+                                                            $isCompleted = $statusIndex !== false && $statusIndex <= $currentStatusIndex;
+                                                            $isCurrent = $statusIndex === $currentStatusIndex;
+                                                            $statusClass = '';
+
+                                                            if ($status['status'] == 'failed' || $status['status'] == 'refunded') {
+                                                                $statusClass = 'timeline-danger';
+                                                            } elseif ($isCompleted) {
+                                                                $statusClass = 'timeline-success';
+                                                            } elseif ($isCurrent) {
+                                                                $statusClass = 'timeline-current';
+                                                            } else {
+                                                                $statusClass = 'timeline-pending';
+                                                            }
+                                                        ?>
+                                            <div class="timeline-item <?php echo $statusClass; ?>">
+                                                <div class="timeline-marker">
+                                                    <?php if ($status['status'] == 'completed'): ?>
+                                                    <i class="fas fa-check"></i>
+                                                    <?php elseif ($status['status'] == 'failed' || $status['status'] == 'refunded'): ?>
+                                                    <i class="fas fa-times"></i>
+                                                    <?php elseif ($isCurrent): ?>
+                                                    <i class="fas fa-clock"></i>
+                                                    <?php else: ?>
+                                                    <div class="timeline-dot"></div>
+                                                    <?php endif; ?>
+                                                </div>
                                                 <div class="timeline-content">
-                                                    <h6 class="mb-1">
-                                                        <?php echo ucfirst($status['status'] ?? 'unknown'); ?></h6>
-                                                    <p class="text-muted mb-0">
-                                                        <?php echo $status['created_at'] ? date('F j, Y g:i A', strtotime($status['created_at'])) : 'N/A'; ?>
-                                                    </p>
+                                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                                        <h6 class="mb-0">
+                                                            <?php echo ucfirst($status['status'] ?? 'unknown'); ?></h6>
+                                                        <small class="text-muted">
+                                                            <?php echo $status['created_at'] ? date('M j, g:i A', strtotime($status['created_at'])) : 'N/A'; ?>
+                                                        </small>
+                                                    </div>
+                                                    <p class="text-muted mb-1">
+                                                        <?php echo $status['status_description']; ?></p>
                                                     <?php if (!empty($status['notes'])): ?>
-                                                    <p class="mb-0"><?php echo htmlspecialchars($status['notes']); ?>
+                                                    <p class="mb-0 small">
+                                                        <?php echo htmlspecialchars($status['notes']); ?></p>
+                                                    <?php endif; ?>
+
+                                                    <?php
+                                                                    // Add estimated delivery time for physical products
+                                                                    if ($has_physical && $status['status'] == 'processing'):
+                                                                        $estimatedDelivery = date('F j, Y', strtotime($status['created_at'] . ' +5 days'));
+                                                                    ?>
+                                                    <p class="mb-0 small text-info">
+                                                        <i class="fas fa-truck me-1"></i>
+                                                        Estimated delivery: <?php echo $estimatedDelivery; ?>
                                                     </p>
                                                     <?php endif; ?>
                                                 </div>
                                             </div>
                                             <?php endforeach; ?>
+
+                                            <!-- Show future steps for pending/processing orders -->
+                                            <?php if ($currentStatusIndex < count($statusOrder) - 1 && !in_array($order['current_status'] ?? $order['payment_status'], ['failed', 'refunded'])): ?>
+                                            <?php for ($i = $currentStatusIndex + 1; $i < count($statusOrder); $i++): ?>
+                                            <div class="timeline-item timeline-future">
+                                                <div class="timeline-marker">
+                                                    <div class="timeline-dot"></div>
+                                                </div>
+                                                <div class="timeline-content">
+                                                    <h6 class="mb-1 text-muted"><?php echo ucfirst($statusOrder[$i]); ?>
+                                                    </h6>
+                                                    <p class="text-muted mb-0 small">Pending</p>
+                                                </div>
+                                            </div>
+                                            <?php endfor; ?>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                 </div>
@@ -413,12 +502,46 @@ include '../includes/layouts/header.php';
     position: absolute;
     left: -25px;
     top: 5px;
-    width: 12px;
-    height: 12px;
-    background: #007bff;
+    width: 20px;
+    height: 20px;
+    background: #6c757d;
     border-radius: 50%;
     border: 2px solid white;
     box-shadow: 0 0 0 2px #dee2e6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: white;
+}
+
+.timeline-success .timeline-marker {
+    background: #28a745;
+}
+
+.timeline-current .timeline-marker {
+    background: #007bff;
+    animation: pulse 2s infinite;
+}
+
+.timeline-danger .timeline-marker {
+    background: #dc3545;
+}
+
+.timeline-pending .timeline-marker {
+    background: #6c757d;
+}
+
+.timeline-future .timeline-marker {
+    background: #e9ecef;
+    border-color: #dee2e6;
+}
+
+.timeline-dot {
+    width: 8px;
+    height: 8px;
+    background: currentColor;
+    border-radius: 50%;
 }
 
 .timeline-content {
@@ -426,6 +549,42 @@ include '../includes/layouts/header.php';
     padding: 1rem;
     border-radius: 8px;
     border-left: 3px solid #007bff;
+}
+
+.timeline-success .timeline-content {
+    border-left-color: #28a745;
+}
+
+.timeline-current .timeline-content {
+    border-left-color: #007bff;
+    background: #e3f2fd;
+}
+
+.timeline-danger .timeline-content {
+    border-left-color: #dc3545;
+}
+
+.timeline-future .timeline-content {
+    border-left-color: #dee2e6;
+    background: #f8f9fa;
+    opacity: 0.7;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7);
+    }
+
+    70% {
+        transform: scale(1.1);
+        box-shadow: 0 0 0 10px rgba(0, 123, 255, 0);
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0);
+    }
 }
 
 @media (max-width: 991.98px) {

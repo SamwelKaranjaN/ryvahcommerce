@@ -9,9 +9,9 @@
 
 return [
     // PayPal configuration
-    'paypal_client_id' => 'ARb4izn3jwTWc2j2x6UDmompOiO2Uq3HQKodHTR3Y6UKUN61daJD09G8JVrx6UWz11-CL2fcty8UJ2CJ',
-    'paypal_client_secret' => 'EHHv6Yf6p65iSR_MNUVp9JDgK0Ma81N7Bu3mX6Tt_k7VQpq2TIM626vYTkF5rHwzofdEHxBLMmkOLhqe',
-    'paypal_sandbox' => true, // Set to false for production
+    'paypal_client_id' => 'ARbQtWP1vIsYqgrKcL0v2hhlJA6NujGi26UWQz9Z4lsmPosxbSDPfzLSkaHtS8JRSvdysC99W0qvLyCI',
+    'paypal_client_secret' => 'EChoMRhi0vy7L_Defl5dqinOMbiWHxRmPG2e3ArjXXRQqHR1vwkg1IvHGTDxzwrOOuQR4n-z8ZteQiGc',
+    'paypal_sandbox' => false, // Set to false for production
 
     // Database configuration
     'db_host' => 'localhost',
@@ -39,7 +39,7 @@ return [
 
     // Application settings
     'app_name' => 'Ryvah Commerce',
-    'app_url' => 'http://localhost/ryvahcommerce',
+    'app_url' => 'https://ryvahcommerce.com',
     'app_timezone' => 'UTC',
     'app_locale' => 'en_US',
 

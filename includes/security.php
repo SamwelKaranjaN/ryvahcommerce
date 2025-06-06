@@ -4,6 +4,11 @@
  * Security helper functions for the application
  */
 
+// Ensure bootstrap is loaded first to avoid function redeclaration
+if (!function_exists('getConfig')) {
+    require_once __DIR__ . '/bootstrap.php';
+}
+
 /**
  * Verify CSRF token
  * @param string $token The token to verify
@@ -19,19 +24,11 @@ function verifyCSRFToken($token)
 
 /**
  * Get configuration value
+ * Note: This function is now defined in bootstrap.php to avoid redeclaration conflicts
  * @param string $key Configuration key
  * @return mixed Configuration value
  */
-function getConfig($key)
-{
-    static $config = null;
-
-    if ($config === null) {
-        $config = require_once __DIR__ . '/config.php';
-    }
-
-    return $config[$key] ?? null;
-}
+// function getConfig($key) - moved to bootstrap.php
 
 /**
  * Log security events

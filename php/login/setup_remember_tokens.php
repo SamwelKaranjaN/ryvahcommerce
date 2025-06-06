@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../db_connect.php';
+require_once __DIR__ . '/../../config/database.php';
 
 // Read the SQL file
 $sql = file_get_contents(__DIR__ . '/create_remember_tokens_table.sql');

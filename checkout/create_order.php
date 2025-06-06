@@ -38,7 +38,7 @@ header('Cache-Control: no-cache, must-revalidate');
 
 // PayPal Configuration
 define('PAYPAL_CLIENT_ID', 'ARb4izn3jwTWc2j2x6UDmompOiO2Uq3HQKodHTR3Y6UKUN61daJD09G8JVrx6UWz11-CL2fcty8UJ2CJ');
-define('PAYPAL_CLIENT_SECRET', 'EHHv6Yf6p65iSR_MNUVp9JDgK0Ma81N7Bu3mX6Tt_k7VQpq2TIM626vYTkF5rHwzofdEHxBLMmkOLhqe');
+define('PAYPAL_CLIENT_SECRET', 'EDUXnHsBZ0L7gUXjdpI9l7oFnCTIftl0UORyDtsXIZqBb7reoiNhGlEI4U2Qv_lKsI_oaK1Z3eVhzOyW');
 
 // Check if PayPal SDK is available
 if (!class_exists('PayPalCheckoutSdk\Core\PayPalHttpClient')) {

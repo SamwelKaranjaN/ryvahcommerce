@@ -1,36 +1,25 @@
-[02-Jun-2025 14:23:33 UTC] Adding to cart: Array
+[06-Jun-2025 07:55:05 UTC] Adding to cart: Array
 (
-    [product_id] => 4
+    [product_id] => 7
     [quantity] => 1
 )
 
-[02-Jun-2025 14:23:33 UTC] Add to cart result: Array
+[06-Jun-2025 07:55:05 UTC] Add to cart result: Array
 (
     [success] => 1
 )
 
-[02-Jun-2025 14:23:37 UTC] Getting cart items
-[02-Jun-2025 14:23:37 UTC] Cart Data: Array
+[06-Jun-2025 07:55:07 UTC] Getting cart items
+[06-Jun-2025 07:55:07 UTC] Cart Data: Array
 (
     [items] => Array
         (
             [0] => Array
                 (
-                    [id] => 4
-                    [name] => React Essentials
-                    [price] => 11.99
-                    [quantity] => 1
-                    [stock] => 0
-                    [thumbs] => thumbs/react_essentials.jpg
-                    [type] => book
-                )
-
-            [1] => Array
-                (
                     [id] => 7
                     [name] => Ocean Blue - 5
                     [price] => 0.01
-                    [quantity] => 1
+                    [quantity] => 2
                     [stock] => 0
                     [thumbs] => thumbs/ocean_blue.jpg
                     [type] => ebook
@@ -38,91 +27,26 @@
 
         )
 
-    [total] => 12
+    [total] => 0.02
 )
 
-[02-Jun-2025 14:25:18 UTC] Adding to cart: Array
+[06-Jun-2025 07:55:10 UTC] Updating cart quantity: Array
 (
-    [product_id] => 4
+    [product_id] => 7
     [quantity] => 1
 )
 
-[02-Jun-2025 14:25:24 UTC] Getting cart items
-[02-Jun-2025 14:25:24 UTC] Cart Data: Array
+[06-Jun-2025 07:55:10 UTC] Update cart result: Array
+(
+    [success] => 1
+)
+
+[06-Jun-2025 08:10:50 UTC] Getting cart items
+[06-Jun-2025 08:10:50 UTC] Cart Data: Array
 (
     [items] => Array
         (
             [0] => Array
-                (
-                    [id] => 4
-                    [name] => React Essentials
-                    [price] => 11.99
-                    [quantity] => 1
-                    [stock] => 0
-                    [thumbs] => thumbs/react_essentials.jpg
-                    [type] => book
-                )
-
-        )
-
-    [total] => 11.99
-)
-
-[02-Jun-2025 14:31:29 UTC] Adding to cart: Array
-(
-    [product_id] => 12
-    [quantity] => 1
-)
-
-[02-Jun-2025 14:31:34 UTC] Getting cart items
-[02-Jun-2025 14:31:34 UTC] Cart Data: Array
-(
-    [items] => Array
-        (
-            [0] => Array
-                (
-                    [id] => 4
-                    [name] => React Essentials
-                    [price] => 11.99
-                    [quantity] => 1
-                    [stock] => 0
-                    [thumbs] => thumbs/react_essentials.jpg
-                    [type] => book
-                )
-
-            [1] => Array
-                (
-                    [id] => 12
-                    [name] => Plight of the Faries 
-                    [price] => 24.95
-                    [quantity] => 1
-                    [stock] => 0
-                    [thumbs] => Uploads/thumbs/output.jpg
-                    [type] => book
-                )
-
-        )
-
-    [total] => 36.94
-)
-
-[02-Jun-2025 20:02:09 UTC] Getting cart items
-[02-Jun-2025 20:02:10 UTC] Cart Data: Array
-(
-    [items] => Array
-        (
-            [0] => Array
-                (
-                    [id] => 4
-                    [name] => React Essentials
-                    [price] => 11.99
-                    [quantity] => 1
-                    [stock] => 0
-                    [thumbs] => thumbs/react_essentials.jpg
-                    [type] => book
-                )
-
-            [1] => Array
                 (
                     [id] => 7
                     [name] => Ocean Blue - 5
@@ -135,26 +59,15 @@
 
         )
 
-    [total] => 12
+    [total] => 0.01
 )
 
-[02-Jun-2025 20:02:15 UTC] Getting cart items
-[02-Jun-2025 20:02:15 UTC] Cart Data: Array
+[06-Jun-2025 08:10:53 UTC] Getting cart items
+[06-Jun-2025 08:10:53 UTC] Cart Data: Array
 (
     [items] => Array
         (
             [0] => Array
-                (
-                    [id] => 4
-                    [name] => React Essentials
-                    [price] => 11.99
-                    [quantity] => 1
-                    [stock] => 0
-                    [thumbs] => thumbs/react_essentials.jpg
-                    [type] => book
-                )
-
-            [1] => Array
                 (
                     [id] => 7
                     [name] => Ocean Blue - 5
@@ -167,26 +80,15 @@
 
         )
 
-    [total] => 12
+    [total] => 0.01
 )
 
-[02-Jun-2025 20:04:18 UTC] Getting cart items
-[02-Jun-2025 20:04:18 UTC] Cart Data: Array
+[06-Jun-2025 08:11:07 UTC] Getting cart items
+[06-Jun-2025 08:11:07 UTC] Cart Data: Array
 (
     [items] => Array
         (
             [0] => Array
-                (
-                    [id] => 4
-                    [name] => React Essentials
-                    [price] => 11.99
-                    [quantity] => 1
-                    [stock] => 0
-                    [thumbs] => thumbs/react_essentials.jpg
-                    [type] => book
-                )
-
-            [1] => Array
                 (
                     [id] => 7
                     [name] => Ocean Blue - 5
@@ -199,26 +101,15 @@
 
         )
 
-    [total] => 12
+    [total] => 0.01
 )
 
-[02-Jun-2025 20:20:56 UTC] Getting cart items
-[02-Jun-2025 20:20:56 UTC] Cart Data: Array
+[06-Jun-2025 08:11:19 UTC] Getting cart items
+[06-Jun-2025 08:11:19 UTC] Cart Data: Array
 (
     [items] => Array
         (
             [0] => Array
-                (
-                    [id] => 4
-                    [name] => React Essentials
-                    [price] => 11.99
-                    [quantity] => 1
-                    [stock] => 0
-                    [thumbs] => thumbs/react_essentials.jpg
-                    [type] => book
-                )
-
-            [1] => Array
                 (
                     [id] => 7
                     [name] => Ocean Blue - 5
@@ -231,6 +122,117 @@
 
         )
 
-    [total] => 12
+    [total] => 0.01
 )
 
+[06-Jun-2025 08:11:20 UTC] Network diagnostic: PayPal API unreachable
+[06-Jun-2025 08:11:21 UTC] Order creation error: Cannot connect to payment system. Please check your internet connection and try again.
+[06-Jun-2025 08:13:07 UTC] Getting cart items
+[06-Jun-2025 08:13:07 UTC] Cart Data: Array
+(
+    [items] => Array
+        (
+            [0] => Array
+                (
+                    [id] => 7
+                    [name] => Ocean Blue - 5
+                    [price] => 0.01
+                    [quantity] => 1
+                    [stock] => 0
+                    [thumbs] => thumbs/ocean_blue.jpg
+                    [type] => ebook
+                )
+
+        )
+
+    [total] => 0.01
+)
+
+[06-Jun-2025 08:13:16 UTC] Getting cart items
+[06-Jun-2025 08:13:16 UTC] Cart Data: Array
+(
+    [items] => Array
+        (
+            [0] => Array
+                (
+                    [id] => 7
+                    [name] => Ocean Blue - 5
+                    [price] => 0.01
+                    [quantity] => 1
+                    [stock] => 0
+                    [thumbs] => thumbs/ocean_blue.jpg
+                    [type] => ebook
+                )
+
+        )
+
+    [total] => 0.01
+)
+
+[06-Jun-2025 08:13:17 UTC] Network diagnostic: PayPal API unreachable
+[06-Jun-2025 08:13:18 UTC] Order creation error: Cannot connect to payment system. Please check your internet connection and try again.
+[06-Jun-2025 08:15:14 UTC] Getting cart items
+[06-Jun-2025 08:15:14 UTC] Cart Data: Array
+(
+    [items] => Array
+        (
+            [0] => Array
+                (
+                    [id] => 7
+                    [name] => Ocean Blue - 5
+                    [price] => 0.01
+                    [quantity] => 1
+                    [stock] => 0
+                    [thumbs] => thumbs/ocean_blue.jpg
+                    [type] => ebook
+                )
+
+        )
+
+    [total] => 0.01
+)
+
+[06-Jun-2025 08:17:35 UTC] Getting cart items
+[06-Jun-2025 08:17:36 UTC] Cart Data: Array
+(
+    [items] => Array
+        (
+            [0] => Array
+                (
+                    [id] => 7
+                    [name] => Ocean Blue - 5
+                    [price] => 0.01
+                    [quantity] => 1
+                    [stock] => 0
+                    [thumbs] => thumbs/ocean_blue.jpg
+                    [type] => ebook
+                )
+
+        )
+
+    [total] => 0.01
+)
+
+[06-Jun-2025 08:17:41 UTC] Getting cart items
+[06-Jun-2025 08:17:41 UTC] Cart Data: Array
+(
+    [items] => Array
+        (
+            [0] => Array
+                (
+                    [id] => 7
+                    [name] => Ocean Blue - 5
+                    [price] => 0.01
+                    [quantity] => 1
+                    [stock] => 0
+                    [thumbs] => thumbs/ocean_blue.jpg
+                    [type] => ebook
+                )
+
+        )
+
+    [total] => 0.01
+)
+
+[06-Jun-2025 08:17:42 UTC] Network diagnostic: PayPal API unreachable
+[06-Jun-2025 08:17:42 UTC] Order creation error: Cannot connect to payment system. Please check your internet connection and try again.

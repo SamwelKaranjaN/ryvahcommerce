@@ -20,19 +20,26 @@ ini_set('error_log', __DIR__ . '/../php_errors.log');
 // Set default timezone
 date_default_timezone_set('UTC');
 
-// Only set headers if not already sent
-if (!headers_sent()) {
+// Load Composer autoloader
+if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
+    require_once __DIR__ . '/../vendor/autoload.php';
+} else {
+    error_log('Composer autoloader not found. Please run "composer install"');
+}
+
+// Only set headers if not already sent and not in CLI mode
+if (!headers_sent() && php_sapi_name() !== 'cli') {
     // Set character encoding
     header('Content-Type: text/html; charset=utf-8');
 }
 
-// Start output buffering if not already started
-if (!ob_get_level()) {
+// Start output buffering if not already started and not in CLI mode
+if (!ob_get_level() && php_sapi_name() !== 'cli') {
     ob_start();
 }
 
-// Include security headers only if headers not sent
-if (!headers_sent()) {
+// Include security headers only if headers not sent and not in CLI mode
+if (!headers_sent() && php_sapi_name() !== 'cli') {
     require_once __DIR__ . '/security_headers.php';
 }
 
@@ -46,8 +53,8 @@ function getConfig($key)
     return $config[$key] ?? null;
 }
 
-// Load database connection
-require_once __DIR__ . '/db.php';
+// Load unified database connection
+require_once __DIR__ . '/../config/database.php';
 
 // Load functions
 require_once __DIR__ . '/functions.php';

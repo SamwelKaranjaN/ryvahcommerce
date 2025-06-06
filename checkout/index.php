@@ -342,9 +342,6 @@ function checkBrowserCompatibility() {
 }
 
 // PayPal SDK Configuration and Loading
-window.paypalLoadAttempts = 0;
-window.maxPaypalLoadAttempts = 3;
-
 function loadPayPalSDK() {
     return new Promise((resolve, reject) => {
         // Check browser compatibility first
@@ -392,98 +389,16 @@ function loadPayPalSDK() {
         script.setAttribute('data-partner-attribution-id', 'RyvahCommerce_SP_PPCP');
         script.setAttribute('data-namespace', 'PayPalSDK');
 
-        let initCheckTimeout;
-        let initCheckInterval;
-
         script.onload = function() {
             console.log('PayPal SDK script loaded successfully');
-
-            // Add window debugging for sandbox
-            console.log('Window PayPal object status:', typeof window.paypal);
-            console.log('Available funding sources:', window.paypal?.getFundingSources?.() ||
-                'Not available yet');
-
-            // Clear any existing timeouts
-            if (initCheckTimeout) clearTimeout(initCheckTimeout);
-            if (initCheckInterval) clearInterval(initCheckInterval);
-
-            // Wait for PayPal to initialize with multiple checks
-            let checkCount = 0;
-            const maxChecks = 100; // 10 seconds total (100 * 100ms)
-
-            initCheckInterval = setInterval(() => {
-                checkCount++;
-                console.log(`Checking PayPal initialization (${checkCount}/${maxChecks})...`);
-
-                // More detailed debugging
-                if (typeof window.paypal !== 'undefined') {
-                    console.log('PayPal object found:', window.paypal);
-                    console.log('PayPal.Buttons available:', typeof window.paypal.Buttons);
-                    console.log('PayPal version:', window.paypal.version || 'Unknown');
-                }
-
-                if (typeof window.paypal !== 'undefined' &&
-                    window.paypal &&
-                    window.paypal.Buttons &&
-                    typeof window.paypal.Buttons === 'function') {
-
-                    clearInterval(initCheckInterval);
-                    console.log('PayPal SDK initialized successfully');
-                    console.log('PayPal object methods:', Object.keys(window.paypal));
-                    resolve(window.paypal);
-                    return;
-                }
-
-                if (checkCount >= maxChecks) {
-                    clearInterval(initCheckInterval);
-                    console.error('PayPal SDK failed to initialize within timeout period');
-                    console.error('Final paypal object state:', typeof window.paypal, window
-                        .paypal);
-
-                    // Try to get more debugging info
-                    if (typeof window.paypal !== 'undefined') {
-                        console.error('PayPal object exists but Buttons not available');
-                        console.error('PayPal object keys:', Object.keys(window.paypal));
-                    }
-
-                    reject(new Error(
-                        'PayPal SDK initialization timeout - paypal.Buttons not available after 10 seconds'
-                    ));
-                }
-            }, 100);
-
-            // Also set a backup timeout
-            initCheckTimeout = setTimeout(() => {
-                clearInterval(initCheckInterval);
-                if (typeof window.paypal === 'undefined' || !window.paypal || !window.paypal
-                    .Buttons) {
-                    console.error('PayPal SDK backup timeout triggered');
-                    console.error('PayPal state at timeout:', {
-                        typeofPaypal: typeof window.paypal,
-                        paypalExists: !!window.paypal,
-                        buttonsExists: !!(window.paypal && window.paypal.Buttons),
-                        windowKeys: Object.keys(window).filter(k => k.toLowerCase()
-                            .includes('paypal'))
-                    });
-                    reject(new Error(
-                        'PayPal SDK loaded but failed to initialize within 15 seconds'));
-                }
-            }, 15000);
+            // Resolve immediately without any checking
+            resolve(window.paypal);
         };
 
         script.onerror = function(error) {
             console.error('Failed to load PayPal SDK script:', error);
-            clearTimeout(initCheckTimeout);
-            clearInterval(initCheckInterval);
             reject(new Error('Failed to load PayPal SDK script from server'));
         };
-
-        // Handle script loading timeout
-        setTimeout(() => {
-            if (!script.onload.called) {
-                script.onerror(new Error('Script loading timeout'));
-            }
-        }, 15000);
 
         document.head.appendChild(script);
     });
@@ -493,47 +408,10 @@ function loadPayPalSDK() {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded, initializing PayPal...');
 
-    // Error logging function
-    function logError(error, context) {
-        console.log('Logging error:', error, 'Context:', context);
-
-        const errorData = {
-            error: error.toString(),
-            context: context,
-            timestamp: new Date().toISOString(),
-            userAgent: navigator.userAgent,
-            url: window.location.href,
-            browserInfo: {
-                language: navigator.language,
-                platform: navigator.platform,
-                cookieEnabled: navigator.cookieEnabled,
-                onLine: navigator.onLine
-            }
-        };
-
-        fetch('log_error.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(errorData)
-            })
-            .then(response => response.json())
-            .then(result => {
-                console.log('Error logged successfully:', result);
-            })
-            .catch(err => {
-                console.error('Failed to log error:', err);
-                // Fallback: log to console if error logging fails
-                console.error('Original error that failed to log:', error);
-            });
-    }
-
     const paypalContainer = document.getElementById('paypal-button-container');
 
     if (!paypalContainer) {
         console.error('PayPal button container not found!');
-        logError(new Error('PayPal button container not found'), 'DOM Setup');
         return;
     }
 
@@ -545,206 +423,164 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
 
-    // Load PayPal SDK with retry mechanism
-    function attemptPayPalLoad() {
-        window.paypalLoadAttempts++;
-        console.log(`PayPal loading attempt ${window.paypalLoadAttempts}/${window.maxPaypalLoadAttempts}`);
+    // Load PayPal SDK immediately
+    console.log('Loading PayPal SDK...');
 
-        loadPayPalSDK()
-            .then(paypal => {
-                console.log('PayPal SDK loaded successfully, initializing buttons...');
-                initializePayPalButtons(paypal);
-            })
-            .catch(error => {
-                console.error('PayPal SDK loading error:', error);
-                logError(error, 'PayPal SDK Loading');
-
-                if (window.paypalLoadAttempts < window.maxPaypalLoadAttempts) {
-                    console.log(
-                        `Retrying PayPal load in 2 seconds (attempt ${window.paypalLoadAttempts + 1}/${window.maxPaypalLoadAttempts})...`
-                    );
-                    setTimeout(attemptPayPalLoad, 2000);
-                } else {
-                    console.error('All PayPal loading attempts failed');
-                    logError(new Error('All PayPal loading attempts failed after ' + window
-                        .maxPaypalLoadAttempts + ' tries'), 'PayPal SDK Loading Final Failure');
-
-                    // Check if this is localhost and offer test mode
-                    const isLocalhost = window.location.hostname === 'localhost' || window.location
-                        .hostname === '127.0.0.1';
-                    if (isLocalhost) {
-                        showLocalhostTestMode();
-                    } else {
-                        showPayPalError(
-                            'Failed to load PayPal payment system. This may be due to network issues or browser compatibility. Please try refreshing the page or using a different browser.'
-                        );
-                    }
-                }
-            });
-    }
+    loadPayPalSDK()
+        .then(paypal => {
+            console.log('PayPal SDK loaded successfully, initializing buttons...');
+            initializePayPalButtons(paypal);
+        })
+        .catch(error => {
+            console.error('PayPal SDK loading error:', error);
+            showPayPalError(
+                'Failed to load PayPal payment system. Please refresh the page to try again.'
+            );
+        });
 
     function initializePayPalButtons(paypal) {
-        try {
-            console.log('Initializing PayPal buttons...');
-            paypalContainer.innerHTML = ''; // Clear loading indicator
+        console.log('Initializing PayPal buttons...');
+        paypalContainer.innerHTML = ''; // Clear loading indicator
 
-            // Verify PayPal object is still valid
-            if (!paypal || !paypal.Buttons || typeof paypal.Buttons !== 'function') {
-                throw new Error('PayPal object became invalid during initialization');
-            }
+        paypal.Buttons({
+                style: {
+                    layout: 'vertical',
+                    color: 'blue',
+                    shape: 'rect',
+                    label: 'paypal',
+                    height: 45
+                },
 
-            paypal.Buttons({
-                    style: {
-                        layout: 'vertical',
-                        color: 'blue',
-                        shape: 'rect',
-                        label: 'paypal',
-                        height: 45
-                    },
+                createOrder: function(data, actions) {
+                    console.log('Creating PayPal order...');
 
-                    createOrder: function(data, actions) {
-                        console.log('Creating PayPal order...');
-
-                        // Check if address is selected
-                        const selectedAddress = document.querySelector(
-                            'input[name="selected_address"]:checked');
-                        if (!selectedAddress) {
-                            alert('Please select a shipping address');
-                            return Promise.reject('No address selected');
-                        }
-
-                        const total = <?php echo $grand_total; ?>;
-                        console.log('Order total:', total);
-
-                        return fetch('create_order.php', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                },
-                                body: JSON.stringify({
-                                    total: total,
-                                    address_id: selectedAddress.value
-                                })
-                            })
-                            .then(response => {
-                                console.log('Create order response status:', response.status);
-
-                                return response.text().then(text => {
-                                    console.log('Raw response:', text);
-
-                                    try {
-                                        const jsonData = JSON.parse(text);
-                                        if (!response.ok) {
-                                            throw new Error(jsonData.error ||
-                                                'Failed to create order');
-                                        }
-                                        return jsonData;
-                                    } catch (parseError) {
-                                        console.error('JSON parse error:', parseError);
-                                        console.error('Response text:', text);
-                                        throw new Error(
-                                            'Server returned invalid response: ' + text
-                                            .substring(0, 100));
-                                    }
-                                });
-                            })
-                            .then(order => {
-                                console.log('Order created:', order);
-                                if (!order.id) {
-                                    throw new Error('Invalid order response - missing ID');
-                                }
-                                return order.id;
-                            })
-                            .catch(err => {
-                                console.error('Order creation error:', err);
-                                logError(err, 'PayPal Order Creation');
-                                alert('Error creating order: ' + err.message);
-                                throw err;
-                            });
-                    },
-
-                    onApprove: function(data, actions) {
-                        console.log('PayPal payment approved:', data);
-
-                        return fetch('capture_order.php', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                },
-                                body: JSON.stringify({
-                                    orderID: data.orderID
-                                })
-                            })
-                            .then(response => {
-                                console.log('Capture response status:', response.status);
-
-                                return response.text().then(text => {
-                                    console.log('Capture raw response:', text);
-
-                                    try {
-                                        const jsonData = JSON.parse(text);
-                                        if (!response.ok) {
-                                            throw new Error(jsonData.error ||
-                                                'Failed to capture payment');
-                                        }
-                                        return jsonData;
-                                    } catch (parseError) {
-                                        console.error('JSON parse error in capture:',
-                                            parseError);
-                                        console.error('Response text:', text);
-                                        throw new Error(
-                                            'Server returned invalid response during capture'
-                                        );
-                                    }
-                                });
-                            })
-                            .then(details => {
-                                console.log('Payment captured:', details);
-                                if (details.status === 'COMPLETED') {
-                                    // Show success message
-                                    showSuccessMessage();
-
-                                    // Redirect to success page
-                                    setTimeout(() => {
-                                        window.location.href = 'success.php?order=' +
-                                            details.order_id;
-                                    }, 2000);
-                                } else {
-                                    throw new Error('Payment capture failed');
-                                }
-                            })
-                            .catch(err => {
-                                console.error('Payment capture error:', err);
-                                logError(err, 'PayPal Payment Capture');
-                                alert('Error processing payment: ' + err.message);
-                            });
-                    },
-
-                    onError: function(err) {
-                        console.error('PayPal button error:', err);
-                        logError(err, 'PayPal Button Error');
-                        alert('An error occurred during payment processing. Please try again.');
-                    },
-
-                    onCancel: function(data) {
-                        console.log('Payment cancelled:', data);
-                        alert('Payment was cancelled. You can try again when ready.');
+                    // Check if address is selected
+                    const selectedAddress = document.querySelector(
+                        'input[name="selected_address"]:checked');
+                    if (!selectedAddress) {
+                        alert('Please select a shipping address');
+                        return Promise.reject('No address selected');
                     }
-                }).render('#paypal-button-container')
-                .then(() => {
-                    console.log('PayPal button rendered successfully');
-                })
-                .catch(err => {
-                    console.error('PayPal button render error:', err);
-                    logError(err, 'PayPal Button Render');
-                    showPayPalError('Could not render PayPal button. Please refresh the page.');
-                });
 
-        } catch (error) {
-            console.error('PayPal initialization error:', error);
-            logError(error, 'PayPal Initialization');
-            showPayPalError('Failed to initialize PayPal. Please refresh the page.');
-        }
+                    const total = <?php echo $grand_total; ?>;
+                    console.log('Order total:', total);
+
+                    return fetch('create_order.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                total: total,
+                                address_id: selectedAddress.value
+                            })
+                        })
+                        .then(response => {
+                            console.log('Create order response status:', response.status);
+
+                            return response.text().then(text => {
+                                console.log('Raw response:', text);
+
+                                try {
+                                    const jsonData = JSON.parse(text);
+                                    if (!response.ok) {
+                                        throw new Error(jsonData.error ||
+                                            'Failed to create order');
+                                    }
+                                    return jsonData;
+                                } catch (parseError) {
+                                    console.error('JSON parse error:', parseError);
+                                    console.error('Response text:', text);
+                                    throw new Error(
+                                        'Server returned invalid response: ' + text
+                                        .substring(0, 100));
+                                }
+                            });
+                        })
+                        .then(order => {
+                            console.log('Order created:', order);
+                            if (!order.id) {
+                                throw new Error('Invalid order response - missing ID');
+                            }
+                            return order.id;
+                        })
+                        .catch(err => {
+                            console.error('Order creation error:', err);
+                            alert('Error creating order: ' + err.message);
+                            throw err;
+                        });
+                },
+
+                onApprove: function(data, actions) {
+                    console.log('PayPal payment approved:', data);
+
+                    return fetch('capture_order.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                orderID: data.orderID
+                            })
+                        })
+                        .then(response => {
+                            console.log('Capture response status:', response.status);
+
+                            return response.text().then(text => {
+                                console.log('Capture raw response:', text);
+
+                                try {
+                                    const jsonData = JSON.parse(text);
+                                    if (!response.ok) {
+                                        throw new Error(jsonData.error ||
+                                            'Failed to capture payment');
+                                    }
+                                    return jsonData;
+                                } catch (parseError) {
+                                    console.error('JSON parse error in capture:',
+                                        parseError);
+                                    console.error('Response text:', text);
+                                    throw new Error(
+                                        'Server returned invalid response during capture'
+                                    );
+                                }
+                            });
+                        })
+                        .then(details => {
+                            console.log('Payment captured:', details);
+                            if (details.status === 'COMPLETED') {
+                                // Show success message
+                                showSuccessMessage();
+
+                                // Redirect to success page immediately
+                                window.location.href = 'success.php?order=' + details.order_id;
+                            } else {
+                                throw new Error('Payment capture failed');
+                            }
+                        })
+                        .catch(err => {
+                            console.error('Payment capture error:', err);
+                            alert('Error processing payment: ' + err.message);
+                        });
+                },
+
+                onError: function(err) {
+                    console.error('PayPal button error:', err);
+                    alert('An error occurred during payment processing. Please try again.');
+                },
+
+                onCancel: function(data) {
+                    console.log('Payment cancelled:', data);
+                    alert('Payment was cancelled. You can try again when ready.');
+                }
+            }).render('#paypal-button-container')
+            .then(() => {
+                console.log('PayPal button rendered successfully');
+            })
+            .catch(err => {
+                console.error('PayPal button render error:', err);
+                showPayPalError('Could not render PayPal button. Please refresh the page.');
+            });
     }
 
     function showPayPalError(message) {
@@ -769,143 +605,6 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
     }
 
-    function showLocalhostTestMode() {
-        paypalContainer.innerHTML = `
-                <div class="alert alert-warning">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    <strong>Development Mode:</strong> PayPal SDK failed to load on localhost.
-                    <div class="mt-3">
-                        <button class="btn btn-warning me-2" onclick="simulatePayPalPayment()">
-                            <i class="fas fa-vial me-2"></i>Simulate PayPal Payment (Test)
-                        </button>
-                        <button class="btn btn-primary me-2" onclick="location.reload()">
-                            <i class="fas fa-redo me-2"></i>Retry PayPal Loading
-                        </button>
-                        <button class="btn btn-outline-info" onclick="showPayPalTroubleshooting()">
-                            <i class="fas fa-tools me-2"></i>Troubleshooting
-                        </button>
-                    </div>
-                    <div class="mt-2">
-                        <small class="text-muted">
-                            <strong>For developers:</strong> This is normal on localhost. Deploy to a public domain for real PayPal integration.
-                            <br>The test mode will simulate a successful payment for development purposes.
-                        </small>
-                    </div>
-                </div>
-            `;
-    }
-
-    // Add troubleshooting function
-    window.showPayPalTroubleshooting = function() {
-        paypalContainer.innerHTML = `
-            <div class="alert alert-info">
-                <i class="fas fa-tools me-2"></i>
-                <strong>PayPal Sandbox Troubleshooting:</strong>
-                <div class="mt-3">
-                    <h6>Common Issues:</h6>
-                    <ul class="mb-3">
-                        <li><strong>Network:</strong> Check if you can access paypal.com</li>
-                        <li><strong>Firewall:</strong> Corporate firewall might block PayPal</li>
-                        <li><strong>AdBlocker:</strong> Browser extensions might interfere</li>
-                        <li><strong>Cookies:</strong> Third-party cookies must be enabled</li>
-                        <li><strong>HTTPS:</strong> Some PayPal features require HTTPS</li>
-                    </ul>
-                    <div class="d-flex gap-2 flex-wrap">
-                        <button class="btn btn-primary" onclick="location.reload()">
-                            <i class="fas fa-redo me-2"></i>Try Again
-                        </button>
-                        <button class="btn btn-warning" onclick="simulatePayPalPayment()">
-                            <i class="fas fa-vial me-2"></i>Use Test Mode
-                        </button>
-                        <button class="btn btn-success" onclick="window.open('https://developer.paypal.com/developer/applications/', '_blank')">
-                            <i class="fab fa-paypal me-2"></i>Check PayPal App
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `;
-    };
-
-    // Simulate PayPal payment for localhost testing
-    window.simulatePayPalPayment = function() {
-        // Check if address is selected
-        const selectedAddress = document.querySelector('input[name="selected_address"]:checked');
-        if (!selectedAddress) {
-            alert('Please select a shipping address');
-            return;
-        }
-
-        if (confirm('This will simulate a successful PayPal payment. Continue?')) {
-            console.log('Simulating PayPal payment...');
-
-            // Show loading
-            paypalContainer.innerHTML = `
-                    <div class="alert alert-info">
-                        <i class="fas fa-spinner fa-spin me-2"></i>
-                        Simulating payment processing...
-                    </div>
-                `;
-
-            // Simulate the payment process
-            setTimeout(() => {
-                fetch('create_order.php', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            total: <?php echo $grand_total; ?>,
-                            address_id: selectedAddress.value,
-                            test_mode: true
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(order => {
-                        console.log('Test order created:', order);
-
-                        // Simulate successful payment
-                        setTimeout(() => {
-                            fetch('capture_order.php', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                    },
-                                    body: JSON.stringify({
-                                        orderID: order.id || 'TEST_ORDER_' +
-                                            Date.now(),
-                                        test_mode: true
-                                    })
-                                })
-                                .then(response => response.json())
-                                .then(details => {
-                                    console.log('Test payment captured:', details);
-                                    showSuccessMessage();
-
-                                    setTimeout(() => {
-                                        window.location.href =
-                                            'success.php?order=' + (details
-                                                .order_id || 'TEST_ORDER');
-                                    }, 2000);
-                                })
-                                .catch(err => {
-                                    console.error('Test capture error:', err);
-                                    alert('Test payment simulation failed: ' + err
-                                        .message);
-                                });
-                        }, 1000);
-                    })
-                    .catch(err => {
-                        console.error('Test order creation error:', err);
-                        alert('Test order creation failed: ' + err.message);
-                    });
-            }, 1000);
-        }
-    };
-
-    // Start PayPal loading
-    attemptPayPalLoad();
-
-    // Success message function
     function showSuccessMessage() {
         const successAlert = document.createElement('div');
         successAlert.className = 'alert alert-success alert-dismissible fade show';

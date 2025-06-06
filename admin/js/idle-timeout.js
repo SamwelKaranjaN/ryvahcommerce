@@ -2,10 +2,10 @@ class IdleTimeout {
     constructor(options = {}) {
         console.log('IdleTimeout initialized with options:', options);
         this.options = {
-            idleTime: options.idleTime || 30000, // 30 seconds in milliseconds
-            warningTime: options.warningTime || 10000, // 10 seconds warning
+            idleTime: options.idleTime || 1800000, //  30 minutes in milliseconds
+            warningTime: options.warningTime || 5000, // 5 seconds warning
             logoutUrl: options.logoutUrl || 'logout.php',
-            warningMessage: options.warningMessage || 'You have been inactive for a while. Click anywhere or press "Cancel" to stay logged in. You will be logged out in 10 seconds.',
+            warningMessage: options.warningMessage || 'You have been inactive for a while. Click anywhere or press "Cancel" to stay logged in. You will be logged out in 5 seconds.',
             ...options
         };
 

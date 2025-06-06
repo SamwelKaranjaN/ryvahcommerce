@@ -20,11 +20,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // Include essential files only
-require_once '../includes/config.php';
-require_once '../includes/db.php';
-require_once '../includes/functions.php';
-require_once '../includes/cart.php';
-require_once '../includes/paypal.php';
+require_once '../includes/bootstrap.php';
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
@@ -210,8 +206,8 @@ function handleCreateOrder($input, $user_id)
                 'brand_name' => 'Ryvah Commerce',
                 'landing_page' => 'BILLING',
                 'user_action' => 'PAY_NOW',
-                'return_url' => 'https://yoursite.com/checkout/success.php',
-                'cancel_url' => 'https://yoursite.com/checkout/cancel.php'
+                'return_url' => 'http://yoursite.com/checkout/success.php',
+                'cancel_url' => 'http://yoursite.com/checkout/cancel.php'
             ]
         ];
 
