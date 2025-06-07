@@ -21,6 +21,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // Include essential files only
 require_once '../includes/bootstrap.php';
+require_once '../includes/email_functions.php';
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
@@ -113,7 +114,7 @@ function handleCreateOrder($input, $user_id)
             VALUES (?, ?, ?, ?, ?, 'pending', 'paypal', ?, ?, NOW())
         ");
 
-        $tax_rate = 7.75; // Default tax rate
+        $tax_rate = 0; // Tax rate is calculated dynamically based on address and product type
         $shipping_json = json_encode($shipping_address_data);
         $billing_json = json_encode($billing_address_data);
 
@@ -206,8 +207,8 @@ function handleCreateOrder($input, $user_id)
                 'brand_name' => 'Ryvah Commerce',
                 'landing_page' => 'BILLING',
                 'user_action' => 'PAY_NOW',
-                'return_url' => 'http://yoursite.com/checkout/success.php',
-                'cancel_url' => 'http://yoursite.com/checkout/cancel.php'
+                'return_url' => 'http://ryvahcommerce.com/checkout/success.php',
+                'cancel_url' => 'http://ryvahcommerce.com/checkout/cancel.php'
             ]
         ];
 
@@ -285,8 +286,8 @@ function handleCaptureOrder($input, $user_id)
             // Create download records for digital products
             createDigitalDownloads($order['id'], $user_id);
 
-            // Send confirmation email (optional)
-            // sendOrderConfirmationEmail($order['id']);
+            // Send order notification email to admin (only for non-ebook orders)
+            sendOrderNotificationEmail($order['id']);
         }
 
         $conn->commit();
@@ -403,6 +404,9 @@ function handleCompletePayment($input, $user_id)
 
         // Create download records for digital products
         createDigitalDownloads($local_order_id, $user_id);
+
+        // Send order notification email to admin (only for non-ebook orders)
+        sendOrderNotificationEmail($local_order_id);
 
         $conn->commit();
 

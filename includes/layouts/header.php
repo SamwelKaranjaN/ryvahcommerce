@@ -1,3 +1,17 @@
+<?php
+// Calculate cart count for header display
+if (!isset($cart_count)) {
+    if (file_exists('../includes/cart.php')) {
+        require_once '../includes/cart.php';
+        $cart_count = getCartItemCount();
+    } elseif (file_exists('includes/cart.php')) {
+        require_once 'includes/cart.php';
+        $cart_count = getCartItemCount();
+    } else {
+        $cart_count = 0;
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -349,6 +363,13 @@
         margin-top: 0.4rem;
         backdrop-filter: blur(20px);
         background: rgba(255, 255, 255, 0.95);
+        z-index: 9999 !important;
+        position: absolute !important;
+    }
+
+    /* Ensure dropdown parent has proper position */
+    .dropdown {
+        position: relative;
     }
 
     .dropdown-item {
@@ -1141,6 +1162,56 @@
         animation: cartBounce 0.6s ease !important;
     }
 
+    /* Cart icon bounce animation */
+    @keyframes cartBounce {
+
+        0%,
+        100% {
+            transform: scale(1);
+        }
+
+        25% {
+            transform: scale(1.2);
+        }
+
+        50% {
+            transform: scale(0.9);
+        }
+
+        75% {
+            transform: scale(1.1);
+        }
+    }
+
+    .cart-bounce {
+        animation: cartBounce 0.6s ease;
+    }
+
+    /* Smooth cart count updates */
+    .cart-count {
+        transform-origin: center;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .cart-count.updated {
+        animation: cartCountPulse 0.6s ease;
+    }
+
+    @keyframes cartCountPulse {
+        0% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.3);
+            background-color: #22c55e;
+        }
+
+        100% {
+            transform: scale(1);
+        }
+    }
+
     /* Mini Cart Notification */
     @keyframes miniCartBounce {
         0% {
@@ -1215,7 +1286,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="../NFT/">
+                    <a class="nav-link" href="../nft/">
                         <i class="fas fa-gem"></i>NFT Collection
                     </a>
                 </li>
@@ -1370,6 +1441,23 @@
     <?php endif; ?>
 
     <script>
+    // Ensure Bootstrap is properly initialized
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize all Bootstrap dropdowns
+        var dropdownTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="dropdown"]'));
+        dropdownTriggerList.map(function(dropdownTriggerEl) {
+            return new bootstrap.Dropdown(dropdownTriggerEl);
+        });
+
+        // Initialize all Bootstrap tooltips if any
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function(tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+    </script>
+
+    <script>
     // Navbar scroll effect
     let lastScrollTop = 0;
     window.addEventListener('scroll', function() {
@@ -1446,6 +1534,135 @@
             document.body.style.overflow = '';
         }
     });
+
+    // Function to update cart count dynamically
+    function updateCartCount(count) {
+        const cartCounts = document.querySelectorAll('.cart-count');
+        cartCounts.forEach(function(element) {
+            if (count > 0) {
+                element.textContent = count;
+                element.style.display = 'flex';
+                // Add animation effect
+                element.classList.add('updated');
+                setTimeout(() => element.classList.remove('updated'), 600);
+            } else {
+                element.style.display = 'none';
+            }
+        });
+    }
+
+    // Global add to cart function with real-time updates
+    function addToCart(productId, quantity = 1) {
+        // Show loading state
+        const addButtons = document.querySelectorAll(`[data-product-id="${productId}"]`);
+        addButtons.forEach(btn => {
+            btn.disabled = true;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+            btn.dataset.originalText = originalText;
+        });
+
+        return fetch('../includes/cart.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `action=add&product_id=${productId}&quantity=${quantity}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Restore button state
+                addButtons.forEach(btn => {
+                    btn.disabled = false;
+                    btn.innerHTML = btn.dataset.originalText || btn.innerHTML;
+                });
+
+                if (data.success) {
+                    // Update cart count immediately
+                    if (data.cart_count !== undefined) {
+                        updateCartCount(data.cart_count);
+                    }
+
+                    // Show success message
+                    showCartToast('success', 'Item added to cart!');
+
+                    // Trigger cart count animation
+                    const cartIcons = document.querySelectorAll('.nav-icon i.fa-shopping-cart');
+                    cartIcons.forEach(icon => {
+                        icon.classList.add('cart-bounce');
+                        setTimeout(() => icon.classList.remove('cart-bounce'), 600);
+                    });
+
+                    // Update live cart summary if on index page
+                    if (typeof fetchCartAndUpdateUI === 'function') {
+                        fetchCartAndUpdateUI();
+                    }
+
+                    // Update live cart summary if on index page
+                    if (typeof fetchCartAndUpdateUI === 'function') {
+                        fetchCartAndUpdateUI();
+                    }
+                } else {
+                    showCartToast('error', data.message || 'Failed to add item');
+                }
+                return data;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Restore button state
+                addButtons.forEach(btn => {
+                    btn.disabled = false;
+                    btn.innerHTML = btn.dataset.originalText || btn.innerHTML;
+                });
+                showCartToast('error', 'Failed to add item to cart');
+                throw error;
+            });
+    }
+
+    // Toast notification function
+    function showCartToast(type, message) {
+        // Create toast container if it doesn't exist
+        let toastContainer = document.querySelector('.toast-container');
+        if (!toastContainer) {
+            toastContainer = document.createElement('div');
+            toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+            toastContainer.style.zIndex = '9999';
+            document.body.appendChild(toastContainer);
+        }
+
+        const toastId = 'toast-' + Date.now();
+        const toastHTML = `
+            <div id="${toastId}" class="toast align-items-center text-white bg-${type === 'success' ? 'success' : 'danger'} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+        `;
+
+        toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+
+        const toastElement = document.getElementById(toastId);
+        const toast = new bootstrap.Toast(toastElement, {
+            autohide: true,
+            delay: 3000
+        });
+
+        toast.show();
+
+        // Remove toast element after it's hidden
+        toastElement.addEventListener('hidden.bs.toast', function() {
+            this.remove();
+        });
+    }
+
+    // Make functions globally available
+    window.updateCartCount = updateCartCount;
+    window.addToCart = addToCart;
+    window.showCartToast = showCartToast;
     </script>
 </body>
 

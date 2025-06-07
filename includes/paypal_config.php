@@ -156,6 +156,11 @@ function getTaxRate($state, $country, $product_type = null)
     global $conn;
 
     try {
+        // eBooks are not taxed
+        if ($product_type === 'ebook') {
+            return 0.0;
+        }
+
         // Get tax rate from database
         if ($product_type) {
             $stmt = $conn->prepare("SELECT tax_rate FROM tax_settings WHERE product_type = ? AND is_active = 1");

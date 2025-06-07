@@ -20,6 +20,7 @@ class ComposerStaticInit66f11dcbd46fe7c8b5741f7350ff3071
         array (
             'PayPalHttp\\' => 11,
             'PayPalCheckoutSdk\\' => 18,
+            'PHPMailer\\PHPMailer\\' => 20,
         ),
     );
 
@@ -43,6 +44,10 @@ class ComposerStaticInit66f11dcbd46fe7c8b5741f7350ff3071
         'PayPalCheckoutSdk\\' => 
         array (
             0 => __DIR__ . '/..' . '/paypal/paypal-checkout-sdk/lib/PayPalCheckoutSdk',
+        ),
+        'PHPMailer\\PHPMailer\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/phpmailer/phpmailer/src',
         ),
     );
 

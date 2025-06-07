@@ -49,10 +49,6 @@ include '../includes/layouts/header.php';
                             <i class="fas fa-download"></i>
                             <span>My Downloads</span>
                         </a>
-                        <a href="wishlist.php" class="nav-item">
-                            <i class="fas fa-heart"></i>
-                            <span>Wishlist</span>
-                        </a>
                         <a href="settings.php" class="nav-item active">
                             <i class="fas fa-cog"></i>
                             <span>Settings</span>
@@ -69,27 +65,27 @@ include '../includes/layouts/header.php';
             <div class="col-lg-9">
                 <div class="settings-content-card">
                     <?php if (isset($_SESSION['success_message'])): ?>
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            <?php
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <?php
                             echo $_SESSION['success_message'];
                             unset($_SESSION['success_message']);
                             ?>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
                     <?php endif; ?>
 
                     <?php if (isset($_SESSION['error_messages'])): ?>
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <ul class="mb-0">
-                                <?php
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <ul class="mb-0">
+                            <?php
                                 foreach ($_SESSION['error_messages'] as $error) {
                                     echo "<li>" . htmlspecialchars($error) . "</li>";
                                 }
                                 unset($_SESSION['error_messages']);
                                 ?>
-                            </ul>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
                     <?php endif; ?>
 
                     <div class="settings-content-header">
@@ -226,213 +222,213 @@ include '../includes/layouts/header.php';
 </div>
 
 <style>
-    .settings-main-container {
-        min-height: 100vh;
-        background: #f8f9fa;
-        padding: 2rem 0;
-    }
+.settings-main-container {
+    min-height: 100vh;
+    background: #f8f9fa;
+    padding: 2rem 0;
+}
 
+.settings-main-container .settings-sidebar-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+    padding: 2rem 1.5rem;
+    height: 100%;
+    position: sticky;
+    top: 90px;
+}
+
+.settings-main-container .settings-header {
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 2rem;
+}
+
+.settings-main-container .settings-avatar {
+    width: 110px;
+    height: 110px;
+    background: linear-gradient(45deg, #007bff, #00bcd4);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.2rem;
+    box-shadow: 0 5px 15px rgba(0, 123, 255, 0.15);
+}
+
+.settings-main-container .settings-avatar i {
+    font-size: 3rem;
+    color: #fff;
+}
+
+.settings-main-container .settings-name {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.settings-main-container .settings-email {
+    color: #6c757d;
+    font-size: 0.95rem;
+}
+
+.settings-main-container .settings-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 2rem;
+}
+
+.settings-main-container .nav-item {
+    display: flex;
+    align-items: center;
+    padding: 0.9rem 1rem;
+    color: #2c3e50;
+    text-decoration: none;
+    border-radius: 10px;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+
+.settings-main-container .nav-item i {
+    width: 22px;
+    margin-right: 1rem;
+    font-size: 1.1rem;
+}
+
+.settings-main-container .nav-item:hover {
+    background: #f8f9fa;
+    color: #007bff;
+}
+
+.settings-main-container .nav-item.active {
+    background: #007bff;
+    color: #fff;
+}
+
+.settings-main-container .settings-content-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+    padding: 2.5rem 2rem;
+    min-height: 600px;
+}
+
+.settings-main-container .settings-content-header h2 {
+    color: #2c3e50;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.settings-main-container .settings-content-header p {
+    color: #6c757d;
+    margin-bottom: 2rem;
+}
+
+.settings-main-container .settings-section .card {
+    transition: transform 0.3s ease;
+}
+
+.settings-main-container .settings-section .card:hover {
+    transform: translateY(-5px);
+}
+
+.settings-main-container .settings-security-icon {
+    width: 50px;
+    height: 50px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.settings-main-container .settings-security-icon i {
+    font-size: 1.5rem;
+    color: #007bff;
+}
+
+.settings-main-container .btn {
+    transition: all 0.3s ease;
+}
+
+.settings-main-container .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.settings-main-container .input-group-text {
+    background-color: #f8f9fa;
+    border-right: none;
+    color: #6c757d;
+}
+
+.settings-main-container .form-control {
+    border-left: none;
+}
+
+.settings-main-container .form-control:focus {
+    border-color: #dee2e6;
+    box-shadow: none;
+}
+
+.settings-main-container .input-group:focus-within {
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+@media (max-width: 991.98px) {
     .settings-main-container .settings-sidebar-card {
-        background: #fff;
-        border-radius: 16px;
-        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
-        padding: 2rem 1.5rem;
-        height: 100%;
-        position: sticky;
-        top: 90px;
-    }
-
-    .settings-main-container .settings-header {
-        padding-bottom: 2rem;
-        border-bottom: 1px solid #eee;
         margin-bottom: 2rem;
-    }
-
-    .settings-main-container .settings-avatar {
-        width: 110px;
-        height: 110px;
-        background: linear-gradient(45deg, #007bff, #00bcd4);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 1.2rem;
-        box-shadow: 0 5px 15px rgba(0, 123, 255, 0.15);
-    }
-
-    .settings-main-container .settings-avatar i {
-        font-size: 3rem;
-        color: #fff;
-    }
-
-    .settings-main-container .settings-name {
-        color: #2c3e50;
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-    }
-
-    .settings-main-container .settings-email {
-        color: #6c757d;
-        font-size: 0.95rem;
-    }
-
-    .settings-main-container .settings-nav {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        margin-top: 2rem;
-    }
-
-    .settings-main-container .nav-item {
-        display: flex;
-        align-items: center;
-        padding: 0.9rem 1rem;
-        color: #2c3e50;
-        text-decoration: none;
-        border-radius: 10px;
-        transition: all 0.2s;
-        font-weight: 500;
-    }
-
-    .settings-main-container .nav-item i {
-        width: 22px;
-        margin-right: 1rem;
-        font-size: 1.1rem;
-    }
-
-    .settings-main-container .nav-item:hover {
-        background: #f8f9fa;
-        color: #007bff;
-    }
-
-    .settings-main-container .nav-item.active {
-        background: #007bff;
-        color: #fff;
+        position: static;
     }
 
     .settings-main-container .settings-content-card {
-        background: #fff;
-        border-radius: 16px;
-        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
-        padding: 2.5rem 2rem;
-        min-height: 600px;
+        padding: 1.5rem 0.5rem;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .settings-main-container {
+        padding: 1rem;
     }
 
-    .settings-main-container .settings-content-header h2 {
-        color: #2c3e50;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
+    .settings-main-container .settings-content-card {
+        padding: 1rem 0.2rem;
     }
-
-    .settings-main-container .settings-content-header p {
-        color: #6c757d;
-        margin-bottom: 2rem;
-    }
-
-    .settings-main-container .settings-section .card {
-        transition: transform 0.3s ease;
-    }
-
-    .settings-main-container .settings-section .card:hover {
-        transform: translateY(-5px);
-    }
-
-    .settings-main-container .settings-security-icon {
-        width: 50px;
-        height: 50px;
-        background: #f8f9fa;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .settings-main-container .settings-security-icon i {
-        font-size: 1.5rem;
-        color: #007bff;
-    }
-
-    .settings-main-container .btn {
-        transition: all 0.3s ease;
-    }
-
-    .settings-main-container .btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .settings-main-container .input-group-text {
-        background-color: #f8f9fa;
-        border-right: none;
-        color: #6c757d;
-    }
-
-    .settings-main-container .form-control {
-        border-left: none;
-    }
-
-    .settings-main-container .form-control:focus {
-        border-color: #dee2e6;
-        box-shadow: none;
-    }
-
-    .settings-main-container .input-group:focus-within {
-        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-    }
-
-    @media (max-width: 991.98px) {
-        .settings-main-container .settings-sidebar-card {
-            margin-bottom: 2rem;
-            position: static;
-        }
-
-        .settings-main-container .settings-content-card {
-            padding: 1.5rem 0.5rem;
-        }
-    }
-
-    @media (max-width: 767.98px) {
-        .settings-main-container {
-            padding: 1rem;
-        }
-
-        .settings-main-container .settings-content-card {
-            padding: 1rem 0.2rem;
-        }
-    }
+}
 </style>
 
 <script>
-    // Form validation
-    (function() {
-        'use strict';
-        const forms = document.querySelectorAll('.needs-validation');
-        Array.from(forms).forEach(form => {
-            form.addEventListener('submit', event => {
-                if (!form.checkValidity()) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-                form.classList.add('was-validated');
-            });
-        });
-    })();
-    // Password visibility toggle
-    document.querySelectorAll('.toggle-password').forEach(button => {
-        button.addEventListener('click', function() {
-            const input = this.previousElementSibling;
-            const icon = this.querySelector('i');
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                input.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
+// Form validation
+(function() {
+    'use strict';
+    const forms = document.querySelectorAll('.needs-validation');
+    Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
             }
+            form.classList.add('was-validated');
         });
     });
+})();
+// Password visibility toggle
+document.querySelectorAll('.toggle-password').forEach(button => {
+    button.addEventListener('click', function() {
+        const input = this.previousElementSibling;
+        const icon = this.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    });
+});
 </script>
 
 <?php include '../includes/layouts/footer.php'; ?>

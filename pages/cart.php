@@ -1,6 +1,7 @@
 <?php
 require_once '../includes/bootstrap.php';
 require_once '../includes/cart.php';
+require_once '../checkout/shipping_calculator.php';
 
 // Check if user is logged in
 $is_logged_in = isset($_SESSION['user_id']);
@@ -22,17 +23,28 @@ while ($row = $result->fetch_assoc()) {
     $tax_rates[$row['product_type']] = $row['tax_rate'];
 }
 
-// Calculate tax for each item
+// Calculate tax for each item (ebooks are not taxed)
 foreach ($cart_items as $item) {
-    if (isset($tax_rates[$item['type']])) {
+    if ($item['type'] !== 'ebook' && isset($tax_rates[$item['type']])) {
         $item_tax = ($item['price'] * $item['quantity']) * ($tax_rates[$item['type']] / 100);
         $tax_amount += $item_tax;
     }
 }
 
-$grand_total = $cart_total + $tax_amount;
+// Calculate shipping
+$shipping_result = calculateTotalShipping($cart_items);
+$shipping_amount = $shipping_result['total_shipping'];
+
+$grand_total = $cart_total + $tax_amount + $shipping_amount;
 
 include '../includes/layouts/header.php';
+
+// Check if user just logged in and items were merged
+$cart_merge_message = '';
+if (isset($_SESSION['cart_merged'])) {
+    $cart_merge_message = $_SESSION['cart_merged'];
+    unset($_SESSION['cart_merged']);
+}
 ?>
 
 <div class="container py-5">
@@ -47,6 +59,14 @@ include '../includes/layouts/header.php';
             <h2 class="mb-0">Shopping Cart</h2>
         </div>
     </div>
+
+    <?php if ($cart_merge_message): ?>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            <?php echo htmlspecialchars($cart_merge_message); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php endif; ?>
 
     <?php if (empty($cart_items)): ?>
         <div class="text-center py-5">
@@ -143,13 +163,31 @@ include '../includes/layouts/header.php';
                             <span id="cart-subtotal">$<?php echo number_format($cart_total, 2); ?></span>
                         </div>
                         <div class="d-flex justify-content-between mb-3">
-                            <span>Tax (7.75%)</span>
+                            <span>Tax</span>
                             <span id="cart-tax">$<?php echo number_format($tax_amount, 2); ?></span>
                         </div>
                         <div class="d-flex justify-content-between mb-3">
                             <span>Shipping</span>
-                            <span class="text-success">Free</span>
+                            <span id="cart-shipping" class="<?php echo $shipping_amount > 0 ? '' : 'text-success'; ?>">
+                                <?php echo $shipping_amount > 0 ? '$' . number_format($shipping_amount, 2) : 'Free'; ?>
+                            </span>
                         </div>
+                        <?php if (!empty($shipping_result['breakdown'])): ?>
+                            <div class="shipping-breakdown mb-3">
+                                <small class="text-muted">Shipping breakdown:</small>
+                                <?php foreach ($shipping_result['breakdown'] as $shipping_item): ?>
+                                    <div class="d-flex justify-content-between">
+                                        <small class="text-muted">
+                                            <?php echo htmlspecialchars($shipping_item['product_name']); ?>
+                                            (<?php echo $shipping_item['quantity']; ?>x)
+                                        </small>
+                                        <small class="text-muted">
+                                            $<?php echo number_format($shipping_item['shipping_fee'], 2); ?>
+                                        </small>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
                         <hr>
                         <div class="d-flex justify-content-between mb-4">
                             <strong>Total</strong>
@@ -158,10 +196,10 @@ include '../includes/layouts/header.php';
                         <?php if (!$is_logged_in): ?>
                             <div class="alert alert-info mb-4">
                                 <i class="fas fa-info-circle me-2"></i>
-                                Please <a href="login.php?redirect=cart" class="alert-link">login</a> to proceed with checkout.
+                                Please <a href="login?redirect=cart" class="alert-link">login</a> to proceed with checkout.
                             </div>
                         <?php else: ?>
-                            <a href="../checkout/index.php" class="btn btn-primary w-100">
+                            <a href="../checkout/simple_checkout" class="btn btn-primary w-100">
                                 Proceed to Checkout
                             </a>
                         <?php endif; ?>
@@ -199,7 +237,7 @@ include '../includes/layouts/header.php';
 
     .cart-item .btn-link {
         opacity: 0.7;
-        transition: opacity 0.2s ease;
+        transitionsi: opacity 0.2s ease;
     }
 
     .cart-item .btn-link:hover {
@@ -416,27 +454,44 @@ include '../includes/layouts/header.php';
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: 'action=get'
+                body: 'action=get_totals'
             });
 
             const data = await response.json();
 
-            if (data.success && data.items) {
-                let subtotal = 0;
-                let taxAmount = 0;
-                const taxRate = 7.75; // 7.75% tax rate
+            if (data.success) {
+                document.getElementById('cart-subtotal').textContent = `$${data.subtotal.toFixed(2)}`;
+                document.getElementById('cart-tax').textContent = `$${data.tax_amount.toFixed(2)}`;
+                document.getElementById('cart-shipping').textContent = data.shipping_amount > 0 ?
+                    `$${data.shipping_amount.toFixed(2)}` : 'Free';
+                document.getElementById('cart-total').textContent = `$${data.grand_total.toFixed(2)}`;
 
-                data.items.forEach(item => {
-                    const itemTotal = item.price * item.quantity;
-                    subtotal += itemTotal;
-                    taxAmount += itemTotal * (taxRate / 100);
-                });
+                // Update shipping breakdown if available
+                const shippingBreakdown = document.querySelector('.shipping-breakdown');
+                if (data.shipping_breakdown && data.shipping_breakdown.length > 0) {
+                    if (!shippingBreakdown) {
+                        // Create shipping breakdown if it doesn't exist
+                        const shippingDiv = document.getElementById('cart-shipping').parentElement;
+                        const breakdownDiv = document.createElement('div');
+                        breakdownDiv.className = 'shipping-breakdown mb-3';
+                        breakdownDiv.innerHTML = '<small class="text-muted">Shipping breakdown:</small>';
+                        shippingDiv.after(breakdownDiv);
+                    }
 
-                const grandTotal = subtotal + taxAmount;
-
-                document.getElementById('cart-subtotal').textContent = `$${subtotal.toFixed(2)}`;
-                document.getElementById('cart-tax').textContent = `$${taxAmount.toFixed(2)}`;
-                document.getElementById('cart-total').textContent = `$${grandTotal.toFixed(2)}`;
+                    const breakdown = document.querySelector('.shipping-breakdown');
+                    breakdown.innerHTML = '<small class="text-muted">Shipping breakdown:</small>';
+                    data.shipping_breakdown.forEach(item => {
+                        const itemDiv = document.createElement('div');
+                        itemDiv.className = 'd-flex justify-content-between';
+                        itemDiv.innerHTML = `
+                            <small class="text-muted">${item.product_name} (${item.quantity}x)</small>
+                            <small class="text-muted">$${item.shipping_fee.toFixed(2)}</small>
+                        `;
+                        breakdown.appendChild(itemDiv);
+                    });
+                } else if (shippingBreakdown) {
+                    shippingBreakdown.remove();
+                }
             }
         } catch (error) {
             console.error('Error updating totals:', error);

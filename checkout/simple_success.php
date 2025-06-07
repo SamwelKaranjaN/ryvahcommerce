@@ -9,6 +9,7 @@ session_start();
 require_once '../includes/bootstrap.php';
 require_once '../includes/paypal_config.php';
 require_once '../includes/security.php';
+require_once '../includes/email_functions.php';
 
 // Set timezone for consistency
 date_default_timezone_set('UTC');
@@ -188,6 +189,9 @@ try {
         'user_id' => $_SESSION['user_id'],
         'invoice_number' => $order['invoice_number']
     ]);
+
+    // Send order notification email to admin (only for non-ebook orders)
+    sendOrderNotificationEmail($order_id);
 } catch (Exception $e) {
     logPayPalError('Error in success page: ' . $e->getMessage(), [
         'order_id' => $_GET['order_id'] ?? 'unknown',

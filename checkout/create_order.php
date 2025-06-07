@@ -143,6 +143,29 @@ try {
         }
     }
 
+    // Calculate shipping after tax
+    $shipping_amount = 0;
+    $shipping_fees = [];
+    $product_types_shipped = [];
+
+    $stmt = $conn->prepare("SELECT product_type, shipping_fee FROM shipping_settings WHERE is_active = 1");
+    if (!$stmt->execute()) {
+        throw new Exception("Database error fetching shipping rates: " . $stmt->error);
+    }
+    $result = $stmt->get_result();
+    while ($row = $result->fetch_assoc()) {
+        $shipping_fees[$row['product_type']] = $row['shipping_fee'];
+    }
+
+    // Calculate shipping - only charge once per product type
+    foreach ($cart_items as $item) {
+        $product_type = $item['type'];
+        if (isset($shipping_fees[$product_type]) && !in_array($product_type, $product_types_shipped)) {
+            $shipping_amount += $shipping_fees[$product_type];
+            $product_types_shipped[] = $product_type;
+        }
+    }
+
     $request->body = [
         'intent' => 'CAPTURE',
         'application_context' => [
@@ -169,6 +192,10 @@ try {
                         'tax_total' => [
                             'currency_code' => 'USD',
                             'value' => number_format($tax_amount, 2, '.', '')
+                        ],
+                        'shipping' => [
+                            'currency_code' => 'USD',
+                            'value' => number_format($shipping_amount, 2, '.', '')
                         ]
                     ]
                 ],
@@ -203,9 +230,9 @@ try {
         ]);
     }
 
-    // Insert order with shipping address
-    $stmt = $conn->prepare("INSERT INTO orders (invoice_number, user_id, total_amount, tax_amount, payment_status, paypal_order_id, shipping_address) VALUES (?, ?, ?, ?, 'pending', ?, ?)");
-    $stmt->bind_param("siddss", $invoice_number, $_SESSION['user_id'], $total, $tax_amount, $response->result->id, $shipping_address_json);
+    // Insert order with shipping address and shipping amount
+    $stmt = $conn->prepare("INSERT INTO orders (invoice_number, user_id, total_amount, tax_amount, shipping_amount, payment_status, paypal_order_id, shipping_address) VALUES (?, ?, ?, ?, ?, 'pending', ?, ?)");
+    $stmt->bind_param("sidddss", $invoice_number, $_SESSION['user_id'], $total, $tax_amount, $shipping_amount, $response->result->id, $shipping_address_json);
 
     if (!$stmt->execute()) {
         throw new Exception("Database error: " . $stmt->error);
@@ -215,12 +242,29 @@ try {
     error_log("PayPal - Order created in database with ID: " . $order_id);
 
     // Insert order items
-    $stmt = $conn->prepare("INSERT INTO order_items (order_id, product_id, quantity, price, subtotal, tax_amount) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt = $conn->prepare("INSERT INTO order_items (order_id, product_id, quantity, price, subtotal, tax_amount, shipping_amount) VALUES (?, ?, ?, ?, ?, ?, ?)");
     foreach ($cart_items as $item) {
         $item_subtotal = $item['price'] * $item['quantity'];
         $item_tax_amount = isset($tax_rates[$item['type']]) ? $item_subtotal * ($tax_rates[$item['type']] / 100) : 0;
 
-        $stmt->bind_param("iiiddd", $order_id, $item['id'], $item['quantity'], $item['price'], $item_subtotal, $item_tax_amount);
+        // Assign shipping amount only to first item of each product type to avoid duplication
+        $item_shipping_amount = 0;
+        if (isset($shipping_fees[$item['type']]) && in_array($item['type'], $product_types_shipped)) {
+            // Find if this is the first item of this product type in the loop
+            $is_first_of_type = true;
+            foreach ($cart_items as $prev_item) {
+                if ($prev_item['id'] == $item['id']) break; // We've reached current item
+                if ($prev_item['type'] == $item['type']) {
+                    $is_first_of_type = false;
+                    break;
+                }
+            }
+            if ($is_first_of_type) {
+                $item_shipping_amount = $shipping_fees[$item['type']];
+            }
+        }
+
+        $stmt->bind_param("iiidddd", $order_id, $item['id'], $item['quantity'], $item['price'], $item_subtotal, $item_tax_amount, $item_shipping_amount);
 
         if (!$stmt->execute()) {
             throw new Exception("Error inserting order item: " . $stmt->error);

@@ -32,7 +32,39 @@ try {
             $_SESSION['user_email'] = $user['email'];
             $_SESSION['user_name'] = $user['full_name'];
 
-            // Handle remember me functionality
+            // ============================================================================
+            // FIRST PRIORITY: Transfer session cart items to user's database cart
+            // This must happen IMMEDIATELY after successful authentication
+            // ============================================================================
+            require_once '../../includes/cart.php';
+            $hasSessionCart = !empty($_SESSION['cart']);
+            $hasCheckoutCart = !empty($_SESSION['checkout_cart']);
+
+            // Transfer ALL session cart items to database FIRST
+            $transferResult = transferSessionCartToDatabase($user['id']);
+
+            // Log the cart transfer for debugging/monitoring
+            if ($transferResult['transferred'] > 0) {
+                $message = "API CART TRANSFER: Successfully transferred {$transferResult['transferred']} items from session to database cart";
+                if ($transferResult['merged'] > 0) {
+                    $message .= " (merged {$transferResult['merged']} existing items)";
+                }
+                error_log($message);
+
+                // Set user-friendly message for cart page
+                if ($transferResult['merged'] > 0) {
+                    $_SESSION['cart_merged'] = "Welcome back! Your cart items have been merged with your previous items.";
+                } else {
+                    $_SESSION['cart_merged'] = "Welcome back! Your cart items have been restored.";
+                }
+            }
+
+            // Log any transfer errors
+            if (!$transferResult['success'] && !empty($transferResult['errors'])) {
+                error_log("API CART TRANSFER ERRORS: " . implode(', ', $transferResult['errors']));
+            }
+
+            // Handle remember me functionality (after cart transfer)
             if ($remember) {
                 $token = bin2hex(random_bytes(32));
                 $expires = time() + (30 * 24 * 60 * 60); // 30 days
@@ -52,25 +84,35 @@ try {
                 ]);
             }
 
-            // Transfer session cart to database if exists
-            require_once '../../includes/cart.php';
-            $hasSessionCart = !empty($_SESSION['cart']);
-            $transferResult = transferSessionCartToDatabase($user['id']);
-
             // Clean up any orphaned cart items
             verifyAndCleanCart($user['id']);
 
-            // Log any transfer errors
-            if (!$transferResult['success']) {
+            // Log transfer results
+            if (!$transferResult['success'] && !empty($transferResult['errors'])) {
                 error_log("Session cart transfer errors: " . implode(', ', $transferResult['errors']));
-            } else if ($transferResult['transferred'] > 0) {
-                error_log("Successfully transferred {$transferResult['transferred']} items from session cart to database");
             }
 
-            // Handle temp cart merge
+            if ($transferResult['transferred'] > 0) {
+                $message = "Successfully transferred {$transferResult['transferred']} items from session cart to database";
+                if ($transferResult['merged'] > 0) {
+                    $message .= " (merged {$transferResult['merged']} existing items)";
+                }
+                error_log($message);
+
+                // Set user-friendly message for cart page
+                if ($transferResult['merged'] > 0) {
+                    $_SESSION['cart_merged'] = "Welcome back! Your cart items have been merged with your previous items.";
+                } else {
+                    $_SESSION['cart_merged'] = "Welcome back! Your cart items have been restored.";
+                }
+            }
+
+            // Handle any remaining temp cart items (legacy support)
             if (isset($_SESSION['temp_cart'])) {
                 foreach ($_SESSION['temp_cart'] as $item) {
-                    addToCart($item['id'], $item['quantity']);
+                    if (is_array($item) && isset($item['id'], $item['quantity'])) {
+                        addToCart($item['id'], $item['quantity']);
+                    }
                 }
                 unset($_SESSION['temp_cart']);
             }
@@ -83,15 +125,22 @@ try {
                 $redirect = $data['redirect'];
             }
 
-            // Check for redirect_after_login in session
+            // Check for redirect_after_login in session (set by preserveCartForCheckout)
             if (isset($_SESSION['redirect_after_login'])) {
                 $redirect = $_SESSION['redirect_after_login'];
                 unset($_SESSION['redirect_after_login']);
             }
 
-            // If there was a session cart, redirect to cart page
-            if ($hasSessionCart) {
-                $redirect = 'cart';
+            // Special handling for checkout flow
+            if ($redirect === 'checkout' && ($hasSessionCart || $hasCheckoutCart || $transferResult['transferred'] > 0)) {
+                // User was redirected from checkout and had items in cart
+                // Redirect to checkout to continue the process
+                $redirect = '../../checkout/';
+                error_log("API CHECKOUT REDIRECT: Redirecting to checkout after cart transfer");
+            } else if (($hasSessionCart || $transferResult['transferred'] > 0) && $redirect !== 'checkout') {
+                // Regular login with cart items - go to cart page
+                $redirect = '../../pages/cart';
+                error_log("API CART REDIRECT: Redirecting to cart page after login");
             }
 
             // Ensure the redirect URL is valid (alphanumeric, hyphens, underscores, dots, slashes)
@@ -104,11 +153,18 @@ try {
                 $redirect = $redirect . '.php';
             }
 
-            // Return success response
+            // Return success response with debug info
             echo json_encode([
                 'success' => true,
                 'message' => 'Login successful',
-                'redirect' => $redirect
+                'redirect' => $redirect,
+                'debug' => [
+                    'had_session_cart' => $hasSessionCart,
+                    'had_checkout_cart' => $hasCheckoutCart,
+                    'items_transferred' => $transferResult['transferred'],
+                    'items_merged' => $transferResult['merged'],
+                    'transfer_success' => $transferResult['success']
+                ]
             ]);
             exit;
         }

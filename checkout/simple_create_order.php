@@ -172,6 +172,9 @@ function validateCartAndCalculateTotals($userId, $address, $requestData)
 {
     global $conn;
 
+    // Include shipping calculator
+    require_once 'shipping_calculator.php';
+
     try {
         // Fetch cart items
         $cart_data = getCartItems();
@@ -267,7 +270,11 @@ function validateCartAndCalculateTotals($userId, $address, $requestData)
             $tax_amount += $item['total'] * $tax_rate;
         }
 
-        $total = $subtotal + $tax_amount;
+        // Calculate shipping (after tax as per requirement)
+        $shipping_result = calculateOrderShipping($validated_items, $address);
+        $shipping_amount = $shipping_result['total_shipping'];
+
+        $total = $subtotal + $tax_amount + $shipping_amount;
 
         // Validate amounts against request
         if (isset($requestData['subtotal'])) {
@@ -290,11 +297,26 @@ function validateCartAndCalculateTotals($userId, $address, $requestData)
             }
         }
 
+        if (isset($requestData['shipping_amount'])) {
+            $expected_shipping = floatval($requestData['shipping_amount']);
+            if (abs($shipping_amount - $expected_shipping) > 0.01) {
+                handleApiError('Shipping amount mismatch between request and calculation', [
+                    'calculated' => $shipping_amount,
+                    'expected' => $expected_shipping
+                ], 400);
+            }
+        }
+
         $expected_total = floatval($requestData['total']);
         if (abs($total - $expected_total) > 0.01) {
             handleApiError('Total amount mismatch between request and calculation', [
                 'calculated' => $total,
-                'expected' => $expected_total
+                'expected' => $expected_total,
+                'breakdown' => [
+                    'subtotal' => $subtotal,
+                    'tax' => $tax_amount,
+                    'shipping' => $shipping_amount
+                ]
             ], 400);
         }
 
@@ -312,6 +334,8 @@ function validateCartAndCalculateTotals($userId, $address, $requestData)
             'order_items' => $order_items,
             'subtotal' => $subtotal,
             'tax_amount' => $tax_amount,
+            'shipping_amount' => $shipping_amount,
+            'shipping_breakdown' => $shipping_result['breakdown'],
             'total' => $total
         ];
     } catch (Exception $e) {
@@ -380,6 +404,10 @@ function createPayPalOrder($orderData, $address, $currency)
                         'tax_total' => [
                             'currency_code' => $currency,
                             'value' => number_format($orderData['tax_amount'], 2, '.', '')
+                        ],
+                        'shipping' => [
+                            'currency_code' => $currency,
+                            'value' => number_format($orderData['shipping_amount'], 2, '.', '')
                         ]
                     ]
                 ],
@@ -436,13 +464,14 @@ function saveOrderToDatabase($paypalOrder, $orderData, $address, $currency)
         $paypalOrderId = $paypalOrder->id;
 
         // Insert main order
-        $stmt = $conn->prepare("INSERT INTO orders (invoice_number, user_id, total_amount, tax_amount, payment_status, paypal_order_id, shipping_address, payment_method, currency, created_at) VALUES (?, ?, ?, ?, 'pending', ?, ?, 'paypal', ?, NOW())");
+        $stmt = $conn->prepare("INSERT INTO orders (invoice_number, user_id, total_amount, tax_amount, shipping_amount, payment_status, paypal_order_id, shipping_address, payment_method, currency, created_at) VALUES (?, ?, ?, ?, ?, 'pending', ?, ?, 'paypal', ?, NOW())");
 
         if (!$stmt) {
             throw new Exception('Failed to prepare order insert: ' . $conn->error);
         }
 
-        $stmt->bind_param("siddsss", $invoiceNumber, $userId, $orderData['subtotal'], $orderData['tax_amount'], $paypalOrderId, $addressJson, $currency);
+        $shippingAmount = $orderData['shipping_amount'] ?? 0;
+        $stmt->bind_param("sidddsss", $invoiceNumber, $userId, $orderData['subtotal'], $orderData['tax_amount'], $shippingAmount, $paypalOrderId, $addressJson, $currency);
 
         if (!$stmt->execute()) {
             throw new Exception('Failed to insert order: ' . $stmt->error);

@@ -155,13 +155,15 @@ while ($row = $monthly_revenue->fetch_assoc()) {
                         <tr>
                             <td><?php echo htmlspecialchars($product['name']); ?></td>
                             <td>
-                                <span class="stock-badge <?php echo $product['stock_quantity'] <= 5 ? 'critical' : 'low'; ?>">
+                                <span
+                                    class="stock-badge <?php echo $product['stock_quantity'] <= 5 ? 'critical' : 'low'; ?>">
                                     <?php echo $product['stock_quantity']; ?>
                                 </span>
                             </td>
                             <td>$<?php echo number_format($product['price'], 2); ?></td>
                             <td>
-                                <button class="btn btn-sm btn-primary" onclick="restockProduct(<?php echo $product['id']; ?>)">
+                                <button class="btn btn-sm btn-primary"
+                                    onclick="restockProduct(<?php echo $product['id']; ?>)">
                                     Restock
                                 </button>
                             </td>
@@ -186,7 +188,7 @@ while ($row = $monthly_revenue->fetch_assoc()) {
     background: #fff;
     padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
     gap: 20px;
@@ -230,11 +232,30 @@ while ($row = $monthly_revenue->fetch_assoc()) {
     font-weight: 500;
 }
 
-.status-pending { background: #f1c40f; color: #fff; }
-.status-processing { background: #3498db; color: #fff; }
-.status-shipped { background: #9b59b6; color: #fff; }
-.status-delivered { background: #2ecc71; color: #fff; }
-.status-cancelled { background: #e74c3c; color: #fff; }
+.status-pending {
+    background: #f1c40f;
+    color: #fff;
+}
+
+.status-processing {
+    background: #3498db;
+    color: #fff;
+}
+
+.status-shipped {
+    background: #9b59b6;
+    color: #fff;
+}
+
+.status-delivered {
+    background: #2ecc71;
+    color: #fff;
+}
+
+.status-cancelled {
+    background: #e74c3c;
+    color: #fff;
+}
 
 .stock-badge {
     padding: 4px 8px;
@@ -243,8 +264,15 @@ while ($row = $monthly_revenue->fetch_assoc()) {
     font-weight: 500;
 }
 
-.stock-badge.critical { background: #e74c3c; color: #fff; }
-.stock-badge.low { background: #f39c12; color: #fff; }
+.stock-badge.critical {
+    background: #e74c3c;
+    color: #fff;
+}
+
+.stock-badge.low {
+    background: #f39c12;
+    color: #fff;
+}
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -293,4 +321,4 @@ function restockProduct(productId) {
 }
 </script>
 
-<?php require_once 'footer.php'; ?> 
+<?php require_once 'footer.php'; ?>

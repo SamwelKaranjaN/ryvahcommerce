@@ -1,238 +1,70 @@
-[06-Jun-2025 07:55:05 UTC] Adding to cart: Array
+[07-Jun-2025 08:40:17 UTC] Adding to cart: Array
 (
-    [product_id] => 7
+    [product_id] => 12
     [quantity] => 1
 )
 
-[06-Jun-2025 07:55:05 UTC] Add to cart result: Array
-(
-    [success] => 1
-)
-
-[06-Jun-2025 07:55:07 UTC] Getting cart items
-[06-Jun-2025 07:55:07 UTC] Cart Data: Array
+[07-Jun-2025 08:40:20 UTC] Getting cart items
+[07-Jun-2025 08:40:20 UTC] Cart Data: Array
 (
     [items] => Array
         (
             [0] => Array
                 (
-                    [id] => 7
-                    [name] => Ocean Blue - 5
-                    [price] => 0.01
-                    [quantity] => 2
+                    [id] => 12
+                    [name] => Plight of the Fairies
+                    [price] => 24.95
+                    [quantity] => 1
                     [stock] => 0
-                    [thumbs] => thumbs/ocean_blue.jpg
-                    [type] => ebook
+                    [thumbs] => Uploads/thumbs/fairy.jpg
+                    [type] => book
                 )
 
         )
 
-    [total] => 0.02
+    [total] => 24.95
 )
 
-[06-Jun-2025 07:55:10 UTC] Updating cart quantity: Array
+[07-Jun-2025 08:41:41 UTC] Adding to cart: Array
 (
-    [product_id] => 7
+    [product_id] => 12
     [quantity] => 1
 )
 
-[06-Jun-2025 07:55:10 UTC] Update cart result: Array
+[07-Jun-2025 09:11:43 UTC] Adding to cart: Array
 (
-    [success] => 1
+    [product_id] => 4
+    [quantity] => 1
 )
 
-[06-Jun-2025 08:10:50 UTC] Getting cart items
-[06-Jun-2025 08:10:50 UTC] Cart Data: Array
-(
-    [items] => Array
-        (
-            [0] => Array
-                (
-                    [id] => 7
-                    [name] => Ocean Blue - 5
-                    [price] => 0.01
-                    [quantity] => 1
-                    [stock] => 0
-                    [thumbs] => thumbs/ocean_blue.jpg
-                    [type] => ebook
-                )
-
-        )
-
-    [total] => 0.01
-)
-
-[06-Jun-2025 08:10:53 UTC] Getting cart items
-[06-Jun-2025 08:10:53 UTC] Cart Data: Array
+[07-Jun-2025 09:11:52 UTC] Getting cart items
+[07-Jun-2025 09:11:52 UTC] Cart Data: Array
 (
     [items] => Array
         (
             [0] => Array
                 (
-                    [id] => 7
-                    [name] => Ocean Blue - 5
-                    [price] => 0.01
+                    [id] => 4
+                    [name] => React Essentials
+                    [price] => 11.99
                     [quantity] => 1
                     [stock] => 0
-                    [thumbs] => thumbs/ocean_blue.jpg
-                    [type] => ebook
+                    [thumbs] => thumbs/react_essentials.jpg
+                    [type] => book
                 )
 
         )
 
-    [total] => 0.01
+    [total] => 11.99
 )
 
-[06-Jun-2025 08:11:07 UTC] Getting cart items
-[06-Jun-2025 08:11:07 UTC] Cart Data: Array
+[07-Jun-2025 09:26:58 UTC] Getting cart items
+[07-Jun-2025 09:26:58 UTC] Cart Data: Array
 (
     [items] => Array
         (
-            [0] => Array
-                (
-                    [id] => 7
-                    [name] => Ocean Blue - 5
-                    [price] => 0.01
-                    [quantity] => 1
-                    [stock] => 0
-                    [thumbs] => thumbs/ocean_blue.jpg
-                    [type] => ebook
-                )
-
         )
 
-    [total] => 0.01
+    [total] => 0
 )
 
-[06-Jun-2025 08:11:19 UTC] Getting cart items
-[06-Jun-2025 08:11:19 UTC] Cart Data: Array
-(
-    [items] => Array
-        (
-            [0] => Array
-                (
-                    [id] => 7
-                    [name] => Ocean Blue - 5
-                    [price] => 0.01
-                    [quantity] => 1
-                    [stock] => 0
-                    [thumbs] => thumbs/ocean_blue.jpg
-                    [type] => ebook
-                )
-
-        )
-
-    [total] => 0.01
-)
-
-[06-Jun-2025 08:11:20 UTC] Network diagnostic: PayPal API unreachable
-[06-Jun-2025 08:11:21 UTC] Order creation error: Cannot connect to payment system. Please check your internet connection and try again.
-[06-Jun-2025 08:13:07 UTC] Getting cart items
-[06-Jun-2025 08:13:07 UTC] Cart Data: Array
-(
-    [items] => Array
-        (
-            [0] => Array
-                (
-                    [id] => 7
-                    [name] => Ocean Blue - 5
-                    [price] => 0.01
-                    [quantity] => 1
-                    [stock] => 0
-                    [thumbs] => thumbs/ocean_blue.jpg
-                    [type] => ebook
-                )
-
-        )
-
-    [total] => 0.01
-)
-
-[06-Jun-2025 08:13:16 UTC] Getting cart items
-[06-Jun-2025 08:13:16 UTC] Cart Data: Array
-(
-    [items] => Array
-        (
-            [0] => Array
-                (
-                    [id] => 7
-                    [name] => Ocean Blue - 5
-                    [price] => 0.01
-                    [quantity] => 1
-                    [stock] => 0
-                    [thumbs] => thumbs/ocean_blue.jpg
-                    [type] => ebook
-                )
-
-        )
-
-    [total] => 0.01
-)
-
-[06-Jun-2025 08:13:17 UTC] Network diagnostic: PayPal API unreachable
-[06-Jun-2025 08:13:18 UTC] Order creation error: Cannot connect to payment system. Please check your internet connection and try again.
-[06-Jun-2025 08:15:14 UTC] Getting cart items
-[06-Jun-2025 08:15:14 UTC] Cart Data: Array
-(
-    [items] => Array
-        (
-            [0] => Array
-                (
-                    [id] => 7
-                    [name] => Ocean Blue - 5
-                    [price] => 0.01
-                    [quantity] => 1
-                    [stock] => 0
-                    [thumbs] => thumbs/ocean_blue.jpg
-                    [type] => ebook
-                )
-
-        )
-
-    [total] => 0.01
-)
-
-[06-Jun-2025 08:17:35 UTC] Getting cart items
-[06-Jun-2025 08:17:36 UTC] Cart Data: Array
-(
-    [items] => Array
-        (
-            [0] => Array
-                (
-                    [id] => 7
-                    [name] => Ocean Blue - 5
-                    [price] => 0.01
-                    [quantity] => 1
-                    [stock] => 0
-                    [thumbs] => thumbs/ocean_blue.jpg
-                    [type] => ebook
-                )
-
-        )
-
-    [total] => 0.01
-)
-
-[06-Jun-2025 08:17:41 UTC] Getting cart items
-[06-Jun-2025 08:17:41 UTC] Cart Data: Array
-(
-    [items] => Array
-        (
-            [0] => Array
-                (
-                    [id] => 7
-                    [name] => Ocean Blue - 5
-                    [price] => 0.01
-                    [quantity] => 1
-                    [stock] => 0
-                    [thumbs] => thumbs/ocean_blue.jpg
-                    [type] => ebook
-                )
-
-        )
-
-    [total] => 0.01
-)
-
-[06-Jun-2025 08:17:42 UTC] Network diagnostic: PayPal API unreachable
-[06-Jun-2025 08:17:42 UTC] Order creation error: Cannot connect to payment system. Please check your internet connection and try again.

@@ -65,31 +65,27 @@ include '../includes/layouts/header.php';
                         <p class="profile-email"><?php echo htmlspecialchars($user['email']); ?></p>
                     </div>
                     <div class="profile-nav">
-                        <a href="profile.php" class="nav-item">
+                        <a href="profile" class="nav-item">
                             <i class="fas fa-user-circle"></i>
                             <span>My Profile</span>
                         </a>
-                        <a href="orders.php" class="nav-item active">
+                        <a href="orders" class="nav-item active">
                             <i class="fas fa-shopping-bag"></i>
                             <span>My Orders</span>
                         </a>
-                        <a href="pending_orders.php" class="nav-item">
+                        <a href="pending_orders" class="nav-item">
                             <i class="fas fa-clock"></i>
                             <span>Pending Orders</span>
                         </a>
-                        <a href="addresses.php" class="nav-item">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>Addresses</span>
+                        <a href="downloads" class="nav-item">
+                            <i class="fas fa-download"></i>
+                            <span>My Downloads</span>
                         </a>
-                        <a href="wishlist.php" class="nav-item">
-                            <i class="fas fa-heart"></i>
-                            <span>Wishlist</span>
-                        </a>
-                        <a href="settings.php" class="nav-item">
+                        <a href="settings" class="nav-item">
                             <i class="fas fa-cog"></i>
                             <span>Settings</span>
                         </a>
-                        <a href="logout.php" class="nav-item text-danger">
+                        <a href="logout" class="nav-item text-danger">
                             <i class="fas fa-sign-out-alt"></i>
                             <span>Logout</span>
                         </a>
@@ -203,7 +199,7 @@ include '../includes/layouts/header.php';
                                         </div>
                                         <div class="text-end">
                                             <?php if ($has_ebooks): ?>
-                                            <a href="my_ebooks.php" class="btn btn-outline-primary me-2">
+                                            <a href="my_ebooks" class="btn btn-outline-primary me-2">
                                                 <i class="fas fa-book me-2"></i>View Ebooks
                                             </a>
                                             <?php endif; ?>
@@ -253,12 +249,51 @@ include '../includes/layouts/header.php';
                                                     $result = $stmt->get_result();
                                                     $status_history = $result->fetch_all(MYSQLI_ASSOC);
 
+                                                    // Create comprehensive tracking steps for physical products
+                                                    $tracking_steps = [
+                                                        'pending' => [
+                                                            'title' => 'Order Received',
+                                                            'description' => 'Your order has been placed and payment is being processed',
+                                                            'icon' => 'fas fa-receipt'
+                                                        ],
+                                                        'processing' => [
+                                                            'title' => 'Payment Confirmed',
+                                                            'description' => 'Payment successful. Your order is being prepared for packaging',
+                                                            'icon' => 'fas fa-credit-card'
+                                                        ],
+                                                        'packaging' => [
+                                                            'title' => 'Packaging',
+                                                            'description' => 'Your items are being carefully packaged',
+                                                            'icon' => 'fas fa-box'
+                                                        ],
+                                                        'shipped' => [
+                                                            'title' => 'Shipped',
+                                                            'description' => 'Your package has been dispatched and is on its way',
+                                                            'icon' => 'fas fa-shipping-fast'
+                                                        ],
+                                                        'in_transit' => [
+                                                            'title' => 'In Transit',
+                                                            'description' => 'Your package is traveling to your location',
+                                                            'icon' => 'fas fa-truck'
+                                                        ],
+                                                        'out_for_delivery' => [
+                                                            'title' => 'Out for Delivery',
+                                                            'description' => 'Your package is out for delivery today',
+                                                            'icon' => 'fas fa-dolly'
+                                                        ],
+                                                        'completed' => [
+                                                            'title' => 'Delivered',
+                                                            'description' => 'Package delivered successfully',
+                                                            'icon' => 'fas fa-check-circle'
+                                                        ]
+                                                    ];
+
                                                     // If no status history exists, create a basic one from order data
                                                     if (empty($status_history)) {
                                                         $status_history = [
                                                             [
                                                                 'status' => $order['payment_status'] ?? 'pending',
-                                                                'status_description' => 'Order placed',
+                                                                'status_description' => $tracking_steps[$order['payment_status'] ?? 'pending']['description'] ?? 'Order placed',
                                                                 'created_at' => $order['created_at'],
                                                                 'notes' => 'Order created on ' . date('F j, Y g:i A', strtotime($order['created_at']))
                                                             ]
@@ -267,8 +302,9 @@ include '../includes/layouts/header.php';
                                                     ?>
                                         <div class="timeline">
                                             <?php
-                                                        $statusOrder = ['pending', 'processing', 'completed'];
+                                                        $statusOrder = ['pending', 'processing', 'packaging', 'shipped', 'in_transit', 'out_for_delivery', 'completed'];
                                                         $currentStatusIndex = -1;
+                                                        $currentStatus = $order['current_status'] ?? $order['payment_status'] ?? 'pending';
 
                                                         // Find current status index
                                                         foreach ($status_history as $status) {
@@ -278,6 +314,13 @@ include '../includes/layouts/header.php';
                                                             }
                                                         }
 
+                                                        // If current status index is still -1, use the order's current status
+                                                        if ($currentStatusIndex == -1) {
+                                                            $currentStatusIndex = array_search($currentStatus, $statusOrder);
+                                                            if ($currentStatusIndex === false) $currentStatusIndex = 0;
+                                                        }
+
+                                                        // Show actual status history first
                                                         foreach ($status_history as $index => $status):
                                                             $statusIndex = array_search($status['status'], $statusOrder);
                                                             $isCompleted = $statusIndex !== false && $statusIndex <= $currentStatusIndex;
@@ -293,6 +336,12 @@ include '../includes/layouts/header.php';
                                                             } else {
                                                                 $statusClass = 'timeline-pending';
                                                             }
+
+                                                            $step_info = $tracking_steps[$status['status']] ?? [
+                                                                'title' => ucfirst($status['status']),
+                                                                'description' => $status['status_description'],
+                                                                'icon' => 'fas fa-info-circle'
+                                                            ];
                                                         ?>
                                             <div class="timeline-item <?php echo $statusClass; ?>">
                                                 <div class="timeline-marker">
@@ -303,27 +352,29 @@ include '../includes/layouts/header.php';
                                                     <?php elseif ($isCurrent): ?>
                                                     <i class="fas fa-clock"></i>
                                                     <?php else: ?>
-                                                    <div class="timeline-dot"></div>
+                                                    <i class="<?php echo $step_info['icon']; ?>"></i>
                                                     <?php endif; ?>
                                                 </div>
                                                 <div class="timeline-content">
                                                     <div class="d-flex justify-content-between align-items-start mb-2">
                                                         <h6 class="mb-0">
-                                                            <?php echo ucfirst($status['status'] ?? 'unknown'); ?></h6>
+                                                            <?php echo $step_info['title']; ?></h6>
                                                         <small class="text-muted">
                                                             <?php echo $status['created_at'] ? date('M j, g:i A', strtotime($status['created_at'])) : 'N/A'; ?>
                                                         </small>
                                                     </div>
                                                     <p class="text-muted mb-1">
-                                                        <?php echo $status['status_description']; ?></p>
+                                                        <?php echo $step_info['description']; ?></p>
                                                     <?php if (!empty($status['notes'])): ?>
                                                     <p class="mb-0 small">
-                                                        <?php echo htmlspecialchars($status['notes']); ?></p>
+                                                        <strong>Note:</strong>
+                                                        <?php echo htmlspecialchars($status['notes']); ?>
+                                                    </p>
                                                     <?php endif; ?>
 
                                                     <?php
-                                                                    // Add estimated delivery time for physical products
-                                                                    if ($has_physical && $status['status'] == 'processing'):
+                                                                    // Add estimated delivery time for processing orders
+                                                                    if ($has_physical && in_array($status['status'], ['processing', 'packaging'])):
                                                                         $estimatedDelivery = date('F j, Y', strtotime($status['created_at'] . ' +5 days'));
                                                                     ?>
                                                     <p class="mb-0 small text-info">
@@ -335,17 +386,23 @@ include '../includes/layouts/header.php';
                                             </div>
                                             <?php endforeach; ?>
 
-                                            <!-- Show future steps for pending/processing orders -->
-                                            <?php if ($currentStatusIndex < count($statusOrder) - 1 && !in_array($order['current_status'] ?? $order['payment_status'], ['failed', 'refunded'])): ?>
-                                            <?php for ($i = $currentStatusIndex + 1; $i < count($statusOrder); $i++): ?>
+                                            <!-- Show future tracking steps for pending/processing orders -->
+                                            <?php if ($currentStatusIndex < count($statusOrder) - 1 && !in_array($currentStatus, ['failed', 'refunded', 'completed'])): ?>
+                                            <?php
+                                                            // Show next expected steps
+                                                            for ($i = max(1, $currentStatusIndex + 1); $i < count($statusOrder); $i++):
+                                                                $futureStep = $statusOrder[$i];
+                                                                $step_info = $tracking_steps[$futureStep];
+                                                            ?>
                                             <div class="timeline-item timeline-future">
                                                 <div class="timeline-marker">
-                                                    <div class="timeline-dot"></div>
+                                                    <i class="<?php echo $step_info['icon']; ?>"></i>
                                                 </div>
                                                 <div class="timeline-content">
-                                                    <h6 class="mb-1 text-muted"><?php echo ucfirst($statusOrder[$i]); ?>
-                                                    </h6>
-                                                    <p class="text-muted mb-0 small">Pending</p>
+                                                    <h6 class="mb-1 text-muted"><?php echo $step_info['title']; ?></h6>
+                                                    <p class="text-muted mb-0 small">
+                                                        <?php echo $step_info['description']; ?></p>
+                                                    <p class="text-muted mb-0 small"><em>Pending</em></p>
                                                 </div>
                                             </div>
                                             <?php endfor; ?>

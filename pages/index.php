@@ -111,41 +111,37 @@ include '../includes/layouts/header.php';
         </div>
     </div>
 </section>
-<!-- Modern Checkout Overlay -->
-<div id="checkout-overlay" class="checkout-overlay" style="display: none;">
-    <div class="checkout-overlay-content">
-        <div class="checkout-header">
-            <div class="checkout-icon">
+<!-- Live Cart Summary (Index Page Only) -->
+<div id="live-cart-summary" class="live-cart-summary">
+    <div class="cart-summary-content">
+        <div class="cart-summary-header">
+            <div class="cart-icon">
                 <i class="fas fa-shopping-cart"></i>
             </div>
-            <div class="checkout-info">
-                <div class="checkout-title">Ready to Checkout?</div>
-                <div class="checkout-subtitle">
-                    <span id="overlay-cart-count">0</span> items in your cart
+            <div class="cart-info">
+                <div class="cart-total-amount" id="live-cart-total">$0.00</div>
+                <div class="cart-item-count">
+                    <span id="live-cart-count">0</span> items
                 </div>
             </div>
-            <div class="checkout-total">
-                <div class="total-label">Total</div>
-                <div class="total-amount" id="overlay-cart-total">$0.00</div>
-            </div>
         </div>
-        <div class="checkout-actions">
-            <a href="../pages/cart" class="btn-overlay btn-view-cart">
-                <i class="fas fa-eye me-2"></i>View Cart
+        <div class="cart-summary-actions">
+            <a href="../pages/cart" class="cart-action-btn view-cart-btn">
+                <i class="fas fa-shopping-bag"></i>
+                View Cart
             </a>
-            <a href="../checkout" class="btn-overlay btn-checkout">
-                <i class="fas fa-credit-card me-2"></i>Checkout Now
+            <a href="../checkout" class="cart-action-btn checkout-btn">
+                <i class="fas fa-credit-card"></i>
+                Checkout
             </a>
         </div>
-        <button class="checkout-close" onclick="hideCheckoutOverlay()">
-            <i class="fas fa-times"></i>
-        </button>
+
     </div>
 </div>
 
 <!-- Success Message Toast -->
 <?php if (isset($_SESSION['success_message'])): ?>
-<div class="position-fixed top-0 end-0 p-3" style="z-index: 1050">
+<div class="position-fixed top-50 end-0 p-3" style="z-index: 1050">
     <div class="toast show" role="alert">
         <div class="toast-header bg-success text-white">
             <i class="fas fa-check-circle me-2"></i>
@@ -916,6 +912,43 @@ footer h5 {
     }
 }
 
+/* Fix for dropdown visibility on index page */
+.navbar {
+    overflow: visible !important;
+}
+
+.navbar .container {
+    overflow: visible !important;
+}
+
+.navbar-right {
+    overflow: visible !important;
+}
+
+.dropdown-menu {
+    z-index: 10000 !important;
+    position: absolute !important;
+    display: none;
+}
+
+.dropdown-menu.show {
+    display: block !important;
+}
+
+.dropdown:hover .dropdown-menu,
+.dropdown.show .dropdown-menu {
+    z-index: 10000 !important;
+}
+
+/* Ensure toast containers don't interfere with dropdowns */
+.toast-container {
+    pointer-events: none;
+}
+
+.toast-container .toast {
+    pointer-events: auto;
+}
+
 .btn-contact {
     background: linear-gradient(90deg, #ff9800, #ff5722);
     color: #fff !important;
@@ -938,172 +971,260 @@ footer h5 {
     transform: translateY(-2px) scale(1.04);
 }
 
-/* Checkout Overlay Styles */
-.checkout-overlay {
+/* Live Cart Summary Styles - Compact & Responsive */
+.live-cart-summary {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
+    bottom: 15px;
+    right: 15px;
     z-index: 2050;
-    max-width: 400px;
-    width: 90vw;
-    display: none;
-    animation: slideUp 0.3s ease-out;
+    max-width: 280px;
+    width: auto;
+    opacity: 0;
+    transform: translateX(100%) scale(0.8);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
 }
 
-.checkout-overlay.active {
-    display: block;
+.live-cart-summary.show {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+    pointer-events: auto;
 }
 
-@keyframes slideUp {
-    from {
-        transform: translateY(100%);
-        opacity: 0;
-    }
-
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-.checkout-overlay-content {
-    background: linear-gradient(135deg, #007bff, #0056b3);
+.cart-summary-content {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border-radius: 16px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     overflow: hidden;
     position: relative;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.checkout-header {
-    padding: 20px;
+.cart-summary-header {
+    padding: 12px 16px;
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 12px;
 }
 
-.checkout-icon {
-    background: rgba(255, 255, 255, 0.2);
+.cart-icon {
+    background: rgba(255, 255, 255, 0.15);
     border-radius: 50%;
-    width: 50px;
-    height: 50px;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
+    font-size: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
 }
 
-.checkout-info {
+.cart-info {
     flex: 1;
+    min-width: 0;
 }
 
-.checkout-title {
+.cart-total-amount {
     font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 4px;
-}
-
-.checkout-subtitle {
-    font-size: 14px;
-    opacity: 0.9;
-}
-
-.checkout-total {
-    text-align: right;
-}
-
-.total-label {
-    font-size: 12px;
-    opacity: 0.8;
-    text-transform: uppercase;
-}
-
-.total-amount {
-    font-size: 22px;
     font-weight: 700;
+    margin-bottom: 1px;
+    background: linear-gradient(45deg, #fff, #f8f9fa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
 }
 
-.checkout-actions {
-    padding: 0 20px 20px;
+.cart-item-count {
+    font-size: 11px;
+    opacity: 0.9;
+    font-weight: 500;
+    line-height: 1.2;
+}
+
+.cart-summary-actions {
+    padding: 0 16px 12px;
     display: flex;
-    gap: 10px;
+    gap: 8px;
 }
 
-.btn-overlay {
+.cart-action-btn {
     flex: 1;
-    padding: 12px 16px;
-    border-radius: 8px;
+    padding: 8px 12px;
+    border-radius: 10px;
     text-decoration: none;
     text-align: center;
     font-weight: 600;
-    font-size: 14px;
-    transition: all 0.3s ease;
+    font-size: 11px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 4px;
+    position: relative;
+    overflow: hidden;
+    line-height: 1;
 }
 
-.btn-view-cart {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.btn-view-cart:hover {
-    background: rgba(255, 255, 255, 0.3);
-    color: white;
-    transform: translateY(-2px);
-}
-
-.btn-checkout {
-    background: #28a745;
-    color: white;
-}
-
-.btn-checkout:hover {
-    background: #218838;
-    color: white;
-    transform: translateY(-2px);
-}
-
-.checkout-close {
+.cart-action-btn::before {
+    content: '';
     position: absolute;
-    top: 15px;
-    right: 15px;
-    background: none;
-    border: none;
-    color: white;
-    font-size: 18px;
-    cursor: pointer;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.3s;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.6s;
 }
 
-.checkout-close:hover {
-    background: rgba(255, 255, 255, 0.2);
+.cart-action-btn:hover::before {
+    left: 100%;
+}
+
+.cart-action-btn i {
+    font-size: 10px;
+}
+
+.view-cart-btn {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.view-cart-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.checkout-btn {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    border: none;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+.checkout-btn:hover {
+    background: linear-gradient(135deg, #218838, #1aa085);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+}
+
+/* Pulse animation for new items */
+@keyframes cartSummaryPulse {
+    0% {
+        transform: translateX(0) scale(1);
+    }
+
+    50% {
+        transform: translateX(0) scale(1.03);
+    }
+
+    100% {
+        transform: translateX(0) scale(1);
+    }
+}
+
+.live-cart-summary.pulse {
+    animation: cartSummaryPulse 0.5s ease;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .live-cart-summary {
+        bottom: 12px;
+        right: 12px;
+        max-width: 150px;
+    }
+
+    .cart-summary-header {
+        padding: 10px 14px;
+        gap: 10px;
+    }
+
+    .cart-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+    }
+
+    .cart-total-amount {
+        font-size: 16px;
+    }
+
+    .cart-item-count {
+        font-size: 10px;
+    }
+
+    .cart-summary-actions {
+        padding: 0 14px 10px;
+        gap: 6px;
+    }
+
+    .cart-action-btn {
+        padding: 7px 10px;
+        font-size: 10px;
+    }
+
+    .cart-action-btn i {
+        font-size: 9px;
+    }
 }
 
 @media (max-width: 576px) {
-    .checkout-overlay {
+    .live-cart-summary {
         bottom: 10px;
         right: 10px;
-        left: 10px;
-        max-width: none;
-        width: calc(100% - 20px);
+        max-width: 180px;
     }
 
-    .checkout-header {
-        padding: 15px;
+    .cart-summary-header {
+        padding: 10px 12px;
     }
 
-    .checkout-actions {
+    .cart-total-amount {
+        font-size: 15px;
+    }
+
+    .cart-summary-actions {
+        padding: 0 12px 10px;
+        gap: 6px;
         flex-direction: column;
-        padding: 0 15px 15px;
+    }
+
+    .cart-action-btn {
+        padding: 8px 10px;
+        font-size: 10px;
+        gap: 3px;
+    }
+}
+
+@media (max-width: 480px) {
+    .live-cart-summary {
+        max-width: calc(100vw - 20px);
+    }
+
+    .cart-summary-actions {
+        flex-direction: column;
+        /* Make buttons vertical on very small screens */
+    }
+
+    .cart-action-btn {
+        padding: 6px 8px;
+        font-size: 9px;
+    }
+
+    .cart-total-amount {
+        font-size: 14px;
+    }
+
+    .cart-item-count {
+        font-size: 9px;
     }
 }
 
@@ -1226,66 +1347,56 @@ function hideToast() {
     }
 }
 
-// --- Cart Count & Overlay Logic (Event-Driven) ---
-function updateCartUI(data) {
-    // Update cart count in header
-    const cartCount = document.querySelector('.cart-count');
-    const navIcon = document.querySelector('.nav-icon.position-relative');
-    if (data.items && data.items.length > 0) {
-        if (!cartCount) {
-            const span = document.createElement('span');
-            span.className = 'cart-count';
-            span.textContent = data.items.length;
-            navIcon.appendChild(span);
-        } else {
-            cartCount.textContent = data.items.length;
-        }
-    } else if (cartCount) {
-        cartCount.remove();
-    }
+// --- Live Cart Summary Logic (Index Page Only) ---
+function updateLiveCartSummary(data) {
+    const cartSummary = document.getElementById('live-cart-summary');
+    const cartCount = document.getElementById('live-cart-count');
+    const cartTotal = document.getElementById('live-cart-total');
 
-    // Update checkout overlay
-    const overlay = document.getElementById('checkout-overlay');
-    const overlayCartCount = document.getElementById('overlay-cart-count');
-    const total = document.getElementById('overlay-cart-total');
+    if (!cartSummary) return; // Only on index page
 
     if (data.items && data.items.length > 0) {
-        let sum = 0;
+        let totalItems = 0;
+        let totalAmount = 0;
+
         data.items.forEach(item => {
-            sum += item.price * item.quantity;
+            totalItems += parseInt(item.quantity);
+            totalAmount += parseFloat(item.price) * parseInt(item.quantity);
         });
 
-        // Update overlay content
-        if (overlayCartCount) {
-            overlayCartCount.textContent = data.items.length;
+        // Update summary content
+        if (cartCount) {
+            cartCount.textContent = totalItems;
         }
-        if (total) {
-            total.textContent = '$' + sum.toFixed(2);
+        if (cartTotal) {
+            cartTotal.textContent = '$' + totalAmount.toFixed(2);
         }
 
-        // Show overlay
-        showCheckoutOverlay();
-    } else {
-        // Hide overlay
-        hideCheckoutOverlay();
-    }
-}
+        // Show summary with smooth animation
+        showLiveCartSummary();
 
-function showCheckoutOverlay() {
-    const overlay = document.getElementById('checkout-overlay');
-    if (overlay) {
-        overlay.style.display = 'block';
-        overlay.classList.add('active');
-    }
-}
-
-function hideCheckoutOverlay() {
-    const overlay = document.getElementById('checkout-overlay');
-    if (overlay) {
-        overlay.classList.remove('active');
+        // Add pulse effect for new items
+        cartSummary.classList.add('pulse');
         setTimeout(() => {
-            overlay.style.display = 'none';
-        }, 300); // Wait for animation to complete
+            cartSummary.classList.remove('pulse');
+        }, 600);
+    } else {
+        // Hide summary when cart is empty
+        hideLiveCartSummary();
+    }
+}
+
+function showLiveCartSummary() {
+    const cartSummary = document.getElementById('live-cart-summary');
+    if (cartSummary && !cartSummary.classList.contains('show')) {
+        cartSummary.classList.add('show');
+    }
+}
+
+function hideLiveCartSummary() {
+    const cartSummary = document.getElementById('live-cart-summary');
+    if (cartSummary && cartSummary.classList.contains('show')) {
+        cartSummary.classList.remove('show');
     }
 }
 
@@ -1297,52 +1408,43 @@ function fetchCartAndUpdateUI(showToastType, toastMsg) {
             },
             body: 'action=get'
         })
-        .then(response => response.json())
-        .then(data => {
-            updateCartUI(data);
-            if (showToastType && toastMsg) showToast(showToastType, toastMsg);
-        });
-}
-
-// Add to cart event
-function addToCart(productId, quantity) {
-    fetch('../includes/cart.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: `action=add&product_id=${productId}&quantity=${quantity}`
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                fetchCartAndUpdateUI('success', 'Item added to cart');
-            } else {
-                showToast('error', data.message || 'Failed to add item');
+        .then(response => {
+            // Check if response is ok
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
+
+            // Get the raw text first to debug JSON issues
+            return response.text();
+        })
+        .then(text => {
+            // Try to parse as JSON
+            try {
+                const data = JSON.parse(text);
+                updateLiveCartSummary(data);
+                if (showToastType && toastMsg) showToast(showToastType, toastMsg);
+            } catch (parseError) {
+                console.error('JSON Parse Error:', parseError);
+                console.error('Raw response:', text);
+                console.error('Response length:', text.length);
+                // Try to identify the issue
+                if (text.includes('<!DOCTYPE') || text.includes('<html')) {
+                    console.error('Response contains HTML instead of JSON');
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching cart data:', error);
         });
 }
 
-document.querySelectorAll('.add-to-cart').forEach(button => {
-    button.addEventListener('click', function() {
-        const productId = this.dataset.productId;
-        addToCart(productId, 1);
-    });
-});
+// Cart functionality is now handled by the global header functions
 
-// Modal add to cart
-const modalAddBtn = document.querySelector('.modal-add-to-cart');
-if (modalAddBtn) {
-    modalAddBtn.addEventListener('click', function() {
-        const productId = this.dataset.productId;
-        const quantity = document.querySelector('.modal-qty').value;
-        addToCart(productId, quantity);
-    });
-}
-
-// On page load, update cart UI
+// On page load, update cart UI with a small delay to ensure everything is loaded
 window.addEventListener('DOMContentLoaded', function() {
-    fetchCartAndUpdateUI();
+    setTimeout(() => {
+        fetchCartAndUpdateUI();
+    }, 500); // 500ms delay to ensure page is fully loaded
 });
 
 // Product Modal Functionality (Quick View) - Robust Event Delegation
@@ -1417,47 +1519,209 @@ function continueShopping() {
 </script>
 
 <script>
-// Override the page's addToCart function to use the header's global function
+// Use the global cart system for real-time updates
 document.addEventListener('DOMContentLoaded', function() {
-    // Re-bind all add to cart buttons to use the header's function
-    document.querySelectorAll('.add-to-cart').forEach(button => {
-        // Remove existing event listeners by cloning the button
-        const newButton = button.cloneNode(true);
-        button.parentNode.replaceChild(newButton, button);
+    // Fix dropdown visibility issue on index page
+    setTimeout(() => {
+        console.log('Fixing dropdown visibility...');
 
-        // Add new event listener
-        newButton.addEventListener('click', function(e) {
+        // Ensure Bootstrap dropdowns are properly initialized
+        const dropdownTriggers = document.querySelectorAll('[data-bs-toggle="dropdown"]');
+        console.log('Found dropdown triggers:', dropdownTriggers.length);
+
+        dropdownTriggers.forEach((trigger, index) => {
+            console.log(`Initializing dropdown ${index}:`, trigger);
+
+            // Remove any existing event listeners to avoid conflicts
+            if (trigger.hasAttribute('data-dropdown-initialized')) {
+                trigger.removeAttribute('data-dropdown-initialized');
+            }
+
+            // Create new dropdown instance
+            try {
+                const dropdown = new bootstrap.Dropdown(trigger);
+                trigger.setAttribute('data-dropdown-initialized', 'true');
+                console.log(`Dropdown ${index} initialized successfully`);
+
+                // Add manual click handler as backup
+                trigger.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Dropdown clicked manually');
+                    dropdown.toggle();
+                });
+            } catch (error) {
+                console.error(`Error initializing dropdown ${index}:`, error);
+            }
+        });
+
+        // Remove any interfering elements with high z-index
+        const toastContainer = document.querySelector('.toast-container');
+        if (toastContainer && !toastContainer.querySelector('.toast.show')) {
+            toastContainer.style.pointerEvents = 'none';
+            console.log('Toast container set to non-interactive');
+        }
+
+        // Ensure dropdown menus have proper z-index and visibility
+        document.querySelectorAll('.dropdown-menu').forEach((menu, index) => {
+            menu.style.zIndex = '10000';
+            menu.style.position = 'absolute';
+            console.log(`Dropdown menu ${index} z-index set to 10000`);
+        });
+
+        // Force show dropdown on manual trigger for testing
+        window.forceShowDropdown = function() {
+            const dropdown = document.querySelector('.dropdown-menu');
+            if (dropdown) {
+                dropdown.classList.add('show');
+                dropdown.style.display = 'block';
+                console.log('Dropdown forced to show');
+            }
+        };
+
+        // Add fallback click handler for dropdown that doesn't rely on Bootstrap
+        document.querySelectorAll('.nav-icon[data-bs-toggle="dropdown"]').forEach(trigger => {
+            trigger.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const dropdown = this.nextElementSibling;
+                if (dropdown && dropdown.classList.contains('dropdown-menu')) {
+                    // Close any other open dropdowns
+                    document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+                        if (menu !== dropdown) {
+                            menu.classList.remove('show');
+                            menu.style.display = 'none';
+                        }
+                    });
+
+                    // Toggle current dropdown
+                    if (dropdown.classList.contains('show')) {
+                        dropdown.classList.remove('show');
+                        dropdown.style.display = 'none';
+                        console.log('Dropdown hidden');
+                    } else {
+                        dropdown.classList.add('show');
+                        dropdown.style.display = 'block';
+                        console.log('Dropdown shown');
+                    }
+                }
+            });
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.dropdown')) {
+                document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+                    menu.classList.remove('show');
+                    menu.style.display = 'none';
+                });
+            }
+        });
+
+    }, 200);
+
+    // Replace local addToCart function with global one and add live summary updates
+    document.querySelectorAll('.add-to-cart').forEach(button => {
+        button.addEventListener('click', function(e) {
             e.preventDefault();
             const productId = this.dataset.productId;
-
-            // Use the header's addToCart function if available
-            if (typeof window.addToCart === 'function') {
-                window.addToCart(productId, 1);
-            } else {
-                // Fallback to original function
-                addToCart(productId, 1);
-            }
+            window.addToCart(productId, 1).then(() => {
+                // Refresh live cart summary after adding item
+                fetchCartAndUpdateUI();
+            });
         });
     });
 
-    // Also update modal add to cart button
+    // Update modal add to cart button  
     const modalAddBtn = document.querySelector('.modal-add-to-cart');
     if (modalAddBtn) {
-        modalAddBtn.removeEventListener('click', modalAddBtn.clickHandler);
         modalAddBtn.addEventListener('click', function(e) {
             e.preventDefault();
             const productId = this.dataset.productId;
-            const quantity = document.querySelector('.modal-qty').value;
-
-            // Use the header's addToCart function if available
-            if (typeof window.addToCart === 'function') {
-                window.addToCart(productId, quantity);
-            } else {
-                // Fallback to original function
-                addToCart(productId, quantity);
-            }
+            const quantity = document.querySelector('.modal-qty').value || 1;
+            window.addToCart(productId, parseInt(quantity)).then(() => {
+                // Refresh live cart summary after adding item
+                fetchCartAndUpdateUI();
+                // Close modal after successful add
+                const modal = bootstrap.Modal.getInstance(document.getElementById(
+                    'productModal'));
+                if (modal) modal.hide();
+            });
         });
     }
+
+    // Initialize cart summary on page load with delay
+    setTimeout(() => {
+        fetchCartAndUpdateUI();
+    }, 500);
+
+    // Also add a backup initialization after window load
+    window.addEventListener('load', function() {
+        setTimeout(() => {
+            fetchCartAndUpdateUI();
+        }, 1000);
+    });
+});
+</script>
+
+<script>
+// Independent dropdown solution for index page - bypasses Bootstrap entirely
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        console.log('Setting up independent dropdown solution...');
+
+        // Find the user profile icon
+        const profileIcon = document.querySelector('.nav-icon[data-bs-toggle="dropdown"]');
+        const dropdownMenu = document.querySelector('.dropdown-menu');
+
+        if (profileIcon && dropdownMenu) {
+            console.log('Profile icon and dropdown found');
+
+            // Remove Bootstrap attributes to prevent conflicts
+            profileIcon.removeAttribute('data-bs-toggle');
+
+            // Add custom click handler
+            profileIcon.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                console.log('Profile icon clicked');
+
+                // Toggle dropdown visibility
+                if (dropdownMenu.style.display === 'block') {
+                    dropdownMenu.style.display = 'none';
+                    dropdownMenu.classList.remove('show');
+                    console.log('Dropdown hidden');
+                } else {
+                    dropdownMenu.style.display = 'block';
+                    dropdownMenu.classList.add('show');
+                    dropdownMenu.style.position = 'absolute';
+                    dropdownMenu.style.top = '100%';
+                    dropdownMenu.style.right = '0';
+                    dropdownMenu.style.zIndex = '99999';
+                    dropdownMenu.style.minWidth = '180px';
+                    dropdownMenu.style.backgroundColor = 'white';
+                    dropdownMenu.style.border = '1px solid #ccc';
+                    dropdownMenu.style.borderRadius = '8px';
+                    dropdownMenu.style.boxShadow = '0 4px 15px rgba(0,0,0,0.15)';
+                    console.log('Dropdown shown');
+                }
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.dropdown')) {
+                    dropdownMenu.style.display = 'none';
+                    dropdownMenu.classList.remove('show');
+                }
+            });
+
+            console.log('Independent dropdown solution initialized');
+        } else {
+            console.error('Profile icon or dropdown menu not found');
+        }
+    }, 300);
 });
 </script>
 </body>

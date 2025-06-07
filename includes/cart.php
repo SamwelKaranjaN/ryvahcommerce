@@ -1,14 +1,27 @@
 <?php
-// Enable error reporting for debugging
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+// Disable error display for AJAX requests
+if (isset($_POST['action'])) {
+    error_reporting(0);
+    ini_set('display_errors', 0);
+}
 
 function debug($data, $label = '')
 {
+    // Only log to error log, never display
     error_log(($label ? $label . ': ' : '') . print_r($data, true));
 }
 
+// Start output buffering to catch any unwanted output
+if (isset($_POST['action'])) {
+    ob_start();
+}
+
 require_once 'bootstrap.php';
+
+// Clean any unwanted output for AJAX requests
+if (isset($_POST['action']) && ob_get_level()) {
+    ob_clean();
+}
 
 // Initialize cart in session if it doesn't exist
 if (!isset($_SESSION['cart'])) {
@@ -64,7 +77,10 @@ function getCartItems()
 
             $sql = "SELECT id, name, price, stock, thumbs, type FROM products WHERE id IN ($placeholders)";
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param(str_repeat('i', count($product_ids)), ...$product_ids);
+
+            // Fix for bind_param with spread operator issue
+            $types = str_repeat('i', count($product_ids));
+            $stmt->bind_param($types, ...$product_ids);
             $stmt->execute();
             $result = $stmt->get_result();
 
@@ -299,74 +315,182 @@ function transferSessionCartToDatabase($user_id)
 {
     global $conn;
 
+    debug('=== STARTING CART TRANSFER FOR USER: ' . $user_id . ' ===');
     debug('Transferring session cart to database for user: ' . $user_id);
     debug($_SESSION['cart'] ?? [], 'Session cart before transfer');
+    debug($_SESSION['checkout_cart'] ?? [], 'Session checkout_cart before transfer');
+    debug($_SESSION['temp_cart'] ?? [], 'Session temp_cart before transfer');
 
-    $result = ['success' => true, 'transferred' => 0, 'errors' => []];
+    $result = ['success' => true, 'transferred' => 0, 'errors' => [], 'merged' => 0];
 
+    // Check for both regular session cart and temporary checkout cart
+    $session_carts = [];
     if (!empty($_SESSION['cart'])) {
-        foreach ($_SESSION['cart'] as $product_id => $quantity) {
-            try {
-                // Validate product exists
-                $stmt = $conn->prepare("SELECT id FROM products WHERE id = ?");
-                $stmt->bind_param("i", $product_id);
-                $stmt->execute();
-                $product_result = $stmt->get_result();
+        $session_carts['cart'] = $_SESSION['cart'];
+    }
+    if (!empty($_SESSION['checkout_cart'])) {
+        $session_carts['checkout_cart'] = $_SESSION['checkout_cart'];
+    }
+    if (!empty($_SESSION['temp_cart'])) {
+        $session_carts['temp_cart'] = $_SESSION['temp_cart'];
+    }
 
-                if ($product_result->num_rows === 0) {
-                    $error_msg = "Product ID {$product_id} not found, skipping transfer";
-                    debug($error_msg);
-                    $result['errors'][] = $error_msg;
-                    continue;
+    if (!empty($session_carts)) {
+        // Begin transaction for data integrity
+        $conn->begin_transaction();
+
+        try {
+            foreach ($session_carts as $cart_type => $cart_items) {
+                debug("Processing {$cart_type} with items: " . print_r($cart_items, true));
+
+                foreach ($cart_items as $product_id => $quantity) {
+                    // Handle different cart formats
+                    if (is_array($quantity)) {
+                        // For temp_cart format: [{'id': x, 'quantity': y}, ...]
+                        if (isset($quantity['id']) && isset($quantity['quantity'])) {
+                            $product_id = $quantity['id'];
+                            $quantity = $quantity['quantity'];
+                        } else {
+                            continue; // Skip invalid format
+                        }
+                    }
+
+                    // Validate product exists and has adequate stock
+                    $stmt = $conn->prepare("SELECT id, name, stock_quantity FROM products WHERE id = ?");
+                    $stmt->bind_param("i", $product_id);
+                    $stmt->execute();
+                    $product_result = $stmt->get_result();
+
+                    if ($product_result->num_rows === 0) {
+                        $error_msg = "Product ID {$product_id} not found, skipping transfer";
+                        debug($error_msg);
+                        $result['errors'][] = $error_msg;
+                        continue;
+                    }
+
+                    $product = $product_result->fetch_assoc();
+
+                    // Validate quantity
+                    if ($quantity <= 0) {
+                        $error_msg = "Invalid quantity {$quantity} for product {$product_id}, skipping";
+                        debug($error_msg);
+                        $result['errors'][] = $error_msg;
+                        continue;
+                    }
+
+                    // Check stock availability
+                    if ($product['stock_quantity'] < $quantity) {
+                        $error_msg = "Insufficient stock for product {$product['name']} (requested: {$quantity}, available: {$product['stock_quantity']})";
+                        debug($error_msg);
+                        $result['errors'][] = $error_msg;
+                        // Adjust quantity to available stock
+                        $quantity = $product['stock_quantity'];
+                        if ($quantity <= 0) continue;
+                    }
+
+                    // Check if item already exists in user's database cart
+                    $stmt = $conn->prepare("SELECT quantity FROM cart WHERE user_id = ? AND product_id = ?");
+                    $stmt->bind_param("ii", $user_id, $product_id);
+                    $stmt->execute();
+                    $cart_result = $stmt->get_result();
+
+                    if ($cart_result->num_rows > 0) {
+                        // Update existing quantity (merge)
+                        $row = $cart_result->fetch_assoc();
+                        $new_quantity = $row['quantity'] + $quantity;
+
+                        // Check if merged quantity exceeds stock
+                        if ($new_quantity > $product['stock_quantity']) {
+                            $new_quantity = $product['stock_quantity'];
+                            $result['errors'][] = "Merged quantity for {$product['name']} limited to available stock ({$product['stock_quantity']})";
+                        }
+
+                        $stmt = $conn->prepare("UPDATE cart SET quantity = ? WHERE user_id = ? AND product_id = ?");
+                        $stmt->bind_param("iii", $new_quantity, $user_id, $product_id);
+                        debug("Merging cart item: product_id={$product_id}, old_qty={$row['quantity']}, session_qty={$quantity}, new_qty={$new_quantity}");
+                        $result['merged']++;
+                    } else {
+                        // Insert new item
+                        $stmt = $conn->prepare("INSERT INTO cart (user_id, product_id, quantity) VALUES (?, ?, ?)");
+                        $stmt->bind_param("iii", $user_id, $product_id, $quantity);
+                        debug("Adding new cart item: user_id={$user_id}, product_id={$product_id}, quantity={$quantity}");
+                    }
+
+                    if ($stmt->execute()) {
+                        $result['transferred']++;
+                        debug("Successfully processed product {$product_id} from {$cart_type}");
+                    } else {
+                        $error_msg = "Database error processing product {$product_id}: " . $stmt->error;
+                        debug($error_msg);
+                        $result['errors'][] = $error_msg;
+                        throw new Exception($error_msg);
+                    }
                 }
-
-                // Check if item already exists in cart
-                $stmt = $conn->prepare("SELECT quantity FROM cart WHERE user_id = ? AND product_id = ?");
-                $stmt->bind_param("ii", $user_id, $product_id);
-                $stmt->execute();
-                $cart_result = $stmt->get_result();
-
-                if ($cart_result->num_rows > 0) {
-                    // Update quantity
-                    $row = $cart_result->fetch_assoc();
-                    $new_quantity = $row['quantity'] + $quantity;
-                    $stmt = $conn->prepare("UPDATE cart SET quantity = ? WHERE user_id = ? AND product_id = ?");
-                    $stmt->bind_param("iii", $new_quantity, $user_id, $product_id);
-                    debug("Updating existing cart item: product_id={$product_id}, old_qty={$row['quantity']}, new_qty={$new_quantity}");
-                } else {
-                    // Insert new item
-                    $stmt = $conn->prepare("INSERT INTO cart (user_id, product_id, quantity) VALUES (?, ?, ?)");
-                    $stmt->bind_param("iii", $user_id, $product_id, $quantity);
-                    debug("Inserting new cart item: product_id={$product_id}, quantity={$quantity}");
-                }
-
-                if ($stmt->execute()) {
-                    $result['transferred']++;
-                    debug("Successfully transferred product {$product_id}");
-                } else {
-                    $error_msg = "Error transferring product {$product_id}: " . $stmt->error;
-                    debug($error_msg);
-                    $result['errors'][] = $error_msg;
-                    $result['success'] = false;
-                }
-            } catch (Exception $e) {
-                $error_msg = "Exception transferring product {$product_id}: " . $e->getMessage();
-                debug($error_msg);
-                $result['errors'][] = $error_msg;
-                $result['success'] = false;
             }
-        }
 
-        // Clear session cart only if transfer was successful
-        if ($result['success'] || $result['transferred'] > 0) {
-            $_SESSION['cart'] = [];
-            debug('Session cart cleared after transfer');
+            // Commit transaction
+            $conn->commit();
+
+            // Clear all session carts only if transfer was successful
+            if ($result['transferred'] > 0) {
+                unset($_SESSION['cart']);
+                unset($_SESSION['checkout_cart']);
+                unset($_SESSION['temp_cart']);
+                debug('All session carts cleared after successful transfer');
+            }
+        } catch (Exception $e) {
+            // Rollback transaction on error
+            $conn->rollback();
+            $error_msg = "Transaction failed during cart transfer: " . $e->getMessage();
+            debug($error_msg);
+            $result['errors'][] = $error_msg;
+            $result['success'] = false;
         }
     } else {
-        debug('No items in session cart to transfer');
+        debug('No items in any session cart to transfer');
     }
 
     debug($result, 'Transfer result');
+    return $result;
+}
+
+/**
+ * Store current session cart as checkout cart when user goes to login from checkout
+ * This preserves the cart during the login process
+ */
+function preserveCartForCheckout()
+{
+    if (!empty($_SESSION['cart'])) {
+        $_SESSION['checkout_cart'] = $_SESSION['cart'];
+        $_SESSION['redirect_after_login'] = 'checkout';
+        debug('Cart preserved for checkout login process');
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Enhanced cart merge for checkout process
+ * Specifically designed for the checkout -> login -> checkout flow
+ */
+function mergeCheckoutCart($user_id)
+{
+    global $conn;
+
+    $result = ['success' => true, 'merged' => 0, 'errors' => []];
+
+    if (!empty($_SESSION['checkout_cart'])) {
+        debug('Merging checkout cart for user: ' . $user_id);
+
+        // Use the enhanced transfer function
+        $transfer_result = transferSessionCartToDatabase($user_id);
+
+        // Clear checkout cart after merge
+        unset($_SESSION['checkout_cart']);
+
+        return $transfer_result;
+    }
+
     return $result;
 }
 
@@ -402,12 +526,17 @@ function verifyAndCleanCart($user_id = null)
 
 // Handle AJAX requests
 if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST' && !defined('PAYPAL_ORDER_PROCESSING')) {
+    // Set JSON header at the beginning
+    header('Content-Type: application/json');
+
     $response = ['success' => false, 'message' => 'Invalid action'];
 
     if (isset($_POST['action'])) {
         switch ($_POST['action']) {
             case 'add':
                 $response = addToCart($_POST['product_id'], $_POST['quantity'] ?? 1);
+                // Add cart count to response
+                $response['cart_count'] = getCartItemCount();
                 break;
             case 'update':
                 if (!isset($_SESSION['user_id'])) {
@@ -419,6 +548,8 @@ if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST' &
                 } else {
                     $response = updateCartQuantity($_POST['product_id'], $_POST['quantity']);
                 }
+                // Add cart count to response
+                $response['cart_count'] = getCartItemCount();
                 break;
             case 'remove':
                 if (!isset($_SESSION['user_id'])) {
@@ -430,6 +561,8 @@ if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST' &
                 } else {
                     $response = removeFromCart($_POST['product_id']);
                 }
+                // Add cart count to response
+                $response['cart_count'] = getCartItemCount();
                 break;
             case 'get':
                 $cart_items = [];
@@ -452,7 +585,10 @@ if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST' &
 
                         $sql = "SELECT id as product_id, name, price FROM products WHERE id IN ($placeholders)";
                         $stmt = $conn->prepare($sql);
-                        $stmt->bind_param(str_repeat('i', count($product_ids)), ...$product_ids);
+
+                        // Fix for bind_param with spread operator issue
+                        $types = str_repeat('i', count($product_ids));
+                        $stmt->bind_param($types, ...$product_ids);
                         $stmt->execute();
                         $result = $stmt->get_result();
 
@@ -463,12 +599,78 @@ if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST' &
                         }
                     }
                 }
-                echo json_encode(['success' => true, 'items' => $cart_items, 'total' => $total]);
+                $response = ['success' => true, 'items' => $cart_items, 'total' => $total];
+                break;
+            case 'get_totals':
+                if (!isset($_SESSION['user_id'])) {
+                    $response = ['success' => false, 'message' => 'User not logged in'];
+                    break;
+                }
+
+                $cart_data = getCartItems();
+                $cart_items = $cart_data['items'] ?? [];
+
+                if (empty($cart_items)) {
+                    $response = [
+                        'success' => true,
+                        'subtotal' => 0,
+                        'tax_amount' => 0,
+                        'shipping_amount' => 0,
+                        'grand_total' => 0,
+                        'shipping_breakdown' => []
+                    ];
+                    break;
+                }
+
+                // Calculate subtotal
+                $subtotal = 0;
+                foreach ($cart_items as $item) {
+                    $subtotal += $item['price'] * $item['quantity'];
+                }
+
+                // Get user's default address for tax calculation
+                $user_id = $_SESSION['user_id'];
+                $stmt = $conn->prepare("SELECT state, country FROM addresses WHERE user_id = ? ORDER BY is_default DESC, created_at DESC LIMIT 1");
+                $stmt->bind_param("i", $user_id);
+                $stmt->execute();
+                $address_result = $stmt->get_result();
+                $default_address = $address_result->fetch_assoc();
+
+                // Calculate tax for each item (ebooks are not taxed)
+                $tax_amount = 0;
+                if ($default_address) {
+                    require_once '../includes/paypal_config.php'; // For getTaxRate function
+                    foreach ($cart_items as $item) {
+                        $tax_rate = getTaxRate($default_address['state'], $default_address['country'], $item['type']);
+                        $item_tax = ($item['price'] * $item['quantity']) * $tax_rate;
+                        $tax_amount += $item_tax;
+                    }
+                }
+
+                // Calculate shipping using existing function
+                require_once '../checkout/shipping_calculator.php';
+                $shipping_result = calculateTotalShipping($cart_items);
+                $shipping_amount = $shipping_result['total_shipping'];
+
+                $grand_total = $subtotal + $tax_amount + $shipping_amount;
+
+                $response = [
+                    'success' => true,
+                    'subtotal' => $subtotal,
+                    'tax_amount' => $tax_amount,
+                    'shipping_amount' => $shipping_amount,
+                    'grand_total' => $grand_total,
+                    'shipping_breakdown' => $shipping_result['breakdown'] ?? []
+                ];
                 break;
         }
     }
 
-    header('Content-Type: application/json');
+    // Clean output buffer to ensure no extra content
+    if (ob_get_level()) {
+        ob_clean();
+    }
+
     echo json_encode($response);
     exit;
 }

@@ -2,6 +2,9 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
+// Include session management functions
+require_once 'php/session_check.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -493,6 +496,10 @@ if (session_status() === PHP_SESSION_NONE) {
             <a href="tax_settings" class="nav-item">
                 <i class="fas fa-chart-bar"></i>
                 <span class="nav-text">Tax Management</span>
+            </a>
+            <a href="shipping_settings" class="nav-item">
+                <i class="fas fa-chart-bar"></i>
+                <span class="nav-text">Shipping Management</span>
             </a>
             <a href="reports.php" class="nav-item">
                 <i class="fas fa-chart-bar"></i>

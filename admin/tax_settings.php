@@ -163,439 +163,439 @@ $page_title = "Tax Settings - Admin Panel";
     <title><?php echo getPageTitle(); ?></title>
     <?php renderCSSLinks(); ?>
     <style>
-        :root {
-            --primary-color: #3498db;
-            --success-color: #2ecc71;
-            --danger-color: #e74c3c;
-            --warning-color: #f1c40f;
-            --text-color: #2c3e50;
-            --light-bg: #f8f9fa;
-            --border-color: #dee2e6;
-            --sidebar-width: 250px;
-            --header-height: 60px;
-        }
+    :root {
+        --primary-color: #3498db;
+        --success-color: #2ecc71;
+        --danger-color: #e74c3c;
+        --warning-color: #f1c40f;
+        --text-color: #2c3e50;
+        --light-bg: #f8f9fa;
+        --border-color: #dee2e6;
+        --sidebar-width: 250px;
+        --header-height: 60px;
+    }
 
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: #f0f2f5;
-            transition: all 0.3s ease;
-        }
+    body {
+        font-family: 'Poppins', sans-serif;
+        background: #f0f2f5;
+        transition: all 0.3s ease;
+    }
 
-        /* Header Styles */
-        .admin-header {
-            position: fixed;
-            top: 0;
-            right: 0;
-            left: 0;
-            height: var(--header-height);
-            background: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            transition: all 0.3s ease;
-        }
+    /* Header Styles */
+    .admin-header {
+        position: fixed;
+        top: 0;
+        right: 0;
+        left: 0;
+        height: var(--header-height);
+        background: white;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        transition: all 0.3s ease;
+    }
 
-        .admin-header .container-fluid {
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
+    .admin-header .container-fluid {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
 
-        .logo-section {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
+    .logo-section {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
 
-        .logo-section img {
-            height: 40px;
-            width: auto;
-        }
+    .logo-section img {
+        height: 40px;
+        width: auto;
+    }
 
-        .logo-section h1 {
-            font-size: 1.5rem;
-            margin: 0;
-            color: var(--text-color);
-        }
+    .logo-section h1 {
+        font-size: 1.5rem;
+        margin: 0;
+        color: var(--text-color);
+    }
 
-        .user-section {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
+    .user-section {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
 
-        .user-section .user-info {
-            text-align: right;
-        }
+    .user-section .user-info {
+        text-align: right;
+    }
 
-        .user-section .user-name {
-            font-weight: 600;
-            color: var(--text-color);
-            margin: 0;
-        }
+    .user-section .user-name {
+        font-weight: 600;
+        color: var(--text-color);
+        margin: 0;
+    }
 
-        .user-section .user-role {
-            font-size: 0.8rem;
-            color: #6c757d;
-            margin: 0;
-        }
+    .user-section .user-role {
+        font-size: 0.8rem;
+        color: #6c757d;
+        margin: 0;
+    }
 
-        /* Main Content Styles */
+    /* Main Content Styles */
+    .main-content {
+        margin-left: var(--sidebar-width);
+        margin-top: var(--header-height);
+        padding: 2rem;
+        transition: margin-left 0.3s ease-in-out;
+    }
+
+    body.sidebar-collapsed .main-content {
+        margin-left: 70px;
+    }
+
+    .tax-settings-card {
+        max-width: 1200px;
+        margin: 0 auto;
+        border: none;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        border-radius: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, var(--primary-color), #2980b9);
+        color: white;
+        border-radius: 15px 15px 0 0 !important;
+        padding: 1.5rem;
+    }
+
+    .add-tax-form {
+        background: var(--light-bg);
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .tax-rate-input {
+        max-width: 150px;
+    }
+
+    .form-control {
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        padding: 0.6rem 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+    }
+
+    .btn {
+        border-radius: 8px;
+        padding: 0.6rem 1.2rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background: var(--primary-color);
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background: #2980b9;
+        transform: translateY(-1px);
+    }
+
+    .btn-success {
+        background: var(--success-color);
+        border: none;
+    }
+
+    .btn-success:hover {
+        background: #27ae60;
+        transform: translateY(-1px);
+    }
+
+    .btn-danger {
+        background: var(--danger-color);
+        border: none;
+    }
+
+    .btn-danger:hover {
+        background: #c0392b;
+        transform: translateY(-1px);
+    }
+
+    .form-switch {
+        padding-left: 2.5em;
+    }
+
+    .form-switch .form-check-input {
+        width: 2.5em;
+        height: 1.25em;
+        margin-left: -2.5em;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%280, 0, 0, 0.25%29'/%3e%3c/svg%3e");
+        background-position: left center;
+        border-radius: 2em;
+        transition: all 0.3s ease;
+    }
+
+    .form-switch .form-check-input:checked {
+        background-color: var(--success-color);
+        border-color: var(--success-color);
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+    }
+
+    .tax-type-badge {
+        font-size: 0.9em;
+        padding: 0.5em 1em;
+        border-radius: 20px;
+        background: #e9ecef;
+        color: var(--text-color);
+        font-weight: 500;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .tax-rate-badge {
+        font-size: 0.9em;
+        padding: 0.5em 1em;
+        border-radius: 20px;
+        background: #cce5ff;
+        color: #004085;
+        font-weight: 500;
+    }
+
+    /* Status Badge Styles */
+    .status-badge {
+        font-size: 0.9em;
+        padding: 0.5em 1em;
+        border-radius: 20px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .status-badge i {
+        font-size: 0.8em;
+    }
+
+    .status-badge.active {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .status-badge.inactive {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .table {
+        margin-bottom: 0;
+    }
+
+    .table th {
+        font-weight: 600;
+        color: var(--text-color);
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    .table td {
+        vertical-align: middle;
+        padding: 1rem;
+    }
+
+    .tax-history {
+        max-height: 400px;
+        overflow-y: auto;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .tax-history::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .tax-history::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+
+    .tax-history::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+    }
+
+    .tax-history::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+
+    .alert {
+        border: none;
+        border-radius: 10px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .alert-success {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .alert-danger {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .delete-checkbox {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .delete-checkbox:checked {
+        background-color: var(--danger-color);
+        border-color: var(--danger-color);
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 768px) {
         .main-content {
-            margin-left: var(--sidebar-width);
-            margin-top: var(--header-height);
-            padding: 2rem;
-            transition: margin-left 0.3s ease-in-out;
+            margin-left: 0;
+            padding: 1rem;
         }
 
         body.sidebar-collapsed .main-content {
-            margin-left: 70px;
+            margin-left: 0;
         }
 
         .tax-settings-card {
-            max-width: 1200px;
-            margin: 0 auto;
-            border: none;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-            border-radius: 15px;
-            transition: all 0.3s ease;
+            margin: 0;
         }
 
-        .card-header {
-            background: linear-gradient(135deg, var(--primary-color), #2980b9);
-            color: white;
-            border-radius: 15px 15px 0 0 !important;
-            padding: 1.5rem;
+        .logo-section h1 {
+            display: none;
+        }
+
+        .user-section .user-info {
+            display: none;
         }
 
         .add-tax-form {
-            background: var(--light-bg);
-            padding: 1.5rem;
-            border-radius: 10px;
-            margin-bottom: 2rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 1rem;
         }
 
-        .tax-rate-input {
-            max-width: 150px;
-        }
-
-        .form-control {
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            padding: 0.6rem 1rem;
-            transition: all 0.3s ease;
-        }
-
-        .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        .table-responsive {
+            margin: 0 -1rem;
         }
 
         .btn {
-            border-radius: 8px;
-            padding: 0.6rem 1.2rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary {
-            background: var(--primary-color);
-            border: none;
-        }
-
-        .btn-primary:hover {
-            background: #2980b9;
-            transform: translateY(-1px);
-        }
-
-        .btn-success {
-            background: var(--success-color);
-            border: none;
-        }
-
-        .btn-success:hover {
-            background: #27ae60;
-            transform: translateY(-1px);
-        }
-
-        .btn-danger {
-            background: var(--danger-color);
-            border: none;
-        }
-
-        .btn-danger:hover {
-            background: #c0392b;
-            transform: translateY(-1px);
-        }
-
-        .form-switch {
-            padding-left: 2.5em;
-        }
-
-        .form-switch .form-check-input {
-            width: 2.5em;
-            height: 1.25em;
-            margin-left: -2.5em;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%280, 0, 0, 0.25%29'/%3e%3c/svg%3e");
-            background-position: left center;
-            border-radius: 2em;
-            transition: all 0.3s ease;
-        }
-
-        .form-switch .form-check-input:checked {
-            background-color: var(--success-color);
-            border-color: var(--success-color);
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
-        }
-
-        .tax-type-badge {
-            font-size: 0.9em;
-            padding: 0.5em 1em;
-            border-radius: 20px;
-            background: #e9ecef;
-            color: var(--text-color);
-            font-weight: 500;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-        }
-
-        .tax-rate-badge {
-            font-size: 0.9em;
-            padding: 0.5em 1em;
-            border-radius: 20px;
-            background: #cce5ff;
-            color: #004085;
-            font-weight: 500;
-        }
-
-        /* Status Badge Styles */
-        .status-badge {
-            font-size: 0.9em;
-            padding: 0.5em 1em;
-            border-radius: 20px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .status-badge i {
-            font-size: 0.8em;
-        }
-
-        .status-badge.active {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .status-badge.inactive {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .table {
-            margin-bottom: 0;
-        }
-
-        .table th {
-            font-weight: 600;
-            color: var(--text-color);
-            border-bottom: 2px solid var(--border-color);
-        }
-
-        .table td {
-            vertical-align: middle;
-            padding: 1rem;
-        }
-
-        .tax-history {
-            max-height: 400px;
-            overflow-y: auto;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        }
-
-        .tax-history::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .tax-history::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 4px;
-        }
-
-        .tax-history::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 4px;
-        }
-
-        .tax-history::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
-
-        .alert {
-            border: none;
-            border-radius: 10px;
-            padding: 1rem 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        }
-
-        .alert-success {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .alert-danger {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .delete-checkbox {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .delete-checkbox:checked {
-            background-color: var(--danger-color);
-            border-color: var(--danger-color);
-        }
-
-        /* Responsive Styles */
-        @media (max-width: 768px) {
-            .main-content {
-                margin-left: 0;
-                padding: 1rem;
-            }
-
-            body.sidebar-collapsed .main-content {
-                margin-left: 0;
-            }
-
-            .tax-settings-card {
-                margin: 0;
-            }
-
-            .logo-section h1 {
-                display: none;
-            }
-
-            .user-section .user-info {
-                display: none;
-            }
-
-            .add-tax-form {
-                padding: 1rem;
-            }
-
-            .table-responsive {
-                margin: 0 -1rem;
-            }
-
-            .btn {
-                width: 100%;
-                margin-bottom: 0.5rem;
-            }
-
-            .d-flex.justify-content-between {
-                flex-direction: column;
-            }
-
-            .d-flex.justify-content-between .btn {
-                margin-bottom: 0.5rem;
-            }
-
-            .table td,
-            .table th {
-                padding: 0.5rem;
-                font-size: 0.9em;
-            }
-
-            .tax-rate-input {
-                max-width: 100%;
-            }
-
-            .table th:nth-child(4),
-            .table td:nth-child(4) {
-                display: none;
-                /* Hide Last Updated column on small screens */
-            }
-
-            .form-check-label .status-badge {
-                display: none;
-                /* Hide the status text (Active/Inactive) on small screens */
-            }
-        }
-
-        /* Toast Notification Styles */
-        .toast-container {
-            position: fixed;
-            top: calc(var(--header-height) + 20px);
-            right: 20px;
-            z-index: 1050;
-        }
-
-        .toast {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            margin-bottom: 10px;
-            min-width: 300px;
-            border: none;
-        }
-
-        .toast-header {
-            border-bottom: none;
-            padding: 1rem;
-            background: transparent;
-        }
-
-        .toast-body {
-            padding: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .toast-body i {
-            font-size: 1.2em;
-        }
-
-        /* Loading Spinner */
-        .loading-spinner {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
             width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.8);
-            z-index: 9999;
-            justify-content: center;
-            align-items: center;
+            margin-bottom: 0.5rem;
         }
 
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--primary-color);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+        .d-flex.justify-content-between {
+            flex-direction: column;
         }
 
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
+        .d-flex.justify-content-between .btn {
+            margin-bottom: 0.5rem;
         }
+
+        .table td,
+        .table th {
+            padding: 0.5rem;
+            font-size: 0.9em;
+        }
+
+        .tax-rate-input {
+            max-width: 100%;
+        }
+
+        .table th:nth-child(4),
+        .table td:nth-child(4) {
+            display: none;
+            /* Hide Last Updated column on small screens */
+        }
+
+        .form-check-label .status-badge {
+            display: none;
+            /* Hide the status text (Active/Inactive) on small screens */
+        }
+    }
+
+    /* Toast Notification Styles */
+    .toast-container {
+        position: fixed;
+        top: calc(var(--header-height) + 20px);
+        right: 20px;
+        z-index: 1050;
+    }
+
+    .toast {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        margin-bottom: 10px;
+        min-width: 300px;
+        border: none;
+    }
+
+    .toast-header {
+        border-bottom: none;
+        padding: 1rem;
+        background: transparent;
+    }
+
+    .toast-body {
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .toast-body i {
+        font-size: 1.2em;
+    }
+
+    /* Loading Spinner */
+    .loading-spinner {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.8);
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid var(--primary-color);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
     </style>
 </head>
 
@@ -613,17 +613,17 @@ $page_title = "Tax Settings - Admin Panel";
         </div>
 
         <?php if ($message): ?>
-            <div class="status-badge active mb-3">
-                <i class="fas fa-check-circle"></i>
-                <?php echo $message; ?>
-            </div>
+        <div class="status-badge active mb-3">
+            <i class="fas fa-check-circle"></i>
+            <?php echo $message; ?>
+        </div>
         <?php endif; ?>
 
         <?php if ($error): ?>
-            <div class="status-badge inactive mb-3">
-                <i class="fas fa-exclamation-circle"></i>
-                <?php echo $error; ?>
-            </div>
+        <div class="status-badge inactive mb-3">
+            <i class="fas fa-exclamation-circle"></i>
+            <?php echo $error; ?>
+        </div>
         <?php endif; ?>
 
         <div class="card tax-settings-card">
@@ -671,47 +671,47 @@ $page_title = "Tax Settings - Admin Panel";
                             </thead>
                             <tbody>
                                 <?php foreach ($tax_settings as $setting): ?>
-                                    <tr>
-                                        <td>
-                                            <span class="tax-type-badge">
-                                                <?php echo ucfirst($setting['product_type']); ?>
-                                            </span>
-                                            <input type="hidden" name="old_rates[<?php echo $setting['product_type']; ?>]"
-                                                value="<?php echo $setting['tax_rate']; ?>">
-                                        </td>
-                                        <td>
-                                            <div class="input-group tax-rate-input">
-                                                <input type="number" class="form-control" step="0.01" min="0" max="100"
-                                                    name="tax_rates[<?php echo $setting['product_type']; ?>]"
-                                                    value="<?php echo $setting['tax_rate']; ?>" required>
-                                                <span class="input-group-text">%</span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input status-switch" type="checkbox" role="switch"
-                                                    name="is_active[<?php echo $setting['product_type']; ?>]"
-                                                    <?php echo $setting['is_active'] ? 'checked' : ''; ?>
-                                                    data-product-type="<?php echo $setting['product_type']; ?>">
-                                                <label class="form-check-label">
-                                                    <span
-                                                        class="status-badge <?php echo $setting['is_active'] ? 'active' : 'inactive'; ?>">
-                                                        <?php echo $setting['is_active'] ? 'Active' : 'Inactive'; ?>
-                                                    </span>
-                                                </label>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <?php echo date('M j, Y H:i', strtotime($setting['updated_at'])); ?>
-                                        </td>
-                                        <td>
-                                            <div class="form-check">
-                                                <input class="form-check-input delete-checkbox" type="checkbox"
-                                                    name="delete_tax[]" value="<?php echo $setting['product_type']; ?>"
-                                                    onchange="confirmDelete(this)">
-                                            </div>
-                                        </td>
-                                    </tr>
+                                <tr>
+                                    <td>
+                                        <span class="tax-type-badge">
+                                            <?php echo ucfirst($setting['product_type']); ?>
+                                        </span>
+                                        <input type="hidden" name="old_rates[<?php echo $setting['product_type']; ?>]"
+                                            value="<?php echo $setting['tax_rate']; ?>">
+                                    </td>
+                                    <td>
+                                        <div class="input-group tax-rate-input">
+                                            <input type="number" class="form-control" step="0.01" min="0" max="100"
+                                                name="tax_rates[<?php echo $setting['product_type']; ?>]"
+                                                value="<?php echo $setting['tax_rate']; ?>" required>
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input status-switch" type="checkbox" role="switch"
+                                                name="is_active[<?php echo $setting['product_type']; ?>]"
+                                                <?php echo $setting['is_active'] ? 'checked' : ''; ?>
+                                                data-product-type="<?php echo $setting['product_type']; ?>">
+                                            <label class="form-check-label">
+                                                <span
+                                                    class="status-badge <?php echo $setting['is_active'] ? 'active' : 'inactive'; ?>">
+                                                    <?php echo $setting['is_active'] ? 'Active' : 'Inactive'; ?>
+                                                </span>
+                                            </label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <?php echo date('M j, Y H:i', strtotime($setting['updated_at'])); ?>
+                                    </td>
+                                    <td>
+                                        <div class="form-check">
+                                            <input class="form-check-input delete-checkbox" type="checkbox"
+                                                name="delete_tax[]" value="<?php echo $setting['product_type']; ?>"
+                                                onchange="confirmDelete(this)">
+                                        </div>
+                                    </td>
+                                </tr>
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
@@ -770,20 +770,20 @@ $page_title = "Tax Settings - Admin Panel";
                                     'update_tax_status' => 'Status Changed'
                                 ][$log['action']] ?? $log['action'];
                             ?>
-                                <tr>
-                                    <td><?php echo date('M j, Y H:i', strtotime($log['created_at'])); ?></td>
-                                    <td>
-                                        <span
-                                            class="badge bg-<?php echo $log['action'] === 'delete_tax' ? 'danger' : ($log['action'] === 'add_tax' ? 'success' : ($log['action'] === 'update_tax_status' ? 'warning' : 'info')); ?>">
-                                            <?php echo $action_text; ?>
-                                        </span>
-                                    </td>
-                                    <td><?php echo ucfirst($details['product_type']); ?></td>
-                                    <td><?php echo isset($details['old_rate']) ? $details['old_rate'] . '%' : '-'; ?></td>
-                                    <td><?php echo isset($details['new_rate']) ? $details['new_rate'] . '%' : (isset($details['tax_rate']) ? $details['tax_rate'] . '%' : '-'); ?>
-                                    </td>
-                                    <td><?php echo htmlspecialchars($log['full_name']); ?></td>
-                                </tr>
+                            <tr>
+                                <td><?php echo date('M j, Y H:i', strtotime($log['created_at'])); ?></td>
+                                <td>
+                                    <span
+                                        class="badge bg-<?php echo $log['action'] === 'delete_tax' ? 'danger' : ($log['action'] === 'add_tax' ? 'success' : ($log['action'] === 'update_tax_status' ? 'warning' : 'info')); ?>">
+                                        <?php echo $action_text; ?>
+                                    </span>
+                                </td>
+                                <td><?php echo ucfirst($details['product_type']); ?></td>
+                                <td><?php echo isset($details['old_rate']) ? $details['old_rate'] . '%' : '-'; ?></td>
+                                <td><?php echo isset($details['new_rate']) ? $details['new_rate'] . '%' : (isset($details['tax_rate']) ? $details['tax_rate'] . '%' : '-'); ?>
+                                </td>
+                                <td><?php echo htmlspecialchars($log['full_name']); ?></td>
+                            </tr>
                             <?php endwhile; ?>
                         </tbody>
                     </table>
@@ -795,9 +795,9 @@ $page_title = "Tax Settings - Admin Panel";
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Show toast notification
-        function showToast(message, type = 'success') {
-            const toast = `
+    // Show toast notification
+    function showToast(message, type = 'success') {
+        const toast = `
             <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
                 <div class="toast-header">
                     <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
@@ -809,137 +809,137 @@ $page_title = "Tax Settings - Admin Panel";
             </div>
         `;
 
-            $('.toast-container').append(toast);
-            const toastElement = $('.toast').last();
-            const bsToast = new bootstrap.Toast(toastElement, {
-                delay: 3000
-            });
-            bsToast.show();
-
-            toastElement.on('hidden.bs.toast', function() {
-                $(this).remove();
-            });
-        }
-
-        // Show loading spinner
-        function showLoading() {
-            $('.loading-spinner').css('display', 'flex');
-        }
-
-        // Hide loading spinner
-        function hideLoading() {
-            $('.loading-spinner').css('display', 'none');
-        }
-
-        // Add input validation
-        document.querySelectorAll('input[type="number"]').forEach(input => {
-            input.addEventListener('change', function() {
-                if (this.value < 0) this.value = 0;
-                if (this.value > 100) this.value = 100;
-            });
+        $('.toast-container').append(toast);
+        const toastElement = $('.toast').last();
+        const bsToast = new bootstrap.Toast(toastElement, {
+            delay: 3000
         });
+        bsToast.show();
 
-        // Handle status switch changes
-        $('.status-switch').on('change', function() {
-            const productType = $(this).data('product-type');
-            const isActive = $(this).prop('checked');
-            const label = $(this).next().find('.status-badge');
+        toastElement.on('hidden.bs.toast', function() {
+            $(this).remove();
+        });
+    }
 
-            showLoading();
+    // Show loading spinner
+    function showLoading() {
+        $('.loading-spinner').css('display', 'flex');
+    }
 
-            $.ajax({
-                url: window.location.href,
-                method: 'POST',
-                data: {
-                    action: 'update_status',
-                    product_type: productType,
-                    is_active: isActive ? 1 : 0
-                },
-                success: function(response) {
-                    const data = JSON.parse(response);
-                    if (data.success) {
-                        if (isActive) {
-                            label.text('Active');
-                            label.removeClass('inactive').addClass('active');
-                        } else {
-                            label.text('Inactive');
-                            label.removeClass('active').addClass('inactive');
-                        }
-                        showToast('Status updated successfully');
+    // Hide loading spinner
+    function hideLoading() {
+        $('.loading-spinner').css('display', 'none');
+    }
+
+    // Add input validation
+    document.querySelectorAll('input[type="number"]').forEach(input => {
+        input.addEventListener('change', function() {
+            if (this.value < 0) this.value = 0;
+            if (this.value > 100) this.value = 100;
+        });
+    });
+
+    // Handle status switch changes
+    $('.status-switch').on('change', function() {
+        const productType = $(this).data('product-type');
+        const isActive = $(this).prop('checked');
+        const label = $(this).next().find('.status-badge');
+
+        showLoading();
+
+        $.ajax({
+            url: window.location.href,
+            method: 'POST',
+            data: {
+                action: 'update_status',
+                product_type: productType,
+                is_active: isActive ? 1 : 0
+            },
+            success: function(response) {
+                const data = JSON.parse(response);
+                if (data.success) {
+                    if (isActive) {
+                        label.text('Active');
+                        label.removeClass('inactive').addClass('active');
                     } else {
-                        showToast(data.error || 'Error updating status', 'error');
-                        // Revert the switch
-                        $(this).prop('checked', !isActive);
+                        label.text('Inactive');
+                        label.removeClass('active').addClass('inactive');
                     }
-                },
-                error: function() {
-                    showToast('Error updating status', 'error');
+                    showToast('Status updated successfully');
+                } else {
+                    showToast(data.error || 'Error updating status', 'error');
                     // Revert the switch
                     $(this).prop('checked', !isActive);
-                },
-                complete: function() {
-                    hideLoading();
                 }
-            });
+            },
+            error: function() {
+                showToast('Error updating status', 'error');
+                // Revert the switch
+                $(this).prop('checked', !isActive);
+            },
+            complete: function() {
+                hideLoading();
+            }
         });
+    });
 
-        // Confirm delete for individual tax types
-        function confirmDelete(checkbox) {
-            if (checkbox.checked) {
-                const productType = checkbox.value;
-                if (!confirm(`Are you sure you want to delete the tax type "${productType}"?`)) {
-                    checkbox.checked = false;
-                }
+    // Confirm delete for individual tax types
+    function confirmDelete(checkbox) {
+        if (checkbox.checked) {
+            const productType = checkbox.value;
+            if (!confirm(`Are you sure you want to delete the tax type "${productType}"?`)) {
+                checkbox.checked = false;
             }
         }
+    }
 
-        // Confirm delete for selected tax types
-        function confirmDeleteSelected() {
-            const checkboxes = document.querySelectorAll('input[name="delete_tax[]"]:checked');
-            if (checkboxes.length === 0) {
-                showToast('Please select at least one tax type to delete', 'error');
-                return;
-            }
-
-            const taxTypes = Array.from(checkboxes).map(cb => cb.value);
-            if (confirm(`Are you sure you want to delete the following tax type(s)?\n${taxTypes.join('\n')}`)) {
-                showLoading();
-                document.getElementById('taxForm').submit();
-            }
+    // Confirm delete for selected tax types
+    function confirmDeleteSelected() {
+        const checkboxes = document.querySelectorAll('input[name="delete_tax[]"]:checked');
+        if (checkboxes.length === 0) {
+            showToast('Please select at least one tax type to delete', 'error');
+            return;
         }
 
-        // Add animation to status badges
-        document.querySelectorAll('.status-badge').forEach(badge => {
-            badge.style.transition = 'all 0.3s ease';
-        });
-
-        // Handle form submission
-        $('#taxForm').on('submit', function() {
+        const taxTypes = Array.from(checkboxes).map(cb => cb.value);
+        if (confirm(`Are you sure you want to delete the following tax type(s)?\n${taxTypes.join('\n')}`)) {
             showLoading();
-        });
-
-        // Handle sidebar toggle
-        function toggleSidebar() {
-            document.body.classList.toggle('sidebar-collapsed');
+            document.getElementById('taxForm').submit();
         }
+    }
 
-        // Handle sidenav collapse
-        const sidenav = document.getElementById('sidenav');
-        const mainContent = document.getElementById('main-content');
+    // Add animation to status badges
+    document.querySelectorAll('.status-badge').forEach(badge => {
+        badge.style.transition = 'all 0.3s ease';
+    });
 
-        // Initialize sidebar state
-        document.addEventListener('DOMContentLoaded', function() {
-            const sidebarState = localStorage.getItem('sidebarState');
-            if (sidebarState === 'collapsed') {
-                document.body.classList.add('sidebar-collapsed');
-            }
-        });
+    // Handle form submission
+    $('#taxForm').on('submit', function() {
+        showLoading();
+    });
 
-        // Save sidebar state
-        document.querySelector('.sidebar-toggle').addEventListener('click', function() {
-            const isCollapsed = document.body.classList.contains('sidebar-collapsed');
-            localStorage.setItem('sidebarState', isCollapsed ? 'expanded' : 'collapsed');
-        });
+    // Handle sidebar toggle
+    function toggleSidebar() {
+        document.body.classList.toggle('sidebar-collapsed');
+    }
+
+    // Handle sidenav collapse
+    const sidenav = document.getElementById('sidenav');
+    const mainContent = document.getElementById('main-content');
+
+    // Initialize sidebar state
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebarState = localStorage.getItem('sidebarState');
+        if (sidebarState === 'collapsed') {
+            document.body.classList.add('sidebar-collapsed');
+        }
+    });
+
+    // Save sidebar state
+    document.querySelector('.sidebar-toggle').addEventListener('click', function() {
+        const isCollapsed = document.body.classList.contains('sidebar-collapsed');
+        localStorage.setItem('sidebarState', isCollapsed ? 'expanded' : 'collapsed');
+    });
     </script>
 </body>
 

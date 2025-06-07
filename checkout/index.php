@@ -9,6 +9,11 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
+    // Preserve cart for checkout if it exists
+    if (!empty($_SESSION['cart'])) {
+        preserveCartForCheckout();
+    }
+    
     if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
         http_response_code(401);
         echo json_encode(['error' => 'Unauthorized']);
