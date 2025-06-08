@@ -63,7 +63,7 @@ class PayPalClient
     private $client_secret;
     private $base_url;
 
-    public function __construct($client_id, $client_secret, $sandbox = true)
+    public function __construct($client_id, $client_secret, $sandbox = false)
     {
         $this->client_id = $client_id;
         $this->client_secret = $client_secret;
@@ -83,11 +83,9 @@ class PayPalClient
             'Authorization: Bearer ' . $access_token
         ]);
 
-        // Disable SSL verification for development
-        if (getConfig('paypal_sandbox')) {
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        }
+        // Enable SSL verification for production
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 
         $response = curl_exec($ch);
         $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -113,11 +111,9 @@ class PayPalClient
         curl_setopt($ch, CURLOPT_POSTFIELDS, 'grant_type=client_credentials');
         curl_setopt($ch, CURLOPT_USERPWD, $this->client_id . ':' . $this->client_secret);
 
-        // Disable SSL verification for development
-        if (getConfig('paypal_sandbox')) {
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        }
+        // Enable SSL verification for production
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 
         $response = curl_exec($ch);
         $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);

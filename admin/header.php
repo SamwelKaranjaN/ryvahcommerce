@@ -501,6 +501,10 @@ require_once 'php/session_check.php';
                 <i class="fas fa-chart-bar"></i>
                 <span class="nav-text">Shipping Management</span>
             </a>
+            <a href="marketing_emails.php" class="nav-item">
+                <i class="fas fa-envelope"></i>
+                <span class="nav-text">Marketing Emails</span>
+            </a>
             <a href="reports.php" class="nav-item">
                 <i class="fas fa-chart-bar"></i>
                 <span class="nav-text">Reports</span>

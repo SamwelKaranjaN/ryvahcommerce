@@ -30,8 +30,8 @@ try {
 
     // Test specific PayPal endpoints
     $endpoints = [
-        'auth' => 'https://api.sandbox.paypal.com/v1/oauth2/token',
-        'orders' => 'https://api.sandbox.paypal.com/v2/checkout/orders'
+        'auth' => 'https://api.paypal.com/v1/oauth2/token',
+        'orders' => 'https://api.paypal.com/v2/checkout/orders'
     ];
 
     foreach ($endpoints as $name => $url) {

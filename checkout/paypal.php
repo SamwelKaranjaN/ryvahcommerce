@@ -10,7 +10,7 @@ class PayPal
     {
         $this->client_id = 'ARb4izn3jwTWc2j2x6UDmompOiO2Uq3HQKodHTR3Y6UKUN61daJD09G8JVrx6UWz11-CL2fcty8UJ2CJ';
         $this->client_secret = 'EDUXnHsBZ0L7gUXjdpI9l7oFnCTIftl0UORyDtsXIZqBb7reoiNhGlEI4U2Qv_lKsI_oaK1Z3eVhzOyW';
-        $this->base_url = 'https://api-m.sandbox.paypal.com';
+        $this->base_url = 'https://api-m.paypal.com';
         $this->access_token = $this->getAccessToken();
     }
 

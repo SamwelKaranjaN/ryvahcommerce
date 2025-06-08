@@ -1,4 +1,6 @@
-<?php include '../includes/layouts/header.php'; ?>
+<?php
+
+include '../includes/layouts/header.php'; ?>
 
 <!-- Link to custom NFT styles -->
 <link rel="stylesheet" href="nft-styles.css">
@@ -13,172 +15,292 @@
 
         <!-- NFT Grid -->
         <div class="row g-4">
-            <!-- NFT #12 Card -->
+            <?php
+            // NFT data array - same as in detail.php
+            $nfts = [
+                1 => [
+                    'title' => 'NFT #1',
+                    'subtitle' => '13x17 painting #1 "P!nk"',
+                    'author' => 'Michael J. Leonard',
+                    'collection' => 'NFT RY VAH',
+                    'status' => '©2023 RYVAH',
+                    'main_text' => 'I am strengthening the Constitutional Right to Freedom of Speech by normalizing nudity.',
+                    'description' => 'Inspired by album cover of: P!ink.',
+                    'character_image' => '../assets/images/nft-character-1.jpg'
+                ],
+                2 => [
+                    'title' => 'NFT #2',
+                    'subtitle' => '13x17 painting #2 "Red and the Robot"',
+                    'author' => 'Michael J. Leonard',
+                    'collection' => 'NFT RY VAH',
+                    'status' => '©2023 RYVAH',
+                    'main_text' => 'I am strengthening the Constitutional Right to Freedom of Speech by normalizing nudity.',
+                    'description' => '"We must never allow nudity to be prohibited. Nudity is Divinity. Nudity is normal"',
+                    'character_image' => '../assets/images/nft-character-2.jpg'
+                ],
+                3 => [
+                    'title' => 'NFT #3',
+                    'subtitle' => '13x17 painting #3 "Lolita Hathawatts"',
+                    'author' => 'Michael J. Leonard',
+                    'collection' => 'NFT RY VAH',
+                    'status' => '©2023 RYVAH',
+                    'main_text' => 'I am strengthening the Constitutional Right to Freedom of Speech by normalizing nudity.',
+                    'description' => 'In the cockpit of a mecha defending nudity, love and romance.',
+                    'character_image' => '../assets/images/nft-character-3.jpg'
+                ],
+                4 => [
+                    'title' => 'NFT #4',
+                    'subtitle' => '13x17 painting #4 "Fraya Hathawatts"',
+                    'author' => 'Michael J. Leonard',
+                    'collection' => 'NFT RY VAH',
+                    'status' => '©2023 RYVAH',
+                    'main_text' => 'I am strengthening the Constitutional Right to Freedom of Speech by normalizing nudity.',
+                    'description' => 'A large circle of light encompasses the girl in a future vision.',
+                    'character_image' => '../assets/images/nft-character-4.jpg'
+                ],
+                5 => [
+                    'title' => 'NFT #5',
+                    'subtitle' => '13x17 painting #5 "Lilith & Eve"',
+                    'author' => 'Michael J. Leonard',
+                    'collection' => 'NFT RY VAH',
+                    'status' => '©2023 RYVAH',
+                    'main_text' => 'I am strengthening the Constitutional Right to Freedom of Speech by normalizing nudity.',
+                    'description' => 'Two girls at play - exploring freedom and divine nudity.',
+                    'character_image' => '../assets/images/nft-character-5.jpg'
+                ],
+                6 => [
+                    'title' => 'NFT #6',
+                    'subtitle' => '13x17 painting #6 "Yumaria"',
+                    'author' => 'Michael J. Leonard',
+                    'collection' => 'NFT RY VAH',
+                    'status' => '©2023 RYVAH',
+                    'main_text' => 'I am strengthening the Constitutional Right to Freedom of Speech by normalizing nudity.',
+                    'description' => 'A powerful statement on freedom with dual layers.',
+                    'character_image' => '../assets/images/nft-character-6.jpg'
+                ],
+                7 => [
+                    'title' => 'NFT #7',
+                    'subtitle' => '13x17 painting #7 "Yumaria and the Robot"',
+                    'author' => 'Michael J. Leonard',
+                    'collection' => 'NFT RY VAH',
+                    'status' => '©2023 RYVAH',
+                    'main_text' => 'I am strengthening the Constitutional Right to Freedom of Speech by normalizing nudity.',
+                    'description' => 'Constitutional Rights to Free Speech and Bear Arms.',
+                    'character_image' => '../assets/images/nft-character-7.jpg'
+                ],
+                8 => [
+                    'title' => 'NFT #8',
+                    'subtitle' => '13x17 painting #8 "Clockwork Doll Fraya"',
+                    'author' => 'Michael J. Leonard',
+                    'collection' => 'NFT RY VAH',
+                    'status' => '©2023 RYVAH',
+                    'main_text' => 'I am strengthening the Constitutional Right to Freedom of Speech by normalizing nudity.',
+                    'description' => 'A robot exploring the nature of nudity and freedom.',
+                    'character_image' => '../assets/images/nft-character-8.jpg'
+                ],
+                9 => [
+                    'title' => 'NFT #9',
+                    'subtitle' => '13x17 painting #9 "Blonde Fairies"',
+                    'author' => 'Michael J. Leonard',
+                    'collection' => 'NFT RY VAH',
+                    'status' => '©2023 RYVAH',
+                    'main_text' => 'I am strengthening the Constitutional Right to Freedom of Speech by normalizing nudity.',
+                    'description' => 'Inspired by the movie \'Wizards\' from the \'70s.',
+                    'character_image' => '../assets/images/nft-character-9.jpg'
+                ],
+                10 => [
+                    'title' => 'NFT #10',
+                    'subtitle' => '13x17 painting #10 "Orange Fairies"',
+                    'author' => 'Michael J. Leonard',
+                    'collection' => 'NFT RY VAH',
+                    'status' => '©2023 RYVAH',
+                    'main_text' => 'I am strengthening the Constitutional Right to Freedom of Speech by normalizing nudity.',
+                    'description' => 'Artworks from \'Wizards\' representing love and innocence.',
+                    'character_image' => '../assets/images/nft-character-10.jpg'
+                ],
+                11 => [
+                    'title' => 'NFT #11',
+                    'subtitle' => '13x17 painting #11 "Red Fairies"',
+                    'author' => 'Michael J. Leonard',
+                    'collection' => 'NFT RY VAH',
+                    'status' => '©2023 RYVAH',
+                    'main_text' => 'I am strengthening the Constitutional Right to Freedom of Speech by normalizing nudity.',
+                    'description' => 'Symbol of reclaiming lost freedoms and rights.',
+                    'character_image' => '../assets/images/nft-character-11.jpg'
+                ],
+                12 => [
+                    'title' => 'NFT #12',
+                    'subtitle' => '13x17 painting #12 "Elk Horn Succubus"',
+                    'author' => 'Michael J. Leonard',
+                    'collection' => 'NFT RY VAH',
+                    'status' => '©2023 RYVAH',
+                    'main_text' => 'I am strengthening the Constitutional Right to Freedom of Speech by normalizing nudity.',
+                    'description' => 'Dual images exploring freedom of thought and expression.',
+                    'character_image' => '../assets/images/nft-character-12.jpg'
+                ],
+                13 => [
+                    'title' => 'NFT #13',
+                    'subtitle' => '13x17 painting #13 "Pink Medusa"',
+                    'author' => 'Michael J. Leonard',
+                    'collection' => 'NFT RY VAH',
+                    'status' => '©2023 RYVAH',
+                    'main_text' => 'I am strengthening the Constitutional Right to Freedom of Speech by normalizing nudity.',
+                    'description' => 'Exploring how conduct remains unchanged regardless of nudity.',
+                    'character_image' => '../assets/images/nft-character-13.jpg'
+                ],
+                14 => [
+                    'title' => 'NFT #14',
+                    'subtitle' => '13x17 painting #14 "Ecneconni on wall"',
+                    'author' => 'Michael J. Leonard',
+                    'collection' => 'NFT RY VAH',
+                    'status' => '©2023 RYVAH',
+                    'main_text' => 'I am strengthening the Constitutional Right to Freedom of Speech by normalizing nudity.',
+                    'description' => 'Eyes and hair grab attention while nudity is simply natural.',
+                    'character_image' => '../assets/images/nft-character-14.jpg'
+                ],
+                15 => [
+                    'title' => 'NFT #15',
+                    'subtitle' => '13x17 painting #15 "Hippocampus"',
+                    'author' => 'Michael J. Leonard',
+                    'collection' => 'NFT RY VAH',
+                    'status' => '©2023 RYVAH',
+                    'main_text' => 'I am strengthening the Constitutional Right to Freedom of Speech by normalizing nudity.',
+                    'description' => 'Comparing nude vs. clothed - nature\'s truest form.',
+                    'character_image' => '../assets/images/nft-character-15.jpg'
+                ],
+                16 => [
+                    'title' => 'NFT #16',
+                    'subtitle' => '13x17 painting #16 "Fairy N31"',
+                    'author' => 'Michael J. Leonard',
+                    'collection' => 'NFT RY VAH',
+                    'status' => '©2023 RYVAH',
+                    'main_text' => 'I am strengthening the Constitutional Right to Freedom of Speech by normalizing nudity.',
+                    'description' => 'Yellow wings and purple backdrop - nudity as divine default.',
+                    'character_image' => '../assets/images/nft-character-16.jpg'
+                ],
+                17 => [
+                    'title' => 'NFT #17',
+                    'subtitle' => '13x17 painting #17 "Astral Dragon"',
+                    'author' => 'Michael J. Leonard',
+                    'collection' => 'NFT RY VAH',
+                    'status' => '©2023 RYVAH',
+                    'main_text' => 'I am strengthening the Constitutional Right to Freedom of Speech by normalizing nudity.',
+                    'description' => 'Emeralds, dragons, and nudity - what should be most common?',
+                    'character_image' => '../assets/images/nft-character-17.jpg'
+                ],
+                18 => [
+                    'title' => 'NFT #18',
+                    'subtitle' => '13x17 painting #18 "Flourish Chin Cat"',
+                    'author' => 'Michael J. Leonard',
+                    'collection' => 'NFT RY VAH',
+                    'status' => '©2023 RYVAH',
+                    'main_text' => 'I am strengthening the Constitutional Right to Freedom of Speech by normalizing nudity.',
+                    'description' => 'Nudity should be as unremarkable as race - normal by default.',
+                    'character_image' => '../assets/images/nft-character-18.jpg'
+                ],
+                19 => [
+                    'title' => 'NFT #19',
+                    'subtitle' => '13x17 painting #19 "Dark Nymph"',
+                    'author' => 'Michael J. Leonard',
+                    'collection' => 'NFT RY VAH',
+                    'status' => '©2023 RYVAH',
+                    'main_text' => 'I am strengthening the Constitutional Right to Freedom of Speech by normalizing nudity.',
+                    'description' => 'Vampire fairy lesbian - nudity tells truth, clothing lies.',
+                    'character_image' => '../assets/images/nft-character-19.jpg'
+                ],
+                20 => [
+                    'title' => 'NFT #20',
+                    'subtitle' => '13x17 painting #20 "Fairy Dragon"',
+                    'author' => 'Michael J. Leonard',
+                    'collection' => 'NFT RY VAH',
+                    'status' => '©2023 RYVAH',
+                    'main_text' => 'I am strengthening the Constitutional Right to Freedom of Speech by normalizing nudity.',
+                    'description' => 'Magic in love depicted through nudity and dragons.',
+                    'character_image' => '../assets/images/nft-character-20.jpg'
+                ],
+                21 => [
+                    'title' => 'NFT #21',
+                    'subtitle' => '13x17 painting #21 "Dryad"',
+                    'author' => 'Michael J. Leonard',
+                    'collection' => 'NFT RY VAH',
+                    'status' => '©2023 RYVAH',
+                    'main_text' => 'I am strengthening the Constitutional Right to Freedom of Speech by normalizing nudity.',
+                    'description' => 'Invoking love, joy, and divine connection through nudity.',
+                    'character_image' => '../assets/images/nft-character-21.jpg'
+                ],
+                22 => [
+                    'title' => 'NFT #22',
+                    'subtitle' => '13x17 painting #22 "Horn Devil"',
+                    'author' => 'Michael J. Leonard',
+                    'collection' => 'NFT RY VAH',
+                    'status' => '©2023 RYVAH',
+                    'main_text' => 'I am strengthening the Constitutional Right to Freedom of Speech by normalizing nudity.',
+                    'description' => 'Devil girl with wings - eyes pulled to hair and wings.',
+                    'character_image' => '../assets/images/nft-character-22.jpg'
+                ],
+                23 => [
+                    'title' => 'NFT #23',
+                    'subtitle' => '13x17 painting #23 "Spirit Owl"',
+                    'author' => 'Michael J. Leonard',
+                    'collection' => 'NFT RY VAH',
+                    'status' => '©2023 RYVAH',
+                    'main_text' => 'I am strengthening the Constitutional Right to Freedom of Speech by normalizing nudity.',
+                    'description' => 'Girl with owl - nudity as natural background element.',
+                    'character_image' => '../assets/images/nft-character-23.jpg'
+                ],
+                24 => [
+                    'title' => 'NFT #24',
+                    'subtitle' => '13x17 painting #24 "Jaguar Dryad"',
+                    'author' => 'Michael J. Leonard',
+                    'collection' => 'NFT RY VAH',
+                    'status' => '©2023 RYVAH',
+                    'main_text' => 'I am strengthening the Constitutional Right to Freedom of Speech by normalizing nudity.',
+                    'description' => 'Cat girl - viewer focus says more about viewer than artwork.',
+                    'character_image' => '../assets/images/nft-character-24.jpg'
+                ]
+            ];
+
+            // Loop through each NFT and generate card
+            foreach ($nfts as $nft_id => $nft_data):
+                $character_img = $nft_data['character_image'];
+            ?>
+            <!-- NFT #<?php echo $nft_id; ?> Card -->
             <div class="col-md-6 col-lg-4">
                 <div class="card nft-card h-100">
                     <div class="nft-preview-container">
-                        <?php
-                        $character_img = '../assets/images/nft-character-12.jpg';
-                        if (file_exists($character_img)): ?>
-                        <img src="<?php echo $character_img; ?>" class="card-img-top nft-preview" alt="NFT #12">
+                        <?php if (file_exists($character_img)): ?>
+                        <img src="<?php echo $character_img; ?>" class="card-img-top nft-preview"
+                            alt="<?php echo $nft_data['title']; ?>">
                         <?php else: ?>
                         <div class="nft-preview-placeholder">
                             <div class="text-center">
                                 <i class="fas fa-image fa-3x mb-3"></i>
-                                <h5>NFT #12</h5>
+                                <h5><?php echo $nft_data['title']; ?></h5>
                                 <small>Character Artwork</small>
                             </div>
                         </div>
                         <?php endif; ?>
                         <div class="nft-badge">
-                            <span class="badge bg-warning">Coming Soon</span>
+                            <span class="badge bg-success"><?php echo $nft_data['status']; ?></span>
                         </div>
                     </div>
                     <div class="card-body">
-                        <h5 class="card-title">NFT #12</h5>
-                        <p class="card-text text-muted">By Michael J. Leonard</p>
+                        <h5 class="card-title"><?php echo htmlspecialchars($nft_data['title']); ?></h5>
+                        <p class="card-text text-muted">By <?php echo htmlspecialchars($nft_data['author']); ?></p>
                         <p class="card-text">
-                            <small>Constitutional Right to Freedom of Speech through art</small>
+                            <small><?php echo htmlspecialchars($nft_data['description']); ?></small>
                         </p>
                         <div class="d-flex justify-content-between align-items-center">
-                            <small class="text-muted">1st Opening #2</small>
-                            <a href="detail.php?id=12" class="btn btn-primary btn-sm">
+                            <small
+                                class="text-muted"><?php echo substr($nft_data['subtitle'], 0, 20) . '...'; ?></small>
+                            <a href="detail?id=<?php echo $nft_id; ?>" class="btn btn-primary btn-sm">
                                 <i class="fas fa-eye me-1"></i>View Details
                             </a>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!-- NFT #13 Card - Coming Soon -->
-            <div class="col-md-6 col-lg-4">
-                <div class="card nft-card h-100 coming-soon-card">
-                    <div class="nft-preview-placeholder">
-                        <div class="text-center">
-                            <i class="fas fa-clock fa-3x mb-3"></i>
-                            <h5>NFT #13</h5>
-                            <small>Coming Soon</small>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title">NFT #13</h5>
-                        <p class="card-text text-muted">Future Release</p>
-                        <p class="card-text">
-                            <small>Next artwork in the collection</small>
-                        </p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <small class="text-muted">Coming Soon</small>
-                            <button class="btn btn-secondary btn-sm" disabled>
-                                <i class="fas fa-clock me-1"></i>Preview
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- NFT #14 Card - Coming Soon -->
-            <div class="col-md-6 col-lg-4">
-                <div class="card nft-card h-100 coming-soon-card">
-                    <div class="nft-preview-placeholder">
-                        <div class="text-center">
-                            <i class="fas fa-clock fa-3x mb-3"></i>
-                            <h5>NFT #14</h5>
-                            <small>Coming Soon</small>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title">NFT #14</h5>
-                        <p class="card-text text-muted">Future Release</p>
-                        <p class="card-text">
-                            <small>Upcoming digital artwork</small>
-                        </p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <small class="text-muted">Coming Soon</small>
-                            <button class="btn btn-secondary btn-sm" disabled>
-                                <i class="fas fa-clock me-1"></i>Preview
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- NFT #15 Card - Coming Soon -->
-            <div class="col-md-6 col-lg-4">
-                <div class="card nft-card h-100 coming-soon-card">
-                    <div class="nft-preview-placeholder">
-                        <div class="text-center">
-                            <i class="fas fa-clock fa-3x mb-3"></i>
-                            <h5>NFT #15</h5>
-                            <small>Coming Soon</small>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title">NFT #15</h5>
-                        <p class="card-text text-muted">Future Release</p>
-                        <p class="card-text">
-                            <small>Digital art collection expansion</small>
-                        </p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <small class="text-muted">Coming Soon</small>
-                            <button class="btn btn-secondary btn-sm" disabled>
-                                <i class="fas fa-clock me-1"></i>Preview
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- NFT #16 Card - Coming Soon -->
-            <div class="col-md-6 col-lg-4">
-                <div class="card nft-card h-100 coming-soon-card">
-                    <div class="nft-preview-placeholder">
-                        <div class="text-center">
-                            <i class="fas fa-clock fa-3x mb-3"></i>
-                            <h5>NFT #16</h5>
-                            <small>Coming Soon</small>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title">NFT #16</h5>
-                        <p class="card-text text-muted">Future Release</p>
-                        <p class="card-text">
-                            <small>Exclusive limited edition</small>
-                        </p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <small class="text-muted">Coming Soon</small>
-                            <button class="btn btn-secondary btn-sm" disabled>
-                                <i class="fas fa-clock me-1"></i>Preview
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- NFT #17 Card - Coming Soon -->
-            <div class="col-md-6 col-lg-4">
-                <div class="card nft-card h-100 coming-soon-card">
-                    <div class="nft-preview-placeholder">
-                        <div class="text-center">
-                            <i class="fas fa-clock fa-3x mb-3"></i>
-                            <h5>NFT #17</h5>
-                            <small>Coming Soon</small>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title">NFT #17</h5>
-                        <p class="card-text text-muted">Future Release</p>
-                        <p class="card-text">
-                            <small>Community requested design</small>
-                        </p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <small class="text-muted">Coming Soon</small>
-                            <button class="btn btn-secondary btn-sm" disabled>
-                                <i class="fas fa-clock me-1"></i>Preview
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <?php endforeach; ?>
         </div>
 
         <!-- About NFT Section -->

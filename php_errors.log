@@ -1,11 +1,11 @@
-[07-Jun-2025 08:40:17 UTC] Adding to cart: Array
-(
-    [product_id] => 12
-    [quantity] => 1
-)
-
-[07-Jun-2025 08:40:20 UTC] Getting cart items
-[07-Jun-2025 08:40:20 UTC] Cart Data: Array
+[08-Jun-2025 10:04:38 UTC] WARNING: Running PayPal integration in development mode with relaxed SSL settings
+[08-Jun-2025 10:04:39 UTC] PHP Deprecated:  Creation of dynamic property PayPalCheckoutSdk\Core\PayPalHttpClient::$curlCls is deprecated in C:\wamp64\www\ryvahcommerce\vendor\paypal\paypalhttp\lib\PayPalHttp\HttpClient.php on line 38
+[08-Jun-2025 10:04:39 UTC] PHP Stack trace:
+[08-Jun-2025 10:04:39 UTC] PHP   1. {main}() C:\wamp64\www\ryvahcommerce\test_checkout_fixed.php:0
+[08-Jun-2025 10:04:39 UTC] PHP   2. PayPalCheckoutSdk\Core\PayPalHttpClient->__construct($environment = class PayPalCheckoutSdk\Core\ProductionEnvironment { private ${PayPalCheckoutSdk\Core\PayPalEnvironment}clientId = 'ARb4izn3jwTWc2j2x6UDmompOiO2Uq3HQKodHTR3Y6UKUN61daJD09G8JVrx6UWz11-CL2fcty8UJ2CJ'; private ${PayPalCheckoutSdk\Core\PayPalEnvironment}clientSecret = 'EDUXnHsBZ0L7gUXjdpI9l7oFnCTIftl0UORyDtsXIZqBb7reoiNhGlEI4U2Qv_lKsI_oaK1Z3eVhzOyW' }, $refreshToken = *uninitialized*) C:\wamp64\www\ryvahcommerce\test_checkout_fixed.php:210
+[08-Jun-2025 10:04:39 UTC] PHP   3. PayPalHttp\HttpClient->__construct($environment = class PayPalCheckoutSdk\Core\ProductionEnvironment { private ${PayPalCheckoutSdk\Core\PayPalEnvironment}clientId = 'ARb4izn3jwTWc2j2x6UDmompOiO2Uq3HQKodHTR3Y6UKUN61daJD09G8JVrx6UWz11-CL2fcty8UJ2CJ'; private ${PayPalCheckoutSdk\Core\PayPalEnvironment}clientSecret = 'EDUXnHsBZ0L7gUXjdpI9l7oFnCTIftl0UORyDtsXIZqBb7reoiNhGlEI4U2Qv_lKsI_oaK1Z3eVhzOyW' }) C:\wamp64\www\ryvahcommerce\vendor\paypal\paypal-checkout-sdk\lib\PayPalCheckoutSdk\Core\PayPalHttpClient.php:14
+[08-Jun-2025 10:04:39 UTC] Getting cart items
+[08-Jun-2025 10:04:39 UTC] Cart Data: Array
 (
     [items] => Array
         (
@@ -25,46 +25,27 @@
     [total] => 24.95
 )
 
-[07-Jun-2025 08:41:41 UTC] Adding to cart: Array
-(
-    [product_id] => 12
-    [quantity] => 1
-)
-
-[07-Jun-2025 09:11:43 UTC] Adding to cart: Array
-(
-    [product_id] => 4
-    [quantity] => 1
-)
-
-[07-Jun-2025 09:11:52 UTC] Getting cart items
-[07-Jun-2025 09:11:52 UTC] Cart Data: Array
-(
-    [items] => Array
-        (
-            [0] => Array
-                (
-                    [id] => 4
-                    [name] => React Essentials
-                    [price] => 11.99
-                    [quantity] => 1
-                    [stock] => 0
-                    [thumbs] => thumbs/react_essentials.jpg
-                    [type] => book
-                )
-
-        )
-
-    [total] => 11.99
-)
-
-[07-Jun-2025 09:26:58 UTC] Getting cart items
-[07-Jun-2025 09:26:58 UTC] Cart Data: Array
-(
-    [items] => Array
-        (
-        )
-
-    [total] => 0
-)
-
+[08-Jun-2025 10:17:25 UTC] PHP Fatal error:  Uncaught Error: Undefined constant "SMTP_HOST" in C:\wamp64\www\ryvahcommerce\demo_email.php:60
+Stack trace:
+#0 {main}
+  thrown in C:\wamp64\www\ryvahcommerce\demo_email.php on line 60
+[08-Jun-2025 10:17:25 UTC] Fatal Error: Uncaught Error: Undefined constant "SMTP_HOST" in C:\wamp64\www\ryvahcommerce\demo_email.php:60
+Stack trace:
+#0 {main}
+  thrown in C:\wamp64\www\ryvahcommerce\demo_email.php on line 60
+[08-Jun-2025 10:18:33 UTC] PHP Fatal error:  Uncaught Error: Undefined constant "SMTP_HOST" in C:\wamp64\www\ryvahcommerce\demo_email.php:60
+Stack trace:
+#0 {main}
+  thrown in C:\wamp64\www\ryvahcommerce\demo_email.php on line 60
+[08-Jun-2025 10:18:33 UTC] Fatal Error: Uncaught Error: Undefined constant "SMTP_HOST" in C:\wamp64\www\ryvahcommerce\demo_email.php:60
+Stack trace:
+#0 {main}
+  thrown in C:\wamp64\www\ryvahcommerce\demo_email.php on line 60
+[08-Jun-2025 10:21:53 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function generateOrderNotificationHtml() in C:\wamp64\www\ryvahcommerce\demo_email.php:73
+Stack trace:
+#0 {main}
+  thrown in C:\wamp64\www\ryvahcommerce\demo_email.php on line 73
+[08-Jun-2025 10:21:53 UTC] Fatal Error: Uncaught Error: Call to undefined function generateOrderNotificationHtml() in C:\wamp64\www\ryvahcommerce\demo_email.php:73
+Stack trace:
+#0 {main}
+  thrown in C:\wamp64\www\ryvahcommerce\demo_email.php on line 73

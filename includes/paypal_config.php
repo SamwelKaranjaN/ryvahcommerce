@@ -11,8 +11,8 @@ define('PAYPAL_ENVIRONMENT', 'production'); // 'sandbox' or 'production'
 
 
 // Production Credentials
-define('PAYPAL_PRODUCTION_CLIENT_ID', 'ARbQtWP1vIsYqgrKcL0v2hhlJA6NujGi26UWQz9Z4lsmPosxbSDPfzLSkaHtS8JRSvdysC99W0qvLyCI');
-define('PAYPAL_PRODUCTION_CLIENT_SECRET', 'EChoMRhi0vy7L_Defl5dqinOMbiWHxRmPG2e3ArjXXRQqHR1vwkg1IvHGTDxzwrOOuQR4n-z8ZteQiGc');
+define('PAYPAL_PRODUCTION_CLIENT_ID', 'ARb4izn3jwTWc2j2x6UDmompOiO2Uq3HQKodHTR3Y6UKUN61daJD09G8JVrx6UWz11-CL2fcty8UJ2CJ');
+define('PAYPAL_PRODUCTION_CLIENT_SECRET', 'EDUXnHsBZ0L7gUXjdpI9l7oFnCTIftl0UORyDtsXIZqBb7reoiNhGlEI4U2Qv_lKsI_oaK1Z3eVhzOyW');
 
 // Set current client ID constant for production
 define('PAYPAL_CLIENT_ID', PAYPAL_PRODUCTION_CLIENT_ID);
@@ -320,14 +320,13 @@ function sanitizeWebhookData($data)
  */
 function isPayPalSDKAvailable()
 {
-    // Skip SDK check in CLI mode to avoid autoloader issues
-    if (php_sapi_name() === 'cli') {
+    // Only skip SDK check in true CLI mode (not web requests)
+    if (php_sapi_name() === 'cli' && !isset($_SERVER['HTTP_HOST'])) {
         return false;
     }
 
     // This would be called from JavaScript, but we can validate server-side requirements
     $requiredClasses = [
-        'PayPalCheckoutSdk\Core\SandboxEnvironment',
         'PayPalCheckoutSdk\Core\ProductionEnvironment',
         'PayPalCheckoutSdk\Core\PayPalHttpClient',
         'PayPalCheckoutSdk\Orders\OrdersCreateRequest',
@@ -408,11 +407,23 @@ function testPayPalConnectivity()
 
         // Test basic API endpoint with cURL
         $ch = curl_init();
+
+        // Check if we're in a development environment
+        $serverName = $_SERVER['SERVER_NAME'] ?? '';
+        $httpHost = $_SERVER['HTTP_HOST'] ?? '';
+        $isDevelopment = (
+            $serverName === 'localhost' ||
+            $serverName === '127.0.0.1' ||
+            strpos($serverName, '.local') !== false ||
+            strpos($httpHost, 'localhost') !== false ||
+            php_sapi_name() === 'cli' // Also consider CLI as development
+        );
+
         curl_setopt_array($ch, [
             CURLOPT_URL => $apiUrl,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_SSL_VERIFYPEER => true,
-            CURLOPT_SSL_VERIFYHOST => 2,
+            CURLOPT_SSL_VERIFYPEER => !$isDevelopment, // Disable SSL verification in development
+            CURLOPT_SSL_VERIFYHOST => $isDevelopment ? 0 : 2, // Disable host verification in development
             CURLOPT_TIMEOUT => 30,
             CURLOPT_CONNECTTIMEOUT => 15,
             CURLOPT_FOLLOWLOCATION => true,

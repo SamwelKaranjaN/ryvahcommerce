@@ -27,6 +27,7 @@ ini_set('log_errors', '1');
 require_once '../includes/bootstrap.php';
 require_once '../includes/cart.php';
 require_once '../includes/paypal_config.php';
+require_once '../includes/ssl_fix.php';
 require_once '../vendor/autoload.php';
 
 /**
@@ -368,7 +369,13 @@ function createPayPalOrder($orderData, $address, $currency)
 
         // Initialize PayPal production environment
         $environment = new \PayPalCheckoutSdk\Core\ProductionEnvironment($credentials['client_id'], $credentials['client_secret']);
-        $client = new \PayPalCheckoutSdk\Core\PayPalHttpClient($environment);
+
+        // Use SSL-fixed client for development environments
+        if (function_exists('createPayPalClientWithSSLFix')) {
+            $client = createPayPalClientWithSSLFix($environment);
+        } else {
+            $client = new \PayPalCheckoutSdk\Core\PayPalHttpClient($environment);
+        }
 
         // Create order request
         $request = new \PayPalCheckoutSdk\Orders\OrdersCreateRequest();

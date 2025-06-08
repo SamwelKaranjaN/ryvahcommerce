@@ -9,15 +9,15 @@ function setSecurityHeaders()
     // Content Security Policy
     $csp = [
         "default-src 'self'",
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://www.paypal.com https://www.sandbox.paypal.com https://www.paypalobjects.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://www.paypal.com https://www.paypalobjects.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com",
         "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com",
         "img-src 'self' data: https: blob: https://www.paypalobjects.com https://stripe.com https://*.paypal.com",
-        "connect-src 'self' https://api.stripe.com https://api.paypal.com https://api.sandbox.paypal.com https://www.paypal.com https://www.sandbox.paypal.com wss://*.stripe.com https://*.paypal.com",
-        "frame-src 'self' https://js.stripe.com https://www.paypal.com https://www.sandbox.paypal.com https://*.paypal.com",
+        "connect-src 'self' https://api.stripe.com https://api.paypal.com https://www.paypal.com wss://*.stripe.com https://*.paypal.com",
+        "frame-src 'self' https://js.stripe.com https://www.paypal.com https://*.paypal.com",
         "font-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com",
         "object-src 'none'",
         "base-uri 'self'",
-        "form-action 'self' https://www.paypal.com https://www.sandbox.paypal.com",
+        "form-action 'self' https://www.paypal.com",
         "worker-src 'self' blob:",
         "child-src 'self' blob:"
     ];

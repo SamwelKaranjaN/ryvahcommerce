@@ -130,7 +130,7 @@ include '../includes/layouts/header.php';
                 <i class="fas fa-shopping-bag"></i>
                 View Cart
             </a>
-            <a href="../checkout" class="cart-action-btn checkout-btn">
+            <a href="../checkout/simple_checkout" class="cart-action-btn checkout-btn">
                 <i class="fas fa-credit-card"></i>
                 Checkout
             </a>
@@ -141,7 +141,7 @@ include '../includes/layouts/header.php';
 
 <!-- Success Message Toast -->
 <?php if (isset($_SESSION['success_message'])): ?>
-<div class="position-fixed top-50 end-0 p-3" style="z-index: 1050">
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 1050">
     <div class="toast show" role="alert">
         <div class="toast-header bg-success text-white">
             <i class="fas fa-check-circle me-2"></i>
@@ -699,20 +699,14 @@ footer h5 {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 12px;
+    border-radius: 5px;
 }
 
 .book-image {
     width: 100%;
     height: 100%;
-    max-width: 220px;
-    max-height: 300px;
     object-fit: contain;
     transition: transform 0.3s;
-    background: white;
-    padding: 10px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
     margin: 0 auto;
     display: block;
 }

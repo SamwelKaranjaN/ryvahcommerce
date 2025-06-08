@@ -25,5 +25,5 @@ session_start();
 $_SESSION['success_message'] = $user_name ? "Goodbye, $user_name! You have been successfully logged out." : "You have been successfully logged out.";
 
 // Redirect to home page
-header('Location: index.php');
+header('Location: index');
 exit;
