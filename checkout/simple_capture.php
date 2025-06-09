@@ -8,6 +8,9 @@
 // Prevent cart interference
 define('PAYPAL_ORDER_PROCESSING', true);
 
+// Suppress PHP 8.2+ deprecation warnings for PayPal SDK
+error_reporting(E_ALL & ~E_DEPRECATED);
+
 // Start output buffering for clean JSON response
 ob_start();
 
@@ -128,6 +131,73 @@ function validateCSRF($token)
 }
 
 /**
+ * Parse PayPal error details from exception
+ */
+function parsePayPalError($exception)
+{
+    $errorDetails = [
+        'is_paypal_error' => false,
+        'error_code' => null,
+        'error_message' => null,
+        'debug_id' => null,
+        'issues' => []
+    ];
+
+    try {
+        $message = $exception->getMessage();
+
+        // Check if it's a PayPal HTTP exception with JSON response
+        if (strpos($message, '{') !== false) {
+            $jsonStart = strpos($message, '{');
+            $jsonPart = substr($message, $jsonStart);
+            $errorData = json_decode($jsonPart, true);
+
+            if (is_array($errorData)) {
+                $errorDetails['is_paypal_error'] = true;
+                $errorDetails['error_code'] = $errorData['name'] ?? null;
+                $errorDetails['error_message'] = $errorData['message'] ?? null;
+                $errorDetails['debug_id'] = $errorData['debug_id'] ?? null;
+
+                // Parse detailed issues
+                if (isset($errorData['details']) && is_array($errorData['details'])) {
+                    foreach ($errorData['details'] as $detail) {
+                        if (isset($detail['issue'])) {
+                            $errorDetails['issues'][] = [
+                                'issue' => $detail['issue'],
+                                'description' => $detail['description'] ?? ''
+                            ];
+
+                            // Use the first issue as the main error code if no name is set
+                            if (!$errorDetails['error_code']) {
+                                $errorDetails['error_code'] = $detail['issue'];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Check if it's a PayPal SDK exception type
+        $exceptionClass = get_class($exception);
+        if (strpos($exceptionClass, 'PayPal') !== false || strpos($exceptionClass, 'HttpException') !== false) {
+            $errorDetails['is_paypal_error'] = true;
+
+            // Try to extract error code from message if not already found
+            if (!$errorDetails['error_code']) {
+                if (preg_match('/\b([A-Z_]+)\b/', $message, $matches)) {
+                    $errorDetails['error_code'] = $matches[1];
+                }
+            }
+        }
+    } catch (Exception $e) {
+        // If parsing fails, treat as generic error
+        $errorDetails['is_paypal_error'] = false;
+    }
+
+    return $errorDetails;
+}
+
+/**
  * Capture PayPal order
  */
 function capturePayPalOrder($orderID)
@@ -182,20 +252,74 @@ function capturePayPalOrder($orderID)
 
         return $response->result;
     } catch (Exception $e) {
+        // Parse PayPal specific errors
+        $errorDetails = parsePayPalError($e);
+
         // Log detailed error for debugging
         logPayPalError('Order capture error: ' . $e->getMessage(), [
             'exception_type' => get_class($e),
             'file' => $e->getFile(),
             'line' => $e->getLine(),
             'paypal_order_id' => $orderID,
-            'user_id' => $_SESSION['user_id'] ?? 'unknown'
+            'user_id' => $_SESSION['user_id'] ?? 'unknown',
+            'error_details' => $errorDetails
         ]);
 
-        // Return immediate error without fallback
-        handleApiError('Payment capture failed. Please check your internet connection and try again.', [
-            'error_type' => 'paypal_connection',
-            'suggestion' => 'Check network connectivity'
-        ], 503);
+        // Handle specific PayPal errors
+        if ($errorDetails['is_paypal_error']) {
+            $errorCode = $errorDetails['error_code'] ?? 'UNKNOWN';
+            $errorMessage = $errorDetails['error_message'] ?? $e->getMessage();
+
+            switch ($errorCode) {
+                case 'TRANSACTION_REFUSED':
+                    handleApiError('Payment was declined. Please try with a different payment method or contact your bank.', [
+                        'error_code' => $errorCode,
+                        'debug_id' => $errorDetails['debug_id'] ?? null
+                    ], 422);
+                    break;
+
+                case 'INSTRUMENT_DECLINED':
+                    handleApiError('Payment method declined. Please try with a different payment method.', [
+                        'error_code' => $errorCode,
+                        'debug_id' => $errorDetails['debug_id'] ?? null
+                    ], 422);
+                    break;
+
+                case 'PAYER_ACCOUNT_RESTRICTED':
+                    handleApiError('PayPal account restricted. Please contact PayPal support.', [
+                        'error_code' => $errorCode,
+                        'debug_id' => $errorDetails['debug_id'] ?? null
+                    ], 422);
+                    break;
+
+                case 'ORDER_NOT_APPROVED':
+                    handleApiError('Order not approved by customer. Please try again.', [
+                        'error_code' => $errorCode,
+                        'debug_id' => $errorDetails['debug_id'] ?? null
+                    ], 422);
+                    break;
+
+                case 'AUTHORIZATION_ERROR':
+                case 'AUTHENTICATION_FAILURE':
+                    handleApiError('Payment system configuration error. Please contact support.', [
+                        'error_code' => $errorCode,
+                        'debug_id' => $errorDetails['debug_id'] ?? null
+                    ], 500);
+                    break;
+
+                default:
+                    handleApiError('Payment processing failed: ' . $errorMessage, [
+                        'error_code' => $errorCode,
+                        'debug_id' => $errorDetails['debug_id'] ?? null
+                    ], 422);
+            }
+        } else {
+            // Generic connection/network error
+            handleApiError('Payment capture failed. Please check your internet connection and try again.', [
+                'error_type' => 'paypal_connection',
+                'suggestion' => 'Check network connectivity'
+            ], 503);
+        }
     }
 }
 

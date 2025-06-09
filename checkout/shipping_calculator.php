@@ -64,22 +64,8 @@ function calculateItemShipping($productType, $quantity, $itemTotal, $taxAmount =
         return 0;
     }
 
-    // Calculate shipping fee
-    // For books and paint, typically per-item or flat rate
-    $shippingFee = $baseShippingFee;
-
-    // Apply quantity if needed (you can customize this logic)
-    if ($productType === 'book' && $quantity > 1) {
-        // Additional shipping for multiple books (e.g., $2 per additional book)
-        $additionalFee = ($quantity - 1) * ($baseShippingFee * 0.3); // 30% of base fee for additional items
-        $shippingFee += $additionalFee;
-    } elseif ($productType === 'paint' && $quantity > 1) {
-        // For paint, might have different logic due to weight/volume
-        $additionalFee = ($quantity - 1) * ($baseShippingFee * 0.5); // 50% of base fee for additional items
-        $shippingFee += $additionalFee;
-    }
-
-    return round($shippingFee, 2);
+    // Use flat database fee - no per-item or quantity calculations
+    return round($baseShippingFee, 2);
 }
 
 /**
@@ -89,17 +75,23 @@ function calculateTotalShipping($cartItems, $taxAmounts = [])
 {
     $totalShipping = 0;
     $shippingBreakdown = [];
+    $processedTypes = []; // Track which product types we've already processed
 
     foreach ($cartItems as $index => $item) {
         $productType = $item['type'] ?? 'book'; // Default to book if type not specified
         $quantity = intval($item['quantity']);
-        $itemTotal = floatval($item['price']) * $quantity; // Calculate total from price * quantity
-        $taxAmount = isset($taxAmounts[$index]) ? floatval($taxAmounts[$index]) : 0;
 
-        $itemShipping = calculateItemShipping($productType, $quantity, $itemTotal, $taxAmount);
-        $totalShipping += $itemShipping;
+        // Only calculate shipping once per product type, not per item
+        if (in_array($productType, $processedTypes)) {
+            continue; // Skip if we've already processed this product type
+        }
+
+        $itemShipping = calculateItemShipping($productType, $quantity, 0, 0);
 
         if ($itemShipping > 0) {
+            $totalShipping += $itemShipping;
+            $processedTypes[] = $productType;
+
             $shippingBreakdown[] = [
                 'product_id' => $item['id'],
                 'product_name' => $item['name'],
@@ -193,11 +185,11 @@ function getShippingDescription($productType, $fee)
         case 'ebook':
             return 'Digital download - no shipping';
         case 'book':
-            return 'Standard shipping: $' . number_format($fee, 2) . ' (additional books may have reduced shipping)';
+            return 'Standard shipping: $' . number_format($fee, 2) . ' per order';
         case 'paint':
-            return 'Shipping: $' . number_format($fee, 2) . ' (additional items may have reduced shipping)';
+            return 'Shipping: $' . number_format($fee, 2) . ' per order';
         default:
-            return 'Shipping: $' . number_format($fee, 2);
+            return 'Shipping: $' . number_format($fee, 2) . ' per order';
     }
 }
 

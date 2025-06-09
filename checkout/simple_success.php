@@ -9,7 +9,18 @@ session_start();
 require_once '../includes/bootstrap.php';
 require_once '../includes/paypal_config.php';
 require_once '../includes/security.php';
+
+// Suppress PHP 8.2+ deprecation warnings for PayPal SDK
+error_reporting(E_ALL & ~E_DEPRECATED);
+
+// Include email functions with error handling
+if (file_exists('../includes/email_functions.php')) {
 require_once '../includes/email_functions.php';
+} else {
+    logPayPalError('Email functions file not found', [
+        'expected_path' => '../includes/email_functions.php'
+    ]);
+}
 
 // Set timezone for consistency
 date_default_timezone_set('UTC');
@@ -191,7 +202,15 @@ try {
     ]);
 
     // Send order notification email to admin (only for non-ebook orders)
+    if (function_exists('sendOrderNotificationEmail')) {
     sendOrderNotificationEmail($order_id);
+    } else {
+        // Log missing function for debugging
+        logPayPalError('sendOrderNotificationEmail function not available', [
+            'order_id' => $order_id,
+            'email_functions_included' => file_exists(__DIR__ . '/../includes/email_functions.php')
+        ]);
+    }
 } catch (Exception $e) {
     logPayPalError('Error in success page: ' . $e->getMessage(), [
         'order_id' => $_GET['order_id'] ?? 'unknown',

@@ -56,25 +56,28 @@ function calculateCartShipping($cart_items)
 {
     $shipping_breakdown = [];
     $total_shipping = 0.00;
+    $processed_types = []; // Track which product types we've already processed
 
     foreach ($cart_items as $item) {
         $product_type = $item['type'];
         $quantity = intval($item['quantity']);
 
-        // Get shipping fee for this product type
+        // Only calculate shipping once per product type, not per item
+        if (in_array($product_type, $processed_types)) {
+            continue; // Skip if we've already processed this product type
+        }
+
+        // Get shipping fee for this product type from database
         $shipping_fee = getShippingFeeByProductType($product_type);
 
-        // For physical products, shipping is typically per order, not per item
         // For digital products (ebooks), shipping is usually 0
-        if ($product_type === 'ebook') {
+        if ($product_type === 'ebook' || $shipping_fee <= 0) {
             $item_shipping = 0.00;
         } else {
-            // Check if we already have shipping for this product type
-            if (!isset($shipping_breakdown[$product_type])) {
-                $shipping_breakdown[$product_type] = $shipping_fee;
-                $total_shipping += $shipping_fee;
-            }
-            $item_shipping = isset($shipping_breakdown[$product_type]) ? $shipping_breakdown[$product_type] : 0.00;
+            // Use flat database fee - no per-item calculation
+            $item_shipping = $shipping_fee;
+            $total_shipping += $shipping_fee;
+            $processed_types[] = $product_type;
         }
 
         // Store shipping info for this item
@@ -95,7 +98,7 @@ function calculateCartShipping($cart_items)
 /**
  * Calculate shipping for a single product
  * @param int $product_id - The product ID
- * @param int $quantity - The quantity
+ * @param int $quantity - The quantity (no longer affects shipping calculation)
  * @return float - The shipping amount
  */
 function calculateProductShipping($product_id, $quantity = 1)
@@ -111,6 +114,7 @@ function calculateProductShipping($product_id, $quantity = 1)
 
         if ($row = $result->fetch_assoc()) {
             $product_type = $row['type'];
+            // Return flat database fee regardless of quantity
             return getShippingFeeByProductType($product_type);
         }
 

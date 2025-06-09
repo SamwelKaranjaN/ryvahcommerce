@@ -8,6 +8,9 @@
 // Prevent cart interference
 define('PAYPAL_ORDER_PROCESSING', true);
 
+// Suppress PHP 8.2+ deprecation warnings for PayPal SDK
+error_reporting(E_ALL & ~E_DEPRECATED);
+
 // Start output buffering for clean JSON response
 ob_start();
 

@@ -11,8 +11,8 @@ define('PAYPAL_ENVIRONMENT', 'production'); // 'sandbox' or 'production'
 
 
 // Production Credentials
-define('PAYPAL_PRODUCTION_CLIENT_ID', 'ARb4izn3jwTWc2j2x6UDmompOiO2Uq3HQKodHTR3Y6UKUN61daJD09G8JVrx6UWz11-CL2fcty8UJ2CJ');
-define('PAYPAL_PRODUCTION_CLIENT_SECRET', 'EDUXnHsBZ0L7gUXjdpI9l7oFnCTIftl0UORyDtsXIZqBb7reoiNhGlEI4U2Qv_lKsI_oaK1Z3eVhzOyW');
+define('PAYPAL_PRODUCTION_CLIENT_ID', 'ARbQtWP1vIsYqgrKcL0v2hhlJA6NujGi26UWQz9Z4lsmPosxbSDPfzLSkaHtS8JRSvdysC99W0qvLyCI');
+define('PAYPAL_PRODUCTION_CLIENT_SECRET', 'EChoMRhi0vy7L_Defl5dqinOMbiWHxRmPG2e3ArjXXRQqHR1vwkg1IvHGTDxzwrOOuQR4n-z8ZteQiGc');
 
 // Set current client ID constant for production
 define('PAYPAL_CLIENT_ID', PAYPAL_PRODUCTION_CLIENT_ID);
@@ -23,8 +23,8 @@ define('SITE_DOMAIN', 'https://ryvahcommerce.com');
 define('SITE_NAME', 'Ryvah Commerce');
 
 // PayPal URLs
-define('PAYPAL_RETURN_URL', SITE_DOMAIN . '/checkout/simple_success.php');
-define('PAYPAL_CANCEL_URL', SITE_DOMAIN . '/checkout/simple_checkout.php');
+define('PAYPAL_RETURN_URL', SITE_DOMAIN . '/checkout/simple_success');
+define('PAYPAL_CANCEL_URL', SITE_DOMAIN . '/checkout/simple_checkout');
 
 // Currency Settings
 define('PAYPAL_DEFAULT_CURRENCY', 'USD');

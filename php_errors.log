@@ -49,3 +49,70 @@ Stack trace:
 Stack trace:
 #0 {main}
   thrown in C:\wamp64\www\ryvahcommerce\demo_email.php on line 73
+[08-Jun-2025 11:13:52 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function generateOrderNotificationHtml() in C:\wamp64\www\ryvahcommerce\demo_email.php:73
+Stack trace:
+#0 {main}
+  thrown in C:\wamp64\www\ryvahcommerce\demo_email.php on line 73
+[08-Jun-2025 11:13:52 UTC] Fatal Error: Uncaught Error: Call to undefined function generateOrderNotificationHtml() in C:\wamp64\www\ryvahcommerce\demo_email.php:73
+Stack trace:
+#0 {main}
+  thrown in C:\wamp64\www\ryvahcommerce\demo_email.php on line 73
+[08-Jun-2025 13:57:49 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function generateOrderNotificationHtml() in C:\wamp64\www\ryvahcommerce\demo_email.php:73
+Stack trace:
+#0 {main}
+  thrown in C:\wamp64\www\ryvahcommerce\demo_email.php on line 73
+[08-Jun-2025 13:57:49 UTC] Fatal Error: Uncaught Error: Call to undefined function generateOrderNotificationHtml() in C:\wamp64\www\ryvahcommerce\demo_email.php:73
+Stack trace:
+#0 {main}
+  thrown in C:\wamp64\www\ryvahcommerce\demo_email.php on line 73
+[08-Jun-2025 18:18:25 UTC] Skipping email notification for ebook-only order
+[08-Jun-2025 18:28:57 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function logPayPalError() in C:\wamp64\www\ryvahcommerce\includes\email_functions.php:34
+Stack trace:
+#0 C:\wamp64\www\ryvahcommerce\debug_email.php(266): sendOrderNotificationEmail(79)
+#1 {main}
+  thrown in C:\wamp64\www\ryvahcommerce\includes\email_functions.php on line 34
+[08-Jun-2025 18:28:57 UTC] Fatal Error: Uncaught Error: Call to undefined function logPayPalError() in C:\wamp64\www\ryvahcommerce\includes\email_functions.php:34
+Stack trace:
+#0 C:\wamp64\www\ryvahcommerce\debug_email.php(266): sendOrderNotificationEmail(79)
+#1 {main}
+  thrown in C:\wamp64\www\ryvahcommerce\includes\email_functions.php on line 34
+[08-Jun-2025 18:36:03 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function logPayPalError() in C:\wamp64\www\ryvahcommerce\includes\email_functions.php:34
+Stack trace:
+#0 C:\wamp64\www\ryvahcommerce\debug_email.php(266): sendOrderNotificationEmail(79)
+#1 {main}
+  thrown in C:\wamp64\www\ryvahcommerce\includes\email_functions.php on line 34
+[08-Jun-2025 18:36:03 UTC] Fatal Error: Uncaught Error: Call to undefined function logPayPalError() in C:\wamp64\www\ryvahcommerce\includes\email_functions.php:34
+Stack trace:
+#0 C:\wamp64\www\ryvahcommerce\debug_email.php(266): sendOrderNotificationEmail(79)
+#1 {main}
+  thrown in C:\wamp64\www\ryvahcommerce\includes\email_functions.php on line 34
+[08-Jun-2025 19:16:40 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function logPayPalError() in C:\wamp64\www\ryvahcommerce\includes\email_functions.php:34
+Stack trace:
+#0 C:\wamp64\www\ryvahcommerce\debug_email.php(266): sendOrderNotificationEmail(79)
+#1 {main}
+  thrown in C:\wamp64\www\ryvahcommerce\includes\email_functions.php on line 34
+[08-Jun-2025 19:16:40 UTC] Fatal Error: Uncaught Error: Call to undefined function logPayPalError() in C:\wamp64\www\ryvahcommerce\includes\email_functions.php:34
+Stack trace:
+#0 C:\wamp64\www\ryvahcommerce\debug_email.php(266): sendOrderNotificationEmail(79)
+#1 {main}
+  thrown in C:\wamp64\www\ryvahcommerce\includes\email_functions.php on line 34
+[08-Jun-2025 19:24:46 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function logPayPalError() in C:\wamp64\www\ryvahcommerce\includes\email_functions.php:34
+Stack trace:
+#0 C:\wamp64\www\ryvahcommerce\debug_email.php(266): sendOrderNotificationEmail(79)
+#1 {main}
+  thrown in C:\wamp64\www\ryvahcommerce\includes\email_functions.php on line 34
+[08-Jun-2025 19:24:46 UTC] Fatal Error: Uncaught Error: Call to undefined function logPayPalError() in C:\wamp64\www\ryvahcommerce\includes\email_functions.php:34
+Stack trace:
+#0 C:\wamp64\www\ryvahcommerce\debug_email.php(266): sendOrderNotificationEmail(79)
+#1 {main}
+  thrown in C:\wamp64\www\ryvahcommerce\includes\email_functions.php on line 34
+[08-Jun-2025 19:31:03 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function logPayPalError() in C:\wamp64\www\ryvahcommerce\includes\email_functions.php:34
+Stack trace:
+#0 C:\wamp64\www\ryvahcommerce\debug_email.php(266): sendOrderNotificationEmail(79)
+#1 {main}
+  thrown in C:\wamp64\www\ryvahcommerce\includes\email_functions.php on line 34
+[08-Jun-2025 19:31:03 UTC] Fatal Error: Uncaught Error: Call to undefined function logPayPalError() in C:\wamp64\www\ryvahcommerce\includes\email_functions.php:34
+Stack trace:
+#0 C:\wamp64\www\ryvahcommerce\debug_email.php(266): sendOrderNotificationEmail(79)
+#1 {main}
+  thrown in C:\wamp64\www\ryvahcommerce\includes\email_functions.php on line 34
