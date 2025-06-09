@@ -116,3 +116,14 @@ Stack trace:
 #0 C:\wamp64\www\ryvahcommerce\debug_email.php(266): sendOrderNotificationEmail(79)
 #1 {main}
   thrown in C:\wamp64\www\ryvahcommerce\includes\email_functions.php on line 34
+[09-Jun-2025 08:41:56 UTC] Adding to cart: Array
+(
+    [product_id] => 15
+    [quantity] => 1
+)
+
+[09-Jun-2025 08:41:56 UTC] Add to cart result: Array
+(
+    [success] => 1
+)
+

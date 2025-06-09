@@ -2589,10 +2589,10 @@
                         </div>
                     </div>
                 </div>
-                <div class="law-detail" id="law2">
+                <div class="law-detail" id="law3">
                     <div class="law-header">
-                        <div class="law-number-large">2</div>
-                        <h3 class="law-title-large">SKN</h3>
+                        <div class="law-number-large">3</div>
+                        <h3 class="law-title-large">Under Three Years</h3>
                     </div>
                     <div id="law" class="law">
                         <h4>(Under Three Years)</h4>
@@ -2666,10 +2666,10 @@
                     </div>
                 </div>
 
-                <div class="law-detail" id="law2">
+                <div class="law-detail" id="law4">
                     <div class="law-header">
-                        <div class="law-number-large">2</div>
-                        <h3 class="law-title-large">SKN</h3>
+                        <div class="law-number-large">4</div>
+                        <h3 class="law-title-large">Testimony</h3>
                     </div>
                     <div id="law" class="law">
                         <h4>(Testimony)</h4>
@@ -2727,8 +2727,8 @@
 
                 <div class="law-detail" id="law2">
                     <div class="law-header">
-                        <div class="law-number-large">2</div>
-                        <h3 class="law-title-large">SKN</h3>
+                        <div class="law-number-large">5</div>
+                        <h3 class="law-title-large">Age of Consent</h3>
                     </div>
                     <div id="law" class="law">
                         <h4>(Consent)</h4>
@@ -2848,10 +2848,10 @@
                     </div>
                 </div>
 
-                <div class="law-detail" id="law2">
+                <div class="law-detail" id="law6">
                     <div class="law-header">
-                        <div class="law-number-large">2</div>
-                        <h3 class="law-title-large">SKN</h3>
+                        <div class="law-number-large">6</div>
+                        <h3 class="law-title-large">Nudity</h3>
                     </div>
                     <div id="law" class="law">
                         <h4>(Nudity)</h4>
@@ -2923,8 +2923,8 @@
 
                 <div class="law-detail" id="law2">
                     <div class="law-header">
-                        <div class="law-number-large">2</div>
-                        <h3 class="law-title-large">SKN</h3>
+                        <div class="law-number-large">7</div>
+                        <h3 class="law-title-large">Payments for Not Guilty</h3>
                     </div>
                     <div id="law" class="law">
                         <h4>(Payments for Not Guilty)</h4>
@@ -2993,8 +2993,8 @@
 
                 <div class="law-detail" id="law2">
                     <div class="law-header">
-                        <div class="law-number-large">2</div>
-                        <h3 class="law-title-large">SKN</h3>
+                        <div class="law-number-large">8</div>
+                        <h3 class="law-title-large">Double Jeopardy</h3>
                     </div>
                     <div id="law" class="law">
                         <h4>(Double Jeopardy)</h4>
@@ -3052,8 +3052,8 @@
 
                 <div class="law-detail" id="law2">
                     <div class="law-header">
-                        <div class="law-number-large">2</div>
-                        <h3 class="law-title-large">SKN</h3>
+                        <div class="law-number-large">9</div>
+                        <h3 class="law-title-large">Unconstitutional Laws</h3>
                     </div>
                     <div id="law" class="law">
                         <h4>(Unconstitutional Laws)</h4>
@@ -3111,8 +3111,8 @@
 
                             <div class="law-detail" id="law2">
                                 <div class="law-header">
-                                    <div class="law-number-large">2</div>
-                                    <h3 class="law-title-large">SKN</h3>
+                                    <div class="law-number-large">10</div>
+                                    <h3 class="law-title-large">Attorney's Fees</h3>
                                 </div>
                                 <div id="law" class="law">
                                     <h4>(Attorney's Fees)</h4>
@@ -3171,8 +3171,8 @@
 
                             <div class="law-detail" id="law2">
                                 <div class="law-header">
-                                    <div class="law-number-large">2</div>
-                                    <h3 class="law-title-large">SKN</h3>
+                                    <div class="law-number-large">11</div>
+                                    <h3 class="law-title-large">Under Three Years</h3>
                                 </div>
                                 <div id="law" class="law">
                                     <h4>(Under Three Years)</h4>
@@ -3257,8 +3257,8 @@
 
                             <div class="law-detail" id="law2">
                                 <div class="law-header">
-                                    <div class="law-number-large">2</div>
-                                    <h3 class="law-title-large">SKN</h3>
+                                    <div class="law-number-large">12</div>
+                                    <h3 class="law-title-large">Testimony</h3>
                                 </div>
                                 <div id="law" class="law">
                                     <h4>(Testimony)</h4>
@@ -3336,8 +3336,8 @@
 
                             <div class="law-detail" id="law2">
                                 <div class="law-header">
-                                    <div class="law-number-large">2</div>
-                                    <h3 class="law-title-large">SKN</h3>
+                                    <div class="law-number-large">13</div>
+                                    <h3 class="law-title-large">Age of Consent</h3>
                                 </div>
                                 <div id="law" class="law">
                                     <h4>(Consent)</h4>
@@ -12072,302 +12072,302 @@
         {
             id: 'law13',
             number: 13,
-            title: 'Law 13 Title'
+            title: 'Removing Children'
         },
         {
             id: 'law14',
             number: 14,
-            title: 'Law 14 Title'
+            title: 'Marriage'
         },
         {
             id: 'law15',
             number: 15,
-            title: 'Law 15 Title'
+            title: 'Recording'
         },
         {
             id: 'law16',
             number: 16,
-            title: 'Law 16 Title'
+            title: 'Bodycam'
         },
         {
             id: 'law17',
             number: 17,
-            title: 'Law 17 Title'
+            title: 'Restitution'
         },
         {
             id: 'law18',
             number: 18,
-            title: 'Law 18 Title'
+            title: 'Inaction'
         },
         {
             id: 'law19',
             number: 19,
-            title: 'Law 19 Title'
+            title: 'Vaccines'
         },
         {
             id: 'law20',
             number: 20,
-            title: 'Law 20 Title'
+            title: 'Dolls'
         },
         {
             id: 'law21',
             number: 21,
-            title: 'Law 21 Title'
+            title: 'Return Property'
         },
         {
             id: 'law22',
             number: 22,
-            title: 'Law 22 Title'
+            title: 'Evidence For Appeal'
         },
         {
             id: 'law23',
             number: 23,
-            title: 'Law 23 Title'
+            title: 'Curfew'
         },
         {
             id: 'law24',
             number: 24,
-            title: 'Law 24 Title'
+            title: 'FPS'
         },
         {
             id: 'law25',
             number: 25,
-            title: 'Law 25 Title'
+            title: 'Solicitation'
         },
         {
             id: 'law26',
             number: 26,
-            title: 'Law 26 Title'
+            title: 'Verbal Testimony'
         },
         {
             id: 'law27',
             number: 27,
-            title: 'Law 27 Title'
+            title: 'Judges'
         },
         {
             id: 'law28',
             number: 28,
-            title: 'Law 28 Title'
+            title: 'Coercion'
         },
         {
             id: 'law29',
             number: 29,
-            title: 'Law 29 Title'
+            title: 'Term Limits'
         },
         {
             id: 'law30',
             number: 30,
-            title: 'Law 30 Title'
+            title: '100-Person Survey'
         },
         {
             id: 'law31',
             number: 31,
-            title: 'Law 31 Title'
+            title: 'Pornography'
         },
         {
             id: 'law32',
             number: 32,
-            title: 'Law 32 Title'
+            title: 'Criminal History Limits'
         },
         {
             id: 'law33',
             number: 33,
-            title: 'Law 33 Title'
+            title: 'Right to Bear Arms'
         },
         {
             id: 'law34',
             number: 34,
-            title: 'Law 34 Title'
+            title: 'Business Protection'
         },
         {
             id: 'law35',
             number: 35,
-            title: 'Law 35 Title'
+            title: 'Scope'
         },
         {
             id: 'law36',
             number: 36,
-            title: 'Law 36 Title'
+            title: 'Presenting Evidence'
         },
         {
             id: 'law37',
             number: 37,
-            title: 'Law 37 Title'
+            title: 'Speedy Trial'
         },
         {
             id: 'law38',
             number: 38,
-            title: 'Law 38 Title'
+            title: 'Discovery'
         },
         {
             id: 'law39',
             number: 39,
-            title: 'Law 39 Title'
+            title: 'Military Vetting'
         },
         {
             id: 'law40',
             number: 40,
-            title: 'Law 40 Title'
+            title: 'Plea Deals'
         },
         {
             id: 'law41',
             number: 41,
-            title: 'Law 41 Title'
+            title: 'Legal Definitions'
         },
         {
             id: 'law42',
             number: 42,
-            title: 'Law 42 Title'
+            title: 'Prohibit Law Removal'
         },
         {
             id: 'law43',
             number: 43,
-            title: 'Law 43 Title'
+            title: 'Gender Equality'
         },
         {
             id: 'law44',
             number: 44,
-            title: 'Law 44 Title'
+            title: 'Free Speech'
         },
         {
             id: 'law45',
             number: 45,
-            title: 'Law 45 Title'
+            title: 'Annoy'
         },
         {
             id: 'law46',
             number: 46,
-            title: 'Law 46 Title'
+            title: 'Jury Selection'
         },
         {
             id: 'law47',
             number: 47,
-            title: 'Law 47 Title'
+            title: 'Permits'
         },
         {
             id: 'law48',
             number: 48,
-            title: 'Law 48 Title'
+            title: 'Abuse, Harm'
         },
         {
             id: 'law49',
             number: 49,
-            title: 'Law 49 Title'
+            title: 'Beyond a Reasonable Doubt'
         },
         {
             id: 'law50',
             number: 50,
-            title: 'Law 50 Title'
+            title: 'Three Days of Deliberation'
         },
         {
             id: 'law51',
             number: 51,
-            title: 'Law 51 Title'
+            title: 'Suspension of Service'
         },
         {
             id: 'law52',
             number: 52,
-            title: 'Law 52 Title'
+            title: 'Probation'
         },
         {
             id: 'law53',
             number: 53,
-            title: 'Law 53 Title'
+            title: 'Violence'
         },
         {
             id: 'law54',
             number: 54,
-            title: 'Law 54 Title'
+            title: 'Legal Consistency'
         },
         {
             id: 'law55',
             number: 55,
-            title: 'Law 55 Title'
+            title: 'Altering Evidence'
         },
         {
             id: 'law56',
             number: 56,
-            title: 'Law 56 Title'
+            title: 'Owning Real Property'
         },
         {
             id: 'law57',
             number: 57,
-            title: 'Law 57 Title'
+            title: 'Privacy'
         },
         {
             id: 'law58',
             number: 58,
-            title: 'Law 58 Title'
+            title: 'Consent'
         },
         {
             id: 'law59',
             number: 59,
-            title: 'Law 59 Title'
+            title: 'Privacy of Property'
         },
         {
             id: 'law60',
             number: 60,
-            title: 'Law 60 Title'
+            title: 'Self Incrimination'
         },
         {
             id: 'law61',
             number: 61,
-            title: 'Law 61 Title'
+            title: 'Information'
         },
         {
             id: 'law62',
             number: 62,
-            title: 'Law 62 Title'
+            title: 'Miranda'
         },
         {
             id: 'law63',
             number: 63,
-            title: 'Law 63 Title'
+            title: 'Witness For Defense'
         },
         {
             id: 'law64',
             number: 64,
-            title: 'Law 64 Title'
+            title: 'Voting'
         },
         {
             id: 'law65',
             number: 65,
-            title: 'Law 65 Title'
+            title: 'Inheritance'
         },
         {
             id: 'law66',
             number: 66,
-            title: 'Law 66 Title'
+            title: 'Real Property'
         },
         {
             id: 'law67',
             number: 67,
-            title: 'Law 67 Title'
+            title: 'List of Patriots'
         },
         {
             id: 'law68',
             number: 68,
-            title: 'Law 68 Title'
+            title: 'Treason'
         },
         {
             id: 'law69',
             number: 69,
-            title: 'Law 69 Title'
+            title: 'Medical'
         },
         {
             id: 'law70',
             number: 70,
-            title: 'Law 70 Title'
+            title: 'Lottery'
         },
         {
             id: 'law71',
             number: 71,
-            title: 'Law 71 Title'
+            title: 'Right to Record'
         },
         {
             id: 'law72',
             number: 72,
-            title: 'Law 72 Title'
+            title: 'Reasonable Notice'
         }
     ];
 
