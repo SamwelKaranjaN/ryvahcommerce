@@ -13,7 +13,6 @@ namespace PaypalServerSdkLib;
 use CoreInterfaces\Http\HttpConfigurations;
 use PaypalServerSdkLib\Authentication\ClientCredentialsAuthCredentialsBuilder;
 use PaypalServerSdkLib\Logging\LoggingConfigurationBuilder;
-use PaypalServerSdkLib\Proxy\ProxyConfigurationBuilder;
 
 /**
  * An interface for all configuration parameters required by the SDK.
@@ -39,11 +38,6 @@ interface ConfigurationInterface extends HttpConfigurations
      * Represents the logging configurations for API calls.
      */
     public function getLoggingConfigurationBuilder(): ?LoggingConfigurationBuilder;
-
-    /**
-     * Represents the proxy configurations for API calls.
-     */
-    public function getProxyConfigurationBuilder(): ProxyConfigurationBuilder;
 
     /**
      * Get the base uri for a given server in the current environment.

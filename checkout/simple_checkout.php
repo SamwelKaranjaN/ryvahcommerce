@@ -567,10 +567,6 @@ if (isset($error_message)) {
 
                             <input type="hidden" name="csrf_token"
                                 value="<?= htmlspecialchars($_SESSION['csrf_token']); ?>">
-                            <input type="hidden" name="subtotal" value="<?= number_format($subtotal, 2, '.', ''); ?>">
-                            <input type="hidden" name="tax_amount" value="0.00">
-                            <input type="hidden" name="shipping_amount" value="0.00">
-                            <input type="hidden" name="total" value="<?= number_format($subtotal, 2, '.', ''); ?>">
 
                             <div class="alert alert-info">
                                 <i class="bi bi-info-circle-fill me-2"></i>
@@ -813,25 +809,16 @@ if (isset($error_message)) {
             showLoading();
 
             try {
-                // Calculate tax and shipping based on selected address
+                // SECURITY: All calculations done in backend only
+                // Frontend never calculates totals - only displays backend results
                 const totals = await calculateTaxAndShipping(this.value);
 
                 const newTax = totals.tax;
                 const newShipping = totals.shipping;
-                const newTotal = subtotal + newTax + newShipping;
+                const newTotal = totals.total; // Use backend-calculated total - NEVER calculate frontend
                 const shippingBreakdown = totals.shipping_breakdown || [];
 
                 updateOrderTotals(newTax, newShipping, newTotal, shippingBreakdown);
-
-                // Update hidden form fields
-                document.querySelector('input[name="tax_amount"]').value = newTax.toFixed(2);
-                document.querySelector('input[name="shipping_amount"]').value = newShipping.toFixed(2);
-                document.querySelector('input[name="total"]').value = newTotal.toFixed(2);
-
-                // Update global variables
-                currentTax = newTax;
-                currentShipping = newShipping;
-                currentTotal = newTotal;
 
                 // Render PayPal buttons if not already rendered
                 if (!paypalButtonsRendered) {
@@ -917,10 +904,6 @@ if (isset($error_message)) {
                             'X-Requested-With': 'XMLHttpRequest'
                         },
                         body: JSON.stringify({
-                            total: currentTotal.toFixed(2),
-                            subtotal: subtotal.toFixed(2),
-                            tax_amount: currentTax.toFixed(2),
-                            shipping_amount: currentShipping.toFixed(2),
                             address_id: parseInt(addressId),
                             csrf_token: csrfToken,
                             currency: currency

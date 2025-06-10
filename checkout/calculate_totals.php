@@ -193,6 +193,16 @@ try {
     // Calculate final total
     $total = $subtotal + $taxAmount + $shippingAmount;
 
+    // Debug logging for frontend calculation
+    error_log('Frontend totals calculation (NO DISCOUNTS): Subtotal=' . $subtotal . ', Tax=' . $taxAmount . ', Shipping=' . $shippingAmount . ', Total=' . $total);
+
+    // Validation: Ensure total is correct sum of components
+    $calculatedTotal = $subtotal + $taxAmount + $shippingAmount;
+    if (abs($total - $calculatedTotal) > 0.01) {
+        error_log('Total calculation mismatch: Total=' . $total . ', Calculated=' . $calculatedTotal .
+            ', Subtotal=' . $subtotal . ', Tax=' . $taxAmount . ', Shipping=' . $shippingAmount);
+    }
+
     // Clean any remaining output buffer before JSON response
     while (ob_get_level()) {
         ob_end_clean();

@@ -69,11 +69,6 @@ class Item implements \JsonSerializable
     private $upc;
 
     /**
-     * @var OrderBillingPlan|null
-     */
-    private $billingPlan;
-
-    /**
      * @param string $name
      * @param Money $unitAmount
      * @param string $quantity
@@ -291,28 +286,6 @@ class Item implements \JsonSerializable
     }
 
     /**
-     * Returns Billing Plan.
-     * Metadata for merchant-managed recurring billing plans. Valid only during the saved payment method
-     * token or billing agreement creation.
-     */
-    public function getBillingPlan(): ?OrderBillingPlan
-    {
-        return $this->billingPlan;
-    }
-
-    /**
-     * Sets Billing Plan.
-     * Metadata for merchant-managed recurring billing plans. Valid only during the saved payment method
-     * token or billing agreement creation.
-     *
-     * @maps billing_plan
-     */
-    public function setBillingPlan(?OrderBillingPlan $billingPlan): void
-    {
-        $this->billingPlan = $billingPlan;
-    }
-
-    /**
      * Converts the Item object to a human-readable string representation.
      *
      * @return string The string representation of the Item object.
@@ -331,8 +304,7 @@ class Item implements \JsonSerializable
                 'url' => $this->url,
                 'category' => $this->category,
                 'imageUrl' => $this->imageUrl,
-                'upc' => $this->upc,
-                'billingPlan' => $this->billingPlan
+                'upc' => $this->upc
             ]
         );
     }
@@ -349,32 +321,29 @@ class Item implements \JsonSerializable
     public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['name']             = $this->name;
-        $json['unit_amount']      = $this->unitAmount;
+        $json['name']            = $this->name;
+        $json['unit_amount']     = $this->unitAmount;
         if (isset($this->tax)) {
-            $json['tax']          = $this->tax;
+            $json['tax']         = $this->tax;
         }
-        $json['quantity']         = $this->quantity;
+        $json['quantity']        = $this->quantity;
         if (isset($this->description)) {
-            $json['description']  = $this->description;
+            $json['description'] = $this->description;
         }
         if (isset($this->sku)) {
-            $json['sku']          = $this->sku;
+            $json['sku']         = $this->sku;
         }
         if (isset($this->url)) {
-            $json['url']          = $this->url;
+            $json['url']         = $this->url;
         }
         if (isset($this->category)) {
-            $json['category']     = $this->category;
+            $json['category']    = $this->category;
         }
         if (isset($this->imageUrl)) {
-            $json['image_url']    = $this->imageUrl;
+            $json['image_url']   = $this->imageUrl;
         }
         if (isset($this->upc)) {
-            $json['upc']          = $this->upc;
-        }
-        if (isset($this->billingPlan)) {
-            $json['billing_plan'] = $this->billingPlan;
+            $json['upc']         = $this->upc;
         }
 
         return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;

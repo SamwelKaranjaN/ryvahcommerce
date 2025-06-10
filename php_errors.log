@@ -1,11 +1,5 @@
-[08-Jun-2025 10:04:38 UTC] WARNING: Running PayPal integration in development mode with relaxed SSL settings
-[08-Jun-2025 10:04:39 UTC] PHP Deprecated:  Creation of dynamic property PayPalCheckoutSdk\Core\PayPalHttpClient::$curlCls is deprecated in C:\wamp64\www\ryvahcommerce\vendor\paypal\paypalhttp\lib\PayPalHttp\HttpClient.php on line 38
-[08-Jun-2025 10:04:39 UTC] PHP Stack trace:
-[08-Jun-2025 10:04:39 UTC] PHP   1. {main}() C:\wamp64\www\ryvahcommerce\test_checkout_fixed.php:0
-[08-Jun-2025 10:04:39 UTC] PHP   2. PayPalCheckoutSdk\Core\PayPalHttpClient->__construct($environment = class PayPalCheckoutSdk\Core\ProductionEnvironment { private ${PayPalCheckoutSdk\Core\PayPalEnvironment}clientId = 'ARb4izn3jwTWc2j2x6UDmompOiO2Uq3HQKodHTR3Y6UKUN61daJD09G8JVrx6UWz11-CL2fcty8UJ2CJ'; private ${PayPalCheckoutSdk\Core\PayPalEnvironment}clientSecret = 'EDUXnHsBZ0L7gUXjdpI9l7oFnCTIftl0UORyDtsXIZqBb7reoiNhGlEI4U2Qv_lKsI_oaK1Z3eVhzOyW' }, $refreshToken = *uninitialized*) C:\wamp64\www\ryvahcommerce\test_checkout_fixed.php:210
-[08-Jun-2025 10:04:39 UTC] PHP   3. PayPalHttp\HttpClient->__construct($environment = class PayPalCheckoutSdk\Core\ProductionEnvironment { private ${PayPalCheckoutSdk\Core\PayPalEnvironment}clientId = 'ARb4izn3jwTWc2j2x6UDmompOiO2Uq3HQKodHTR3Y6UKUN61daJD09G8JVrx6UWz11-CL2fcty8UJ2CJ'; private ${PayPalCheckoutSdk\Core\PayPalEnvironment}clientSecret = 'EDUXnHsBZ0L7gUXjdpI9l7oFnCTIftl0UORyDtsXIZqBb7reoiNhGlEI4U2Qv_lKsI_oaK1Z3eVhzOyW' }) C:\wamp64\www\ryvahcommerce\vendor\paypal\paypal-checkout-sdk\lib\PayPalCheckoutSdk\Core\PayPalHttpClient.php:14
-[08-Jun-2025 10:04:39 UTC] Getting cart items
-[08-Jun-2025 10:04:39 UTC] Cart Data: Array
+[10-Jun-2025 07:49:13 UTC] Getting cart items
+[10-Jun-2025 07:49:14 UTC] Cart Data: Array
 (
     [items] => Array
         (
@@ -20,110 +14,423 @@
                     [type] => book
                 )
 
+            [1] => Array
+                (
+                    [id] => 15
+                    [name] => Ryvah Encyclopedia
+                    [price] => 1.50
+                    [quantity] => 1
+                    [stock] => 0
+                    [thumbs] => Uploads/thumbs/ryvah-encyclopedia.png
+                    [type] => ebook
+                )
+
         )
 
-    [total] => 24.95
+    [total] => 26.45
 )
 
-[08-Jun-2025 10:17:25 UTC] PHP Fatal error:  Uncaught Error: Undefined constant "SMTP_HOST" in C:\wamp64\www\ryvahcommerce\demo_email.php:60
-Stack trace:
-#0 {main}
-  thrown in C:\wamp64\www\ryvahcommerce\demo_email.php on line 60
-[08-Jun-2025 10:17:25 UTC] Fatal Error: Uncaught Error: Undefined constant "SMTP_HOST" in C:\wamp64\www\ryvahcommerce\demo_email.php:60
-Stack trace:
-#0 {main}
-  thrown in C:\wamp64\www\ryvahcommerce\demo_email.php on line 60
-[08-Jun-2025 10:18:33 UTC] PHP Fatal error:  Uncaught Error: Undefined constant "SMTP_HOST" in C:\wamp64\www\ryvahcommerce\demo_email.php:60
-Stack trace:
-#0 {main}
-  thrown in C:\wamp64\www\ryvahcommerce\demo_email.php on line 60
-[08-Jun-2025 10:18:33 UTC] Fatal Error: Uncaught Error: Undefined constant "SMTP_HOST" in C:\wamp64\www\ryvahcommerce\demo_email.php:60
-Stack trace:
-#0 {main}
-  thrown in C:\wamp64\www\ryvahcommerce\demo_email.php on line 60
-[08-Jun-2025 10:21:53 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function generateOrderNotificationHtml() in C:\wamp64\www\ryvahcommerce\demo_email.php:73
-Stack trace:
-#0 {main}
-  thrown in C:\wamp64\www\ryvahcommerce\demo_email.php on line 73
-[08-Jun-2025 10:21:53 UTC] Fatal Error: Uncaught Error: Call to undefined function generateOrderNotificationHtml() in C:\wamp64\www\ryvahcommerce\demo_email.php:73
-Stack trace:
-#0 {main}
-  thrown in C:\wamp64\www\ryvahcommerce\demo_email.php on line 73
-[08-Jun-2025 11:13:52 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function generateOrderNotificationHtml() in C:\wamp64\www\ryvahcommerce\demo_email.php:73
-Stack trace:
-#0 {main}
-  thrown in C:\wamp64\www\ryvahcommerce\demo_email.php on line 73
-[08-Jun-2025 11:13:52 UTC] Fatal Error: Uncaught Error: Call to undefined function generateOrderNotificationHtml() in C:\wamp64\www\ryvahcommerce\demo_email.php:73
-Stack trace:
-#0 {main}
-  thrown in C:\wamp64\www\ryvahcommerce\demo_email.php on line 73
-[08-Jun-2025 13:57:49 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function generateOrderNotificationHtml() in C:\wamp64\www\ryvahcommerce\demo_email.php:73
-Stack trace:
-#0 {main}
-  thrown in C:\wamp64\www\ryvahcommerce\demo_email.php on line 73
-[08-Jun-2025 13:57:49 UTC] Fatal Error: Uncaught Error: Call to undefined function generateOrderNotificationHtml() in C:\wamp64\www\ryvahcommerce\demo_email.php:73
-Stack trace:
-#0 {main}
-  thrown in C:\wamp64\www\ryvahcommerce\demo_email.php on line 73
-[08-Jun-2025 18:18:25 UTC] Skipping email notification for ebook-only order
-[08-Jun-2025 18:28:57 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function logPayPalError() in C:\wamp64\www\ryvahcommerce\includes\email_functions.php:34
-Stack trace:
-#0 C:\wamp64\www\ryvahcommerce\debug_email.php(266): sendOrderNotificationEmail(79)
-#1 {main}
-  thrown in C:\wamp64\www\ryvahcommerce\includes\email_functions.php on line 34
-[08-Jun-2025 18:28:57 UTC] Fatal Error: Uncaught Error: Call to undefined function logPayPalError() in C:\wamp64\www\ryvahcommerce\includes\email_functions.php:34
-Stack trace:
-#0 C:\wamp64\www\ryvahcommerce\debug_email.php(266): sendOrderNotificationEmail(79)
-#1 {main}
-  thrown in C:\wamp64\www\ryvahcommerce\includes\email_functions.php on line 34
-[08-Jun-2025 18:36:03 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function logPayPalError() in C:\wamp64\www\ryvahcommerce\includes\email_functions.php:34
-Stack trace:
-#0 C:\wamp64\www\ryvahcommerce\debug_email.php(266): sendOrderNotificationEmail(79)
-#1 {main}
-  thrown in C:\wamp64\www\ryvahcommerce\includes\email_functions.php on line 34
-[08-Jun-2025 18:36:03 UTC] Fatal Error: Uncaught Error: Call to undefined function logPayPalError() in C:\wamp64\www\ryvahcommerce\includes\email_functions.php:34
-Stack trace:
-#0 C:\wamp64\www\ryvahcommerce\debug_email.php(266): sendOrderNotificationEmail(79)
-#1 {main}
-  thrown in C:\wamp64\www\ryvahcommerce\includes\email_functions.php on line 34
-[08-Jun-2025 19:16:40 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function logPayPalError() in C:\wamp64\www\ryvahcommerce\includes\email_functions.php:34
-Stack trace:
-#0 C:\wamp64\www\ryvahcommerce\debug_email.php(266): sendOrderNotificationEmail(79)
-#1 {main}
-  thrown in C:\wamp64\www\ryvahcommerce\includes\email_functions.php on line 34
-[08-Jun-2025 19:16:40 UTC] Fatal Error: Uncaught Error: Call to undefined function logPayPalError() in C:\wamp64\www\ryvahcommerce\includes\email_functions.php:34
-Stack trace:
-#0 C:\wamp64\www\ryvahcommerce\debug_email.php(266): sendOrderNotificationEmail(79)
-#1 {main}
-  thrown in C:\wamp64\www\ryvahcommerce\includes\email_functions.php on line 34
-[08-Jun-2025 19:24:46 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function logPayPalError() in C:\wamp64\www\ryvahcommerce\includes\email_functions.php:34
-Stack trace:
-#0 C:\wamp64\www\ryvahcommerce\debug_email.php(266): sendOrderNotificationEmail(79)
-#1 {main}
-  thrown in C:\wamp64\www\ryvahcommerce\includes\email_functions.php on line 34
-[08-Jun-2025 19:24:46 UTC] Fatal Error: Uncaught Error: Call to undefined function logPayPalError() in C:\wamp64\www\ryvahcommerce\includes\email_functions.php:34
-Stack trace:
-#0 C:\wamp64\www\ryvahcommerce\debug_email.php(266): sendOrderNotificationEmail(79)
-#1 {main}
-  thrown in C:\wamp64\www\ryvahcommerce\includes\email_functions.php on line 34
-[08-Jun-2025 19:31:03 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function logPayPalError() in C:\wamp64\www\ryvahcommerce\includes\email_functions.php:34
-Stack trace:
-#0 C:\wamp64\www\ryvahcommerce\debug_email.php(266): sendOrderNotificationEmail(79)
-#1 {main}
-  thrown in C:\wamp64\www\ryvahcommerce\includes\email_functions.php on line 34
-[08-Jun-2025 19:31:03 UTC] Fatal Error: Uncaught Error: Call to undefined function logPayPalError() in C:\wamp64\www\ryvahcommerce\includes\email_functions.php:34
-Stack trace:
-#0 C:\wamp64\www\ryvahcommerce\debug_email.php(266): sendOrderNotificationEmail(79)
-#1 {main}
-  thrown in C:\wamp64\www\ryvahcommerce\includes\email_functions.php on line 34
-[09-Jun-2025 08:41:56 UTC] Adding to cart: Array
+[10-Jun-2025 07:49:22 UTC] WARNING: Running PayPal integration in development mode with relaxed SSL settings
+[10-Jun-2025 07:49:22 UTC] Getting cart items
+[10-Jun-2025 07:49:22 UTC] Cart Data: Array
 (
-    [product_id] => 15
-    [quantity] => 1
+    [items] => Array
+        (
+            [0] => Array
+                (
+                    [id] => 12
+                    [name] => Plight of the Fairies
+                    [price] => 24.95
+                    [quantity] => 1
+                    [stock] => 0
+                    [thumbs] => Uploads/thumbs/fairy.jpg
+                    [type] => book
+                )
+
+            [1] => Array
+                (
+                    [id] => 15
+                    [name] => Ryvah Encyclopedia
+                    [price] => 1.50
+                    [quantity] => 1
+                    [stock] => 0
+                    [thumbs] => Uploads/thumbs/ryvah-encyclopedia.png
+                    [type] => ebook
+                )
+
+        )
+
+    [total] => 26.45
 )
 
-[09-Jun-2025 08:41:56 UTC] Add to cart result: Array
+[10-Jun-2025 07:49:22 UTC] Order totals calculation (NO DISCOUNTS)
+[10-Jun-2025 07:49:23 UTC] PHP Warning:  syntax error, unexpected '"' in C:\wamp64\bin\apache\apache2.4.59\bin\php.ini on line 2001
+ in C:\wamp64\www\ryvahcommerce\vendor\apimatic\jsonmapper\src\JsonMapper.php on line 134
+[10-Jun-2025 07:49:23 UTC] PHP Stack trace:
+[10-Jun-2025 07:49:23 UTC] PHP   1. {main}() C:\wamp64\www\ryvahcommerce\checkout\simple_create_order.php:0
+[10-Jun-2025 07:49:23 UTC] PHP   2. createPayPalOrder($orderData = ['items' => [0 => [...], 1 => [...]], 'order_items' => [0 => [...], 1 => [...]], 'subtotal' => 26.45, 'tax_amount' => 1.933625, 'shipping_amount' => 7, 'shipping_breakdown' => [0 => [...]], 'total' => 35.383625], $address = ['id' => 2, 'label' => 'HOME', 'street' => '1264-Thika', 'city' => 'Thika', 'state' => 'EMBU', 'postal_code' => '01000', 'country' => 'Other'], $currency = 'USD') C:\wamp64\www\ryvahcommerce\checkout\simple_create_order.php:533
+[10-Jun-2025 07:49:23 UTC] PHP   3. createPayPalServerClient() C:\wamp64\www\ryvahcommerce\checkout\simple_create_order.php:337
+[10-Jun-2025 07:49:23 UTC] PHP   4. PaypalServerSdkLib\PaypalServerSdkClientBuilder->build() C:\wamp64\www\ryvahcommerce\includes\paypal_config.php:94
+[10-Jun-2025 07:49:23 UTC] PHP   5. PaypalServerSdkLib\PaypalServerSdkClient->__construct($config = ['oAuthClientId' => 'ARbQtWP1vIsYqgrKcL0v2hhlJA6NujGi26UWQz9Z4lsmPosxbSDPfzLSkaHtS8JRSvdysC99W0qvLyCI', 'oAuthClientSecret' => 'EChoMRhi0vy7L_Defl5dqinOMbiWHxRmPG2e3ArjXXRQqHR1vwkg1IvHGTDxzwrOOuQR4n-z8ZteQiGc', 'environment' => 'Production']) C:\wamp64\www\ryvahcommerce\vendor\paypal\paypal-server-sdk\src\PaypalServerSdkClientBuilder.php:136
+[10-Jun-2025 07:49:23 UTC] PHP   6. PaypalServerSdkLib\ApiHelper::getJsonHelper() C:\wamp64\www\ryvahcommerce\vendor\paypal\paypal-server-sdk\src\PaypalServerSdkClient.php:63
+[10-Jun-2025 07:49:23 UTC] PHP   7. Core\Utils\JsonHelper->__construct($inheritedModels = [], $discriminatorSubstitutions = [], $additionalPropsMethodName = NULL, $defaultNamespace = 'PaypalServerSdkLib\\Models') C:\wamp64\www\ryvahcommerce\vendor\paypal\paypal-server-sdk\src\ApiHelper.php:31
+[10-Jun-2025 07:49:23 UTC] PHP   8. apimatic\jsonmapper\JsonMapper->__construct() C:\wamp64\www\ryvahcommerce\vendor\apimatic\core\src\Utils\JsonHelper.php:39
+[10-Jun-2025 07:49:23 UTC] PHP   9. parse_ini_file($filename = 'C:\\wamp64\\bin\\apache\\apache2.4.59\\bin\\php.ini') C:\wamp64\www\ryvahcommerce\vendor\apimatic\jsonmapper\src\JsonMapper.php:134
+[10-Jun-2025 07:49:24 UTC] Order creation error: Following authentication credentials are required:
+-> Client is not authorized. An OAuth token is needed to make API calls.
+[10-Jun-2025 07:49:24 UTC] Order creation error: Payment system temporarily unavailable. Please check your internet connection and try again.
+[10-Jun-2025 09:10:34 UTC] Getting cart items
+[10-Jun-2025 09:10:35 UTC] Cart Data: Array
 (
-    [success] => 1
+    [items] => Array
+        (
+            [0] => Array
+                (
+                    [id] => 12
+                    [name] => Plight of the Fairies
+                    [price] => 24.95
+                    [quantity] => 1
+                    [stock] => 0
+                    [thumbs] => Uploads/thumbs/fairy.jpg
+                    [type] => book
+                )
+
+            [1] => Array
+                (
+                    [id] => 15
+                    [name] => Ryvah Encyclopedia
+                    [price] => 1.50
+                    [quantity] => 1
+                    [stock] => 0
+                    [thumbs] => Uploads/thumbs/ryvah-encyclopedia.png
+                    [type] => ebook
+                )
+
+        )
+
+    [total] => 26.45
 )
 
+[10-Jun-2025 09:19:13 UTC] Getting cart items
+[10-Jun-2025 09:19:13 UTC] Cart Data: Array
+(
+    [items] => Array
+        (
+            [0] => Array
+                (
+                    [id] => 12
+                    [name] => Plight of the Fairies
+                    [price] => 24.95
+                    [quantity] => 1
+                    [stock] => 0
+                    [thumbs] => Uploads/thumbs/fairy.jpg
+                    [type] => book
+                )
+
+            [1] => Array
+                (
+                    [id] => 15
+                    [name] => Ryvah Encyclopedia
+                    [price] => 1.50
+                    [quantity] => 1
+                    [stock] => 0
+                    [thumbs] => Uploads/thumbs/ryvah-encyclopedia.png
+                    [type] => ebook
+                )
+
+        )
+
+    [total] => 26.45
+)
+
+[10-Jun-2025 09:19:23 UTC] WARNING: Running PayPal integration in development mode with relaxed SSL settings
+[10-Jun-2025 09:19:23 UTC] Getting cart items
+[10-Jun-2025 09:19:23 UTC] Cart Data: Array
+(
+    [items] => Array
+        (
+            [0] => Array
+                (
+                    [id] => 12
+                    [name] => Plight of the Fairies
+                    [price] => 24.95
+                    [quantity] => 1
+                    [stock] => 0
+                    [thumbs] => Uploads/thumbs/fairy.jpg
+                    [type] => book
+                )
+
+            [1] => Array
+                (
+                    [id] => 15
+                    [name] => Ryvah Encyclopedia
+                    [price] => 1.50
+                    [quantity] => 1
+                    [stock] => 0
+                    [thumbs] => Uploads/thumbs/ryvah-encyclopedia.png
+                    [type] => ebook
+                )
+
+        )
+
+    [total] => 26.45
+)
+
+[10-Jun-2025 09:19:23 UTC] Order totals calculation (NO DISCOUNTS)
+[10-Jun-2025 09:19:25 UTC] PHP Warning:  syntax error, unexpected '"' in C:\wamp64\bin\apache\apache2.4.59\bin\php.ini on line 2001
+ in C:\wamp64\www\ryvahcommerce\vendor\apimatic\jsonmapper\src\JsonMapper.php on line 134
+[10-Jun-2025 09:19:25 UTC] PHP Stack trace:
+[10-Jun-2025 09:19:25 UTC] PHP   1. {main}() C:\wamp64\www\ryvahcommerce\checkout\simple_create_order.php:0
+[10-Jun-2025 09:19:25 UTC] PHP   2. createPayPalOrder($orderData = ['items' => [0 => [...], 1 => [...]], 'order_items' => [0 => [...], 1 => [...]], 'subtotal' => 26.45, 'tax_amount' => 1.933625, 'shipping_amount' => 7, 'shipping_breakdown' => [0 => [...]], 'total' => 35.383625], $address = ['id' => 2, 'label' => 'HOME', 'street' => '1264-Thika', 'city' => 'Thika', 'state' => 'EMBU', 'postal_code' => '01000', 'country' => 'Other'], $currency = 'USD') C:\wamp64\www\ryvahcommerce\checkout\simple_create_order.php:532
+[10-Jun-2025 09:19:25 UTC] PHP   3. createPayPalServerClient() C:\wamp64\www\ryvahcommerce\checkout\simple_create_order.php:337
+[10-Jun-2025 09:19:25 UTC] PHP   4. PaypalServerSdkLib\PaypalServerSdkClientBuilder->build() C:\wamp64\www\ryvahcommerce\includes\paypal_config.php:97
+[10-Jun-2025 09:19:25 UTC] PHP   5. PaypalServerSdkLib\PaypalServerSdkClient->__construct($config = ['oAuthClientId' => 'ARbQtWP1vIsYqgrKcL0v2hhlJA6NujGi26UWQz9Z4lsmPosxbSDPfzLSkaHtS8JRSvdysC99W0qvLyCI', 'oAuthClientSecret' => 'EChoMRhi0vy7L_Defl5dqinOMbiWHxRmPG2e3ArjXXRQqHR1vwkg1IvHGTDxzwrOOuQR4n-z8ZteQiGc', 'environment' => 'Production', 'timeout' => 30, 'numberOfRetries' => 2]) C:\wamp64\www\ryvahcommerce\vendor\paypal\paypal-server-sdk\src\PaypalServerSdkClientBuilder.php:136
+[10-Jun-2025 09:19:25 UTC] PHP   6. PaypalServerSdkLib\ApiHelper::getJsonHelper() C:\wamp64\www\ryvahcommerce\vendor\paypal\paypal-server-sdk\src\PaypalServerSdkClient.php:63
+[10-Jun-2025 09:19:25 UTC] PHP   7. Core\Utils\JsonHelper->__construct($inheritedModels = [], $discriminatorSubstitutions = [], $additionalPropsMethodName = NULL, $defaultNamespace = 'PaypalServerSdkLib\\Models') C:\wamp64\www\ryvahcommerce\vendor\paypal\paypal-server-sdk\src\ApiHelper.php:31
+[10-Jun-2025 09:19:25 UTC] PHP   8. apimatic\jsonmapper\JsonMapper->__construct() C:\wamp64\www\ryvahcommerce\vendor\apimatic\core\src\Utils\JsonHelper.php:39
+[10-Jun-2025 09:19:25 UTC] PHP   9. parse_ini_file($filename = 'C:\\wamp64\\bin\\apache\\apache2.4.59\\bin\\php.ini') C:\wamp64\www\ryvahcommerce\vendor\apimatic\jsonmapper\src\JsonMapper.php:134
+[10-Jun-2025 09:19:25 UTC] PayPal Server SDK client created successfully
+[10-Jun-2025 09:19:25 UTC] PHP Fatal error:  Uncaught Error: Call to undefined method PaypalServerSdkLib\Controllers\OrdersController::ordersCreate() in C:\wamp64\www\ryvahcommerce\checkout\simple_create_order.php:347
+Stack trace:
+#0 C:\wamp64\www\ryvahcommerce\checkout\simple_create_order.php(532): createPayPalOrder(Array, Array, 'USD')
+#1 {main}
+  thrown in C:\wamp64\www\ryvahcommerce\checkout\simple_create_order.php on line 347
+[10-Jun-2025 09:19:25 UTC] Fatal Error: Uncaught Error: Call to undefined method PaypalServerSdkLib\Controllers\OrdersController::ordersCreate() in C:\wamp64\www\ryvahcommerce\checkout\simple_create_order.php:347
+Stack trace:
+#0 C:\wamp64\www\ryvahcommerce\checkout\simple_create_order.php(532): createPayPalOrder(Array, Array, 'USD')
+#1 {main}
+  thrown in C:\wamp64\www\ryvahcommerce\checkout\simple_create_order.php on line 347
+[10-Jun-2025 09:34:32 UTC] Getting cart items
+[10-Jun-2025 09:34:32 UTC] Cart Data: Array
+(
+    [items] => Array
+        (
+            [0] => Array
+                (
+                    [id] => 12
+                    [name] => Plight of the Fairies
+                    [price] => 24.95
+                    [quantity] => 1
+                    [stock] => 0
+                    [thumbs] => Uploads/thumbs/fairy.jpg
+                    [type] => book
+                )
+
+            [1] => Array
+                (
+                    [id] => 15
+                    [name] => Ryvah Encyclopedia
+                    [price] => 1.50
+                    [quantity] => 1
+                    [stock] => 0
+                    [thumbs] => Uploads/thumbs/ryvah-encyclopedia.png
+                    [type] => ebook
+                )
+
+        )
+
+    [total] => 26.45
+)
+
+[10-Jun-2025 09:34:39 UTC] WARNING: Running PayPal integration in development mode with relaxed SSL settings
+[10-Jun-2025 09:34:39 UTC] Getting cart items
+[10-Jun-2025 09:34:39 UTC] Cart Data: Array
+(
+    [items] => Array
+        (
+            [0] => Array
+                (
+                    [id] => 12
+                    [name] => Plight of the Fairies
+                    [price] => 24.95
+                    [quantity] => 1
+                    [stock] => 0
+                    [thumbs] => Uploads/thumbs/fairy.jpg
+                    [type] => book
+                )
+
+            [1] => Array
+                (
+                    [id] => 15
+                    [name] => Ryvah Encyclopedia
+                    [price] => 1.50
+                    [quantity] => 1
+                    [stock] => 0
+                    [thumbs] => Uploads/thumbs/ryvah-encyclopedia.png
+                    [type] => ebook
+                )
+
+        )
+
+    [total] => 26.45
+)
+
+[10-Jun-2025 09:34:39 UTC] Order totals calculation (NO DISCOUNTS)
+[10-Jun-2025 09:34:40 UTC] PHP Warning:  syntax error, unexpected '"' in C:\wamp64\bin\apache\apache2.4.59\bin\php.ini on line 2001
+ in C:\wamp64\www\ryvahcommerce\vendor\apimatic\jsonmapper\src\JsonMapper.php on line 134
+[10-Jun-2025 09:34:40 UTC] PHP Stack trace:
+[10-Jun-2025 09:34:40 UTC] PHP   1. {main}() C:\wamp64\www\ryvahcommerce\checkout\simple_create_order.php:0
+[10-Jun-2025 09:34:40 UTC] PHP   2. createPayPalOrder($orderData = ['items' => [0 => [...], 1 => [...]], 'order_items' => [0 => [...], 1 => [...]], 'subtotal' => 26.45, 'tax_amount' => 1.933625, 'shipping_amount' => 7, 'shipping_breakdown' => [0 => [...]], 'total' => 35.383625], $address = ['id' => 2, 'label' => 'HOME', 'street' => '1264-Thika', 'city' => 'Thika', 'state' => 'EMBU', 'postal_code' => '01000', 'country' => 'Other'], $currency = 'USD') C:\wamp64\www\ryvahcommerce\checkout\simple_create_order.php:532
+[10-Jun-2025 09:34:40 UTC] PHP   3. createPayPalServerClient() C:\wamp64\www\ryvahcommerce\checkout\simple_create_order.php:337
+[10-Jun-2025 09:34:40 UTC] PHP   4. PaypalServerSdkLib\PaypalServerSdkClientBuilder->build() C:\wamp64\www\ryvahcommerce\includes\paypal_config.php:97
+[10-Jun-2025 09:34:40 UTC] PHP   5. PaypalServerSdkLib\PaypalServerSdkClient->__construct($config = ['oAuthClientId' => 'ARbQtWP1vIsYqgrKcL0v2hhlJA6NujGi26UWQz9Z4lsmPosxbSDPfzLSkaHtS8JRSvdysC99W0qvLyCI', 'oAuthClientSecret' => 'EChoMRhi0vy7L_Defl5dqinOMbiWHxRmPG2e3ArjXXRQqHR1vwkg1IvHGTDxzwrOOuQR4n-z8ZteQiGc', 'environment' => 'Production', 'timeout' => 30, 'numberOfRetries' => 2]) C:\wamp64\www\ryvahcommerce\vendor\paypal\paypal-server-sdk\src\PaypalServerSdkClientBuilder.php:136
+[10-Jun-2025 09:34:40 UTC] PHP   6. PaypalServerSdkLib\ApiHelper::getJsonHelper() C:\wamp64\www\ryvahcommerce\vendor\paypal\paypal-server-sdk\src\PaypalServerSdkClient.php:63
+[10-Jun-2025 09:34:40 UTC] PHP   7. Core\Utils\JsonHelper->__construct($inheritedModels = [], $discriminatorSubstitutions = [], $additionalPropsMethodName = NULL, $defaultNamespace = 'PaypalServerSdkLib\\Models') C:\wamp64\www\ryvahcommerce\vendor\paypal\paypal-server-sdk\src\ApiHelper.php:31
+[10-Jun-2025 09:34:40 UTC] PHP   8. apimatic\jsonmapper\JsonMapper->__construct() C:\wamp64\www\ryvahcommerce\vendor\apimatic\core\src\Utils\JsonHelper.php:39
+[10-Jun-2025 09:34:40 UTC] PHP   9. parse_ini_file($filename = 'C:\\wamp64\\bin\\apache\\apache2.4.59\\bin\\php.ini') C:\wamp64\www\ryvahcommerce\vendor\apimatic\jsonmapper\src\JsonMapper.php:134
+[10-Jun-2025 09:34:40 UTC] PayPal Server SDK client created successfully
+[10-Jun-2025 09:34:40 UTC] PHP Fatal error:  Uncaught Error: Call to undefined method PaypalServerSdkLib\Controllers\OrdersController::ordersCreate() in C:\wamp64\www\ryvahcommerce\checkout\simple_create_order.php:347
+Stack trace:
+#0 C:\wamp64\www\ryvahcommerce\checkout\simple_create_order.php(532): createPayPalOrder(Array, Array, 'USD')
+#1 {main}
+  thrown in C:\wamp64\www\ryvahcommerce\checkout\simple_create_order.php on line 347
+[10-Jun-2025 09:34:40 UTC] Fatal Error: Uncaught Error: Call to undefined method PaypalServerSdkLib\Controllers\OrdersController::ordersCreate() in C:\wamp64\www\ryvahcommerce\checkout\simple_create_order.php:347
+Stack trace:
+#0 C:\wamp64\www\ryvahcommerce\checkout\simple_create_order.php(532): createPayPalOrder(Array, Array, 'USD')
+#1 {main}
+  thrown in C:\wamp64\www\ryvahcommerce\checkout\simple_create_order.php on line 347
+[10-Jun-2025 09:52:36 UTC] PHP Warning:  syntax error, unexpected '"' in C:\wamp64\bin\apache\apache2.4.59\bin\php.ini on line 2001
+ in C:\wamp64\www\ryvahcommerce\vendor\apimatic\jsonmapper\src\JsonMapper.php on line 134
+[10-Jun-2025 09:52:36 UTC] PHP Stack trace:
+[10-Jun-2025 09:52:36 UTC] PHP   1. {main}() C:\wamp64\www\ryvahcommerce\test_paypal_config.php:0
+[10-Jun-2025 09:52:36 UTC] PHP   2. createPayPalServerClient() C:\wamp64\www\ryvahcommerce\test_paypal_config.php:55
+[10-Jun-2025 09:52:36 UTC] PHP   3. PaypalServerSdkLib\PaypalServerSdkClientBuilder->build() C:\wamp64\www\ryvahcommerce\includes\paypal_config.php:97
+[10-Jun-2025 09:52:36 UTC] PHP   4. PaypalServerSdkLib\PaypalServerSdkClient->__construct($config = ['oAuthClientId' => 'ARbQtWP1vIsYqgrKcL0v2hhlJA6NujGi26UWQz9Z4lsmPosxbSDPfzLSkaHtS8JRSvdysC99W0qvLyCI', 'oAuthClientSecret' => 'EChoMRhi0vy7L_Defl5dqinOMbiWHxRmPG2e3ArjXXRQqHR1vwkg1IvHGTDxzwrOOuQR4n-z8ZteQiGc', 'environment' => 'Production', 'timeout' => 30, 'numberOfRetries' => 2]) C:\wamp64\www\ryvahcommerce\vendor\paypal\paypal-server-sdk\src\PaypalServerSdkClientBuilder.php:136
+[10-Jun-2025 09:52:36 UTC] PHP   5. PaypalServerSdkLib\ApiHelper::getJsonHelper() C:\wamp64\www\ryvahcommerce\vendor\paypal\paypal-server-sdk\src\PaypalServerSdkClient.php:63
+[10-Jun-2025 09:52:36 UTC] PHP   6. Core\Utils\JsonHelper->__construct($inheritedModels = [], $discriminatorSubstitutions = [], $additionalPropsMethodName = NULL, $defaultNamespace = 'PaypalServerSdkLib\\Models') C:\wamp64\www\ryvahcommerce\vendor\paypal\paypal-server-sdk\src\ApiHelper.php:31
+[10-Jun-2025 09:52:36 UTC] PHP   7. apimatic\jsonmapper\JsonMapper->__construct() C:\wamp64\www\ryvahcommerce\vendor\apimatic\core\src\Utils\JsonHelper.php:39
+[10-Jun-2025 09:52:36 UTC] PHP   8. parse_ini_file($filename = 'C:\\wamp64\\bin\\apache\\apache2.4.59\\bin\\php.ini') C:\wamp64\www\ryvahcommerce\vendor\apimatic\jsonmapper\src\JsonMapper.php:134
+[10-Jun-2025 09:52:36 UTC] PayPal Server SDK client created successfully
+[10-Jun-2025 10:02:27 UTC] Getting cart items
+[10-Jun-2025 10:02:27 UTC] Cart Data: Array
+(
+    [items] => Array
+        (
+            [0] => Array
+                (
+                    [id] => 12
+                    [name] => Plight of the Fairies
+                    [price] => 24.95
+                    [quantity] => 1
+                    [stock] => 0
+                    [thumbs] => Uploads/thumbs/fairy.jpg
+                    [type] => book
+                )
+
+            [1] => Array
+                (
+                    [id] => 15
+                    [name] => Ryvah Encyclopedia
+                    [price] => 1.50
+                    [quantity] => 1
+                    [stock] => 0
+                    [thumbs] => Uploads/thumbs/ryvah-encyclopedia.png
+                    [type] => ebook
+                )
+
+        )
+
+    [total] => 26.45
+)
+
+[10-Jun-2025 10:02:36 UTC] WARNING: Running PayPal integration in development mode with relaxed SSL settings
+[10-Jun-2025 10:02:36 UTC] Getting cart items
+[10-Jun-2025 10:02:36 UTC] Cart Data: Array
+(
+    [items] => Array
+        (
+            [0] => Array
+                (
+                    [id] => 12
+                    [name] => Plight of the Fairies
+                    [price] => 24.95
+                    [quantity] => 1
+                    [stock] => 0
+                    [thumbs] => Uploads/thumbs/fairy.jpg
+                    [type] => book
+                )
+
+            [1] => Array
+                (
+                    [id] => 15
+                    [name] => Ryvah Encyclopedia
+                    [price] => 1.50
+                    [quantity] => 1
+                    [stock] => 0
+                    [thumbs] => Uploads/thumbs/ryvah-encyclopedia.png
+                    [type] => ebook
+                )
+
+        )
+
+    [total] => 26.45
+)
+
+[10-Jun-2025 10:02:36 UTC] Order totals calculation (NO DISCOUNTS)
+[10-Jun-2025 10:02:37 UTC] PHP Warning:  syntax error, unexpected '"' in C:\wamp64\bin\apache\apache2.4.59\bin\php.ini on line 2001
+ in C:\wamp64\www\ryvahcommerce\vendor\apimatic\jsonmapper\src\JsonMapper.php on line 134
+[10-Jun-2025 10:02:37 UTC] PHP Stack trace:
+[10-Jun-2025 10:02:37 UTC] PHP   1. {main}() C:\wamp64\www\ryvahcommerce\checkout\simple_create_order.php:0
+[10-Jun-2025 10:02:37 UTC] PHP   2. createPayPalOrder($orderData = ['items' => [0 => [...], 1 => [...]], 'order_items' => [0 => [...], 1 => [...]], 'subtotal' => 26.45, 'tax_amount' => 1.933625, 'shipping_amount' => 7, 'shipping_breakdown' => [0 => [...]], 'total' => 35.383625], $address = ['id' => 2, 'label' => 'HOME', 'street' => '1264-Thika', 'city' => 'Thika', 'state' => 'EMBU', 'postal_code' => '01000', 'country' => 'Other'], $currency = 'USD') C:\wamp64\www\ryvahcommerce\checkout\simple_create_order.php:573
+[10-Jun-2025 10:02:37 UTC] PHP   3. createPayPalServerClient() C:\wamp64\www\ryvahcommerce\checkout\simple_create_order.php:337
+[10-Jun-2025 10:02:37 UTC] PHP   4. PaypalServerSdkLib\PaypalServerSdkClientBuilder->build() C:\wamp64\www\ryvahcommerce\includes\paypal_config.php:98
+[10-Jun-2025 10:02:37 UTC] PHP   5. PaypalServerSdkLib\PaypalServerSdkClient->__construct($config = ['oAuthClientId' => 'ARbQtWP1vIsYqgrKcL0v2hhlJA6NujGi26UWQz9Z4lsmPosxbSDPfzLSkaHtS8JRSvdysC99W0qvLyCI', 'oAuthClientSecret' => 'EChoMRhi0vy7L_Defl5dqinOMbiWHxRmPG2e3ArjXXRQqHR1vwkg1IvHGTDxzwrOOuQR4n-z8ZteQiGc', 'environment' => 'Production', 'timeout' => 30, 'numberOfRetries' => 2]) C:\wamp64\www\ryvahcommerce\vendor\paypal\paypal-server-sdk\src\PaypalServerSdkClientBuilder.php:136
+[10-Jun-2025 10:02:37 UTC] PHP   6. PaypalServerSdkLib\ApiHelper::getJsonHelper() C:\wamp64\www\ryvahcommerce\vendor\paypal\paypal-server-sdk\src\PaypalServerSdkClient.php:63
+[10-Jun-2025 10:02:37 UTC] PHP   7. Core\Utils\JsonHelper->__construct($inheritedModels = [], $discriminatorSubstitutions = [], $additionalPropsMethodName = NULL, $defaultNamespace = 'PaypalServerSdkLib\\Models') C:\wamp64\www\ryvahcommerce\vendor\paypal\paypal-server-sdk\src\ApiHelper.php:31
+[10-Jun-2025 10:02:37 UTC] PHP   8. apimatic\jsonmapper\JsonMapper->__construct() C:\wamp64\www\ryvahcommerce\vendor\apimatic\core\src\Utils\JsonHelper.php:39
+[10-Jun-2025 10:02:37 UTC] PHP   9. parse_ini_file($filename = 'C:\\wamp64\\bin\\apache\\apache2.4.59\\bin\\php.ini') C:\wamp64\www\ryvahcommerce\vendor\apimatic\jsonmapper\src\JsonMapper.php:134
+[10-Jun-2025 10:02:37 UTC] PayPal Server SDK client created successfully
+[10-Jun-2025 10:02:37 UTC] PHP Fatal error:  Uncaught Error: Call to undefined method PaypalServerSdkLib\Controllers\OrdersController::ordersCreate() in C:\wamp64\www\ryvahcommerce\checkout\simple_create_order.php:388
+Stack trace:
+#0 C:\wamp64\www\ryvahcommerce\checkout\simple_create_order.php(573): createPayPalOrder(Array, Array, 'USD')
+#1 {main}
+  thrown in C:\wamp64\www\ryvahcommerce\checkout\simple_create_order.php on line 388
+[10-Jun-2025 10:02:37 UTC] Fatal Error: Uncaught Error: Call to undefined method PaypalServerSdkLib\Controllers\OrdersController::ordersCreate() in C:\wamp64\www\ryvahcommerce\checkout\simple_create_order.php:388
+Stack trace:
+#0 C:\wamp64\www\ryvahcommerce\checkout\simple_create_order.php(573): createPayPalOrder(Array, Array, 'USD')
+#1 {main}
+  thrown in C:\wamp64\www\ryvahcommerce\checkout\simple_create_order.php on line 388
+[10-Jun-2025 10:04:23 UTC] Getting cart items
+[10-Jun-2025 10:04:23 UTC] Cart Data: Array
+(
+    [items] => Array
+        (
+            [0] => Array
+                (
+                    [id] => 12
+                    [name] => Plight of the Fairies
+                    [price] => 24.95
+                    [quantity] => 1
+                    [stock] => 0
+                    [thumbs] => Uploads/thumbs/fairy.jpg
+                    [type] => book
+                )
+
+            [1] => Array
+                (
+                    [id] => 15
+                    [name] => Ryvah Encyclopedia
+                    [price] => 1.50
+                    [quantity] => 1
+                    [stock] => 0
+                    [thumbs] => Uploads/thumbs/ryvah-encyclopedia.png
+                    [type] => ebook
+                )
+
+        )
+
+    [total] => 26.45
+)
+
+[10-Jun-2025 10:05:46 UTC] PHP Warning:  syntax error, unexpected '"' in C:\wamp64\bin\apache\apache2.4.59\bin\php.ini on line 2001
+ in C:\wamp64\www\ryvahcommerce\vendor\apimatic\jsonmapper\src\JsonMapper.php on line 134
+[10-Jun-2025 10:05:46 UTC] PHP Stack trace:
+[10-Jun-2025 10:05:46 UTC] PHP   1. {main}() C:\wamp64\www\ryvahcommerce\test_paypal_config.php:0
+[10-Jun-2025 10:05:46 UTC] PHP   2. createPayPalServerClient() C:\wamp64\www\ryvahcommerce\test_paypal_config.php:50
+[10-Jun-2025 10:05:46 UTC] PHP   3. PaypalServerSdkLib\PaypalServerSdkClientBuilder->build() C:\wamp64\www\ryvahcommerce\includes\paypal_config.php:98
+[10-Jun-2025 10:05:46 UTC] PHP   4. PaypalServerSdkLib\PaypalServerSdkClient->__construct($config = ['oAuthClientId' => 'ARbQtWP1vIsYqgrKcL0v2hhlJA6NujGi26UWQz9Z4lsmPosxbSDPfzLSkaHtS8JRSvdysC99W0qvLyCI', 'oAuthClientSecret' => 'EChoMRhi0vy7L_Defl5dqinOMbiWHxRmPG2e3ArjXXRQqHR1vwkg1IvHGTDxzwrOOuQR4n-z8ZteQiGc', 'environment' => 'Production', 'timeout' => 30, 'numberOfRetries' => 2]) C:\wamp64\www\ryvahcommerce\vendor\paypal\paypal-server-sdk\src\PaypalServerSdkClientBuilder.php:136
+[10-Jun-2025 10:05:46 UTC] PHP   5. PaypalServerSdkLib\ApiHelper::getJsonHelper() C:\wamp64\www\ryvahcommerce\vendor\paypal\paypal-server-sdk\src\PaypalServerSdkClient.php:63
+[10-Jun-2025 10:05:46 UTC] PHP   6. Core\Utils\JsonHelper->__construct($inheritedModels = [], $discriminatorSubstitutions = [], $additionalPropsMethodName = NULL, $defaultNamespace = 'PaypalServerSdkLib\\Models') C:\wamp64\www\ryvahcommerce\vendor\paypal\paypal-server-sdk\src\ApiHelper.php:31
+[10-Jun-2025 10:05:46 UTC] PHP   7. apimatic\jsonmapper\JsonMapper->__construct() C:\wamp64\www\ryvahcommerce\vendor\apimatic\core\src\Utils\JsonHelper.php:39
+[10-Jun-2025 10:05:46 UTC] PHP   8. parse_ini_file($filename = 'C:\\wamp64\\bin\\apache\\apache2.4.59\\bin\\php.ini') C:\wamp64\www\ryvahcommerce\vendor\apimatic\jsonmapper\src\JsonMapper.php:134
+[10-Jun-2025 10:05:46 UTC] PayPal Server SDK client created successfully

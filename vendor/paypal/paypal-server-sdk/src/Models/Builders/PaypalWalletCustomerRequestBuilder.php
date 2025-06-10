@@ -11,7 +11,6 @@ declare(strict_types=1);
 namespace PaypalServerSdkLib\Models\Builders;
 
 use Core\Utils\CoreHelper;
-use PaypalServerSdkLib\Models\Name;
 use PaypalServerSdkLib\Models\PaypalWalletCustomerRequest;
 use PaypalServerSdkLib\Models\PhoneWithType;
 
@@ -70,17 +69,6 @@ class PaypalWalletCustomerRequestBuilder
     public function phone(?PhoneWithType $value): self
     {
         $this->instance->setPhone($value);
-        return $this;
-    }
-
-    /**
-     * Sets name field.
-     *
-     * @param Name|null $value
-     */
-    public function name(?Name $value): self
-    {
-        $this->instance->setName($value);
         return $this;
     }
 

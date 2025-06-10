@@ -198,7 +198,7 @@ function parsePayPalError($exception)
 }
 
 /**
- * Capture PayPal order
+ * Capture PayPal order using Server SDK
  */
 function capturePayPalOrder($orderID)
 {
@@ -208,7 +208,7 @@ function capturePayPalOrder($orderID)
         }
 
         if (!isPayPalSDKAvailable()) {
-            handleApiError('PayPal SDK is not available', [], 500);
+            handleApiError('PayPal Server SDK is not available', [], 500);
         }
 
         // Validate network connectivity before attempting capture
@@ -218,29 +218,29 @@ function capturePayPalOrder($orderID)
             ], 503);
         }
 
-        $credentials = getPayPalCredentials();
+        // Create PayPal Server SDK client
+        $client = createPayPalServerClient();
 
-        // Initialize PayPal production environment
-        $environment = new \PayPalCheckoutSdk\Core\ProductionEnvironment($credentials['client_id'], $credentials['client_secret']);
+        // Execute PayPal capture (Server SDK doesn't require a separate capture request body for basic capture)
+        $response = $client->getOrdersController()->captureOrder(['id' => $orderID]);
 
-        // Use SSL-fixed client for development environments
-        if (function_exists('createPayPalClientWithSSLFix')) {
-            $client = createPayPalClientWithSSLFix($environment);
-        } else {
-            $client = new \PayPalCheckoutSdk\Core\PayPalHttpClient($environment);
+        if (!$response->isSuccess()) {
+            $errorBody = $response->getBody();
+            handleApiError('PayPal order capture failed', [
+                'status_code' => $response->getStatusCode(),
+                'response_body' => $errorBody,
+                'paypal_order_id' => $orderID
+            ], 400);
         }
 
-        // Create capture request
-        $request = new \PayPalCheckoutSdk\Orders\OrdersCaptureRequest($orderID);
-        $request->prefer('return=representation');
+        $result = $response->getResult();
 
-        // Execute PayPal capture
-        $response = $client->execute($request);
-
-        if ($response->result->status !== 'COMPLETED') {
-            handleApiError('Payment capture failed. Status: ' . $response->result->status, [
+        // Check if the order status is completed (using string comparison for compatibility)
+        $orderStatus = $result->getStatus();
+        if ($orderStatus !== 'COMPLETED') {
+            handleApiError('Payment capture failed. Status: ' . $orderStatus, [
                 'paypal_order_id' => $orderID,
-                'status' => $response->result->status
+                'status' => $orderStatus
             ], 400);
         }
 
@@ -250,7 +250,7 @@ function capturePayPalOrder($orderID)
             'user_id' => $_SESSION['user_id']
         ]);
 
-        return $response->result;
+        return $result;
     } catch (Exception $e) {
         // Parse PayPal specific errors
         $errorDetails = parsePayPalError($e);
@@ -365,7 +365,7 @@ function updateOrderStatus($orderID, $userId)
         }
 
         // Insert order status history
-        $stmt = $conn->prepare("INSERT INTO order_status_history (order_id, status, notes, created_at) VALUES (?, 'completed', 'Payment captured via PayPal', NOW())");
+        $stmt = $conn->prepare("INSERT INTO order_status_history (order_id, status, notes, created_at) VALUES (?, 'completed', 'Payment captured via PayPal Server SDK', NOW())");
         if (!$stmt) {
             throw new Exception('Failed to prepare status history insert: ' . $conn->error);
         }

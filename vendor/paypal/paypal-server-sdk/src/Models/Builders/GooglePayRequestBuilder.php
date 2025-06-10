@@ -13,7 +13,6 @@ namespace PaypalServerSdkLib\Models\Builders;
 use Core\Utils\CoreHelper;
 use PaypalServerSdkLib\Models\AssuranceDetails;
 use PaypalServerSdkLib\Models\GooglePayDecryptedTokenData;
-use PaypalServerSdkLib\Models\GooglePayExperienceContext;
 use PaypalServerSdkLib\Models\GooglePayRequest;
 use PaypalServerSdkLib\Models\GooglePayRequestCard;
 use PaypalServerSdkLib\Models\PhoneNumberWithCountryCode;
@@ -106,17 +105,6 @@ class GooglePayRequestBuilder
     public function assuranceDetails(?AssuranceDetails $value): self
     {
         $this->instance->setAssuranceDetails($value);
-        return $this;
-    }
-
-    /**
-     * Sets experience context field.
-     *
-     * @param GooglePayExperienceContext|null $value
-     */
-    public function experienceContext(?GooglePayExperienceContext $value): self
-    {
-        $this->instance->setExperienceContext($value);
         return $this;
     }
 

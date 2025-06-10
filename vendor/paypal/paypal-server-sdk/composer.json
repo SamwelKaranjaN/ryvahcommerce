@@ -13,8 +13,7 @@
     "require": {
         "php": "^7.2 || ^8.0",
         "ext-json": "*",
-        "ext-curl": "*",
-        "apimatic/unirest-php": "^4.0.6",
+        "apimatic/unirest-php": "^4.0.0",
         "apimatic/core-interfaces": "~0.1.5",
         "apimatic/core": "~0.3.13"
     },

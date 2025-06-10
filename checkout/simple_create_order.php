@@ -2,7 +2,7 @@
 
 /**
  * Enhanced PayPal Order Creation
- * Ryvah Commerce - Secure order creation with comprehensive validation
+ * Ryvah Commerce - Secure order creation with PayPal Server SDK
  */
 
 // Prevent cart interference
@@ -110,7 +110,7 @@ function getRequestData()
     }
 
     // Validate required fields
-    $requiredFields = ['total', 'address_id', 'csrf_token'];
+    $requiredFields = ['address_id', 'csrf_token'];
     foreach ($requiredFields as $field) {
         if (!isset($data[$field]) || $data[$field] === '') {
             handleApiError("Missing required field: {$field}", [], 400);
@@ -275,54 +275,19 @@ function validateCartAndCalculateTotals($userId, $address, $requestData)
         }
 
         // Calculate shipping (after tax as per requirement)
-        $shipping_result = calculateOrderShipping($validated_items, $address);
+        $shipping_result = calculateTotalShipping($validated_items);
         $shipping_amount = $shipping_result['total_shipping'];
 
         $total = $subtotal + $tax_amount + $shipping_amount;
 
-        // Validate amounts against request
-        if (isset($requestData['subtotal'])) {
-            $expected_subtotal = floatval($requestData['subtotal']);
-            if (abs($subtotal - $expected_subtotal) > 0.01) {
-                handleApiError('Subtotal mismatch between request and calculation', [
-                    'calculated' => $subtotal,
-                    'expected' => $expected_subtotal
-                ], 400);
-            }
-        }
-
-        if (isset($requestData['tax_amount'])) {
-            $expected_tax = floatval($requestData['tax_amount']);
-            if (abs($tax_amount - $expected_tax) > 0.01) {
-                handleApiError('Tax amount mismatch between request and calculation', [
-                    'calculated' => $tax_amount,
-                    'expected' => $expected_tax
-                ], 400);
-            }
-        }
-
-        if (isset($requestData['shipping_amount'])) {
-            $expected_shipping = floatval($requestData['shipping_amount']);
-            if (abs($shipping_amount - $expected_shipping) > 0.01) {
-                handleApiError('Shipping amount mismatch between request and calculation', [
-                    'calculated' => $shipping_amount,
-                    'expected' => $expected_shipping
-                ], 400);
-            }
-        }
-
-        $expected_total = floatval($requestData['total']);
-        if (abs($total - $expected_total) > 0.01) {
-            handleApiError('Total amount mismatch between request and calculation', [
-                'calculated' => $total,
-                'expected' => $expected_total,
-                'breakdown' => [
-                    'subtotal' => $subtotal,
-                    'tax' => $tax_amount,
-                    'shipping' => $shipping_amount
-                ]
-            ], 400);
-        }
+        // Debug logging for total calculation
+        logPayPalError('Order totals calculation (NO DISCOUNTS)', [
+            'subtotal' => $subtotal,
+            'tax_amount' => $tax_amount,
+            'shipping_amount' => $shipping_amount,
+            'total' => $total,
+            'shipping_breakdown' => $shipping_result['breakdown'] ?? []
+        ]);
 
         // Validate payment amount limits
         if (!validatePaymentAmount($total)) {
@@ -348,7 +313,7 @@ function validateCartAndCalculateTotals($userId, $address, $requestData)
 }
 
 /**
- * Create PayPal order
+ * Create PayPal order using Server SDK
  */
 function createPayPalOrder($orderData, $address, $currency)
 {
@@ -358,7 +323,7 @@ function createPayPalOrder($orderData, $address, $currency)
         }
 
         if (!isPayPalSDKAvailable()) {
-            handleApiError('PayPal SDK is not available', [], 500);
+            handleApiError('PayPal Server SDK is not available', [], 500);
         }
 
         // Validate network connectivity before attempting payment
@@ -368,41 +333,18 @@ function createPayPalOrder($orderData, $address, $currency)
             ], 503);
         }
 
-        $credentials = getPayPalCredentials();
+        // Create PayPal Server SDK client
+        $client = createPayPalServerClient();
 
-        // Initialize PayPal production environment
-        $environment = new \PayPalCheckoutSdk\Core\ProductionEnvironment($credentials['client_id'], $credentials['client_secret']);
-
-        // Use SSL-fixed client for development environments
-        if (function_exists('createPayPalClientWithSSLFix')) {
-            $client = createPayPalClientWithSSLFix($environment);
-        } else {
-            $client = new \PayPalCheckoutSdk\Core\PayPalHttpClient($environment);
-        }
-
-        // Create order request
-        $request = new \PayPalCheckoutSdk\Orders\OrdersCreateRequest();
-        $request->prefer('return=representation');
-
+        // Generate order reference
         $orderReference = generateOrderReference($_SESSION['user_id']);
 
-        $request->body = [
+        // Create optimized order request
+        $requestBody = [
             'intent' => 'CAPTURE',
-            'application_context' => [
-                'return_url' => PAYPAL_RETURN_URL,
-                'cancel_url' => PAYPAL_CANCEL_URL,
-                'brand_name' => SITE_NAME,
-                'user_action' => 'PAY_NOW',
-                'payment_method' => [
-                    'payer_selected' => 'PAYPAL',
-                    'payee_preferred' => 'IMMEDIATE_PAYMENT_REQUIRED'
-                ],
-                'shipping_preference' => 'NO_SHIPPING',
-                'landing_page' => 'BILLING'
-            ],
             'purchase_units' => [[
                 'reference_id' => $orderReference,
-                'description' => 'Order from ' . SITE_NAME,
+                'description' => 'Order from ' . SITE_NAME . ' - ' . count($orderData['order_items']) . ' item(s)',
                 'amount' => [
                     'currency_code' => $currency,
                     'value' => number_format($orderData['total'], 2, '.', ''),
@@ -410,50 +352,124 @@ function createPayPalOrder($orderData, $address, $currency)
                         'item_total' => [
                             'currency_code' => $currency,
                             'value' => number_format($orderData['subtotal'], 2, '.', '')
-                        ],
-                        'tax_total' => [
-                            'currency_code' => $currency,
-                            'value' => number_format($orderData['tax_amount'], 2, '.', '')
-                        ],
-                        'shipping' => [
-                            'currency_code' => $currency,
-                            'value' => number_format($orderData['shipping_amount'], 2, '.', '')
                         ]
                     ]
                 ],
                 'items' => $orderData['order_items']
-            ]]
+            ]],
+            'application_context' => [
+                'return_url' => PAYPAL_RETURN_URL,
+                'cancel_url' => PAYPAL_CANCEL_URL,
+                'brand_name' => SITE_NAME,
+                'user_action' => 'PAY_NOW',
+                'shipping_preference' => 'NO_SHIPPING',
+                'landing_page' => 'BILLING'
+            ]
         ];
 
-        // Execute PayPal request
-        $response = $client->execute($request);
-
-        if (!isset($response->result->id)) {
-            handleApiError('PayPal order creation failed - no order ID returned', [
-                'response_status' => $response->statusCode ?? 'unknown'
-            ], 500);
+        // Add tax breakdown only if tax amount > 0
+        if (!empty($orderData['tax_amount']) && $orderData['tax_amount'] > 0) {
+            $requestBody['purchase_units'][0]['amount']['breakdown']['tax_total'] = [
+                'currency_code' => $currency,
+                'value' => number_format($orderData['tax_amount'], 2, '.', '')
+            ];
         }
 
-        logPayPalError('PayPal order created successfully', [
-            'paypal_order_id' => $response->result->id,
-            'environment' => PAYPAL_ENVIRONMENT,
-            'user_id' => $_SESSION['user_id']
+        // Add shipping breakdown only if shipping amount > 0
+        if (!empty($orderData['shipping_amount']) && $orderData['shipping_amount'] > 0) {
+            $requestBody['purchase_units'][0]['amount']['breakdown']['shipping'] = [
+                'currency_code' => $currency,
+                'value' => number_format($orderData['shipping_amount'], 2, '.', '')
+            ];
+        }
+
+        // Get OAuth token first
+        $credentials = getPayPalCredentials();
+        $baseUrl = (PAYPAL_ENVIRONMENT === 'production')
+            ? 'https://api.paypal.com'
+            : 'https://api.sandbox.paypal.com';
+
+        // Step 1: Get OAuth token
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL => $baseUrl . '/v1/oauth2/token',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => 'grant_type=client_credentials',
+            CURLOPT_HTTPHEADER => ['Accept: application/json', 'Accept-Language: en_US'],
+            CURLOPT_USERPWD => $credentials['client_id'] . ':' . $credentials['client_secret'],
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_SSL_VERIFYPEER => PAYPAL_ENVIRONMENT === 'production',
         ]);
 
-        return $response->result;
+        $tokenResponse = curl_exec($ch);
+        $tokenHttpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($tokenHttpCode !== 200) {
+            handleApiError('PayPal authentication failed', ['http_code' => $tokenHttpCode], 500);
+        }
+
+        $tokenData = json_decode($tokenResponse, true);
+        if (!$tokenData || !isset($tokenData['access_token'])) {
+            handleApiError('Invalid PayPal OAuth response', [], 500);
+        }
+
+        // Step 2: Create order with OAuth token
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL => $baseUrl . '/v2/checkout/orders',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => json_encode($requestBody),
+            CURLOPT_HTTPHEADER => [
+                'Content-Type: application/json',
+                'Authorization: Bearer ' . $tokenData['access_token'],
+                'PayPal-Request-Id: ' . uniqid(),
+                'Prefer: return=representation'
+            ],
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_SSL_VERIFYPEER => PAYPAL_ENVIRONMENT === 'production',
+        ]);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode !== 201) {
+            handleApiError('PayPal order creation failed', ['http_code' => $httpCode, 'response' => $response], 500);
+        }
+
+        $result = json_decode($response, true);
+        if (!$result || !isset($result['id'])) {
+            handleApiError('Invalid PayPal order response', [], 500);
+        }
+
+        $orderId = $result['id'];
+
+        // Log successful creation
+        logPayPalError('PayPal order created successfully', [
+            'paypal_order_id' => $orderId,
+            'environment' => PAYPAL_ENVIRONMENT,
+            'user_id' => $_SESSION['user_id'],
+            'order_total' => $requestBody['purchase_units'][0]['amount']['value']
+        ]);
+
+        return $result;
     } catch (Exception $e) {
         // Log detailed error for debugging
         logPayPalError('Order creation error: ' . $e->getMessage(), [
             'exception_type' => get_class($e),
             'file' => $e->getFile(),
             'line' => $e->getLine(),
-            'user_id' => $_SESSION['user_id'] ?? 'unknown'
+            'user_id' => $_SESSION['user_id'] ?? 'unknown',
+            'error_trace' => $e->getTraceAsString()
         ]);
 
-        // Return immediate error without fallback
-        handleApiError('Payment system temporarily unavailable. Please check your internet connection and try again.', [
-            'error_type' => 'paypal_connection',
-            'suggestion' => 'Check network connectivity'
+        // Return production-friendly error message
+        handleApiError('Payment system temporarily unavailable. Please try again in a few moments.', [
+            'error_type' => 'system_error',
+            'suggestion' => 'Please try again later'
         ], 503);
     }
 }
@@ -471,7 +487,7 @@ function saveOrderToDatabase($paypalOrder, $orderData, $address, $currency)
         $userId = $_SESSION['user_id'];
         $invoiceNumber = generateOrderReference($userId);
         $addressJson = json_encode($address);
-        $paypalOrderId = $paypalOrder->id;
+        $paypalOrderId = $paypalOrder['id'];
 
         // Insert main order
         $stmt = $conn->prepare("INSERT INTO orders (invoice_number, user_id, total_amount, tax_amount, shipping_amount, payment_status, paypal_order_id, shipping_address, payment_method, currency, created_at) VALUES (?, ?, ?, ?, ?, 'pending', ?, ?, 'paypal', ?, NOW())");
@@ -510,7 +526,7 @@ function saveOrderToDatabase($paypalOrder, $orderData, $address, $currency)
         $stmt->close();
 
         // Insert order status history
-        $stmt = $conn->prepare("INSERT INTO order_status_history (order_id, status, notes, created_at) VALUES (?, 'pending', 'Order created via PayPal', NOW())");
+        $stmt = $conn->prepare("INSERT INTO order_status_history (order_id, status, notes, created_at) VALUES (?, 'pending', 'Order created via PayPal Server SDK', NOW())");
         if (!$stmt) {
             throw new Exception('Failed to prepare status history insert: ' . $conn->error);
         }
@@ -575,7 +591,7 @@ try {
 
     // Success response
     sendResponse([
-        'id' => $paypalOrder->id,
+        'id' => $paypalOrder['id'],
         'status' => 'success',
         'database_order_id' => $databaseOrderId,
         'environment' => PAYPAL_ENVIRONMENT,

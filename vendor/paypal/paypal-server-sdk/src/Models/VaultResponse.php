@@ -80,8 +80,7 @@ class VaultResponse implements \JsonSerializable
 
     /**
      * Returns Customer.
-     * This object represents a merchant’s customer, allowing them to store contact details, and track all
-     * payments associated with the same customer.
+     * The details about a customer in PayPal's system of record.
      */
     public function getCustomer(): ?VaultCustomer
     {
@@ -90,8 +89,7 @@ class VaultResponse implements \JsonSerializable
 
     /**
      * Sets Customer.
-     * This object represents a merchant’s customer, allowing them to store contact details, and track all
-     * payments associated with the same customer.
+     * The details about a customer in PayPal's system of record.
      *
      * @maps customer
      */

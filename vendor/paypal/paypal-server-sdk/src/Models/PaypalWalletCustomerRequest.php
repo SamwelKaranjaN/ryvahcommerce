@@ -31,11 +31,6 @@ class PaypalWalletCustomerRequest implements \JsonSerializable
     private $phone;
 
     /**
-     * @var Name|null
-     */
-    private $name;
-
-    /**
      * @var string|null
      */
     private $merchantCustomerId;
@@ -105,26 +100,6 @@ class PaypalWalletCustomerRequest implements \JsonSerializable
     }
 
     /**
-     * Returns Name.
-     * The name of the party.
-     */
-    public function getName(): ?Name
-    {
-        return $this->name;
-    }
-
-    /**
-     * Sets Name.
-     * The name of the party.
-     *
-     * @maps name
-     */
-    public function setName(?Name $name): void
-    {
-        $this->name = $name;
-    }
-
-    /**
      * Returns Merchant Customer Id.
      * Merchants and partners may already have a data-store where their customer information is persisted.
      * Use merchant_customer_id to associate the PayPal-generated customer.id to your representation of a
@@ -161,7 +136,6 @@ class PaypalWalletCustomerRequest implements \JsonSerializable
                 'id' => $this->id,
                 'emailAddress' => $this->emailAddress,
                 'phone' => $this->phone,
-                'name' => $this->name,
                 'merchantCustomerId' => $this->merchantCustomerId
             ]
         );
@@ -187,9 +161,6 @@ class PaypalWalletCustomerRequest implements \JsonSerializable
         }
         if (isset($this->phone)) {
             $json['phone']                = $this->phone;
-        }
-        if (isset($this->name)) {
-            $json['name']                 = $this->name;
         }
         if (isset($this->merchantCustomerId)) {
             $json['merchant_customer_id'] = $this->merchantCustomerId;

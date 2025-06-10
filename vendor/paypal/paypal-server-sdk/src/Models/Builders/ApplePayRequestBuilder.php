@@ -13,7 +13,6 @@ namespace PaypalServerSdkLib\Models\Builders;
 use Core\Utils\CoreHelper;
 use PaypalServerSdkLib\Models\ApplePayAttributes;
 use PaypalServerSdkLib\Models\ApplePayDecryptedTokenData;
-use PaypalServerSdkLib\Models\ApplePayExperienceContext;
 use PaypalServerSdkLib\Models\ApplePayRequest;
 use PaypalServerSdkLib\Models\CardStoredCredential;
 use PaypalServerSdkLib\Models\PhoneNumber;
@@ -128,17 +127,6 @@ class ApplePayRequestBuilder
     public function attributes(?ApplePayAttributes $value): self
     {
         $this->instance->setAttributes($value);
-        return $this;
-    }
-
-    /**
-     * Sets experience context field.
-     *
-     * @param ApplePayExperienceContext|null $value
-     */
-    public function experienceContext(?ApplePayExperienceContext $value): self
-    {
-        $this->instance->setExperienceContext($value);
         return $this;
     }
 

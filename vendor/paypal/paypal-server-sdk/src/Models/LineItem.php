@@ -55,11 +55,6 @@ class LineItem implements \JsonSerializable
     private $upc;
 
     /**
-     * @var OrderBillingPlan|null
-     */
-    private $billingPlan;
-
-    /**
      * @var Money|null
      */
     private $unitAmount;
@@ -244,28 +239,6 @@ class LineItem implements \JsonSerializable
     }
 
     /**
-     * Returns Billing Plan.
-     * Metadata for merchant-managed recurring billing plans. Valid only during the saved payment method
-     * token or billing agreement creation.
-     */
-    public function getBillingPlan(): ?OrderBillingPlan
-    {
-        return $this->billingPlan;
-    }
-
-    /**
-     * Sets Billing Plan.
-     * Metadata for merchant-managed recurring billing plans. Valid only during the saved payment method
-     * token or billing agreement creation.
-     *
-     * @maps billing_plan
-     */
-    public function setBillingPlan(?OrderBillingPlan $billingPlan): void
-    {
-        $this->billingPlan = $billingPlan;
-    }
-
-    /**
      * Returns Unit Amount.
      * The currency and amount for a financial transaction, such as a balance or payment due.
      */
@@ -414,7 +387,6 @@ class LineItem implements \JsonSerializable
                 'url' => $this->url,
                 'imageUrl' => $this->imageUrl,
                 'upc' => $this->upc,
-                'billingPlan' => $this->billingPlan,
                 'unitAmount' => $this->unitAmount,
                 'tax' => $this->tax,
                 'commodityCode' => $this->commodityCode,
@@ -453,9 +425,6 @@ class LineItem implements \JsonSerializable
         }
         if (isset($this->upc)) {
             $json['upc']             = $this->upc;
-        }
-        if (isset($this->billingPlan)) {
-            $json['billing_plan']    = $this->billingPlan;
         }
         if (isset($this->unitAmount)) {
             $json['unit_amount']     = $this->unitAmount;

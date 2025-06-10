@@ -1,16 +1,4 @@
 <?php
-
-/**
- * Shipping Calculator for Product-Type Specific Shipping Fees
- * This file handles all shipping calculations based on product types
- */
-
-// Note: This file assumes that a database connection ($conn) is already available
-// It should be included after establishing a database connection
-
-/**
- * Get shipping fees from database
- */
 function getShippingSettings()
 {
     static $shipping_settings = null;
@@ -40,9 +28,6 @@ function getShippingSettings()
     return $shipping_settings;
 }
 
-/**
- * Calculate shipping for a single item
- */
 function calculateItemShipping($productType, $quantity, $itemTotal, $taxAmount = 0)
 {
     $shippingSettings = getShippingSettings();
@@ -68,9 +53,7 @@ function calculateItemShipping($productType, $quantity, $itemTotal, $taxAmount =
     return round($baseShippingFee, 2);
 }
 
-/**
- * Calculate total shipping for all cart items
- */
+
 function calculateTotalShipping($cartItems, $taxAmounts = [])
 {
     $totalShipping = 0;
@@ -108,47 +91,20 @@ function calculateTotalShipping($cartItems, $taxAmounts = [])
     ];
 }
 
-/**
- * Calculate shipping for order based on validated cart items
- */
 function calculateOrderShipping($validatedItems, $address = null)
 {
-    $shippingResult = calculateTotalShipping($validatedItems);
-
-    // You can add address-based shipping logic here if needed
-    // For example, different rates for different countries/states
-    if ($address) {
-        $shippingResult = applyLocationBasedShipping($shippingResult, $address);
-    }
-
-    return $shippingResult;
+    // Simply return the total shipping calculation without any location-based modifications
+    // All calculations are flat rates from database - no discounts or special pricing
+    return calculateTotalShipping($validatedItems);
 }
 
 /**
- * Apply location-based shipping modifications (optional)
+ * Apply location-based shipping modifications (DISABLED - No discounts offered)
  */
 function applyLocationBasedShipping($shippingResult, $address)
 {
-    // You can implement location-based shipping logic here
-    // For example:
-    // - Free shipping for local area
-    // - Higher rates for international shipping
-    // - Express shipping options
-
-    $country = $address['country'] ?? 'US';
-    $state = $address['state'] ?? '';
-
-    // Example: Free shipping for local state (modify as needed)
-    if ($country === 'US' && $state === 'NY') {
-        // Apply local discount or free shipping threshold
-        if ($shippingResult['total_shipping'] > 0 && $shippingResult['total_shipping'] < 10) {
-            // Free shipping for orders under $10 shipping in NY
-            $shippingResult['total_shipping'] = 0;
-            $shippingResult['breakdown'] = [];
-            $shippingResult['discount_applied'] = 'Local free shipping';
-        }
-    }
-
+    // No location-based discounts or modifications
+    // All shipping calculations are flat rates from database
     return $shippingResult;
 }
 

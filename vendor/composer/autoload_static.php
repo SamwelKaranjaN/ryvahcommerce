@@ -17,7 +17,6 @@ class ComposerStaticInit66f11dcbd46fe7c8b5741f7350ff3071
         ),
         'S' => 
         array (
-            'Stripe\\' => 7,
             'Sample\\' => 7,
         ),
         'R' => 
@@ -48,10 +47,6 @@ class ComposerStaticInit66f11dcbd46fe7c8b5741f7350ff3071
         array (
             0 => __DIR__ . '/..' . '/apimatic/unirest-php/src',
         ),
-        'Stripe\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/stripe/stripe-php/lib',
-        ),
         'Sample\\' => 
         array (
             0 => __DIR__ . '/..' . '/paypal/paypal-checkout-sdk/samples',
@@ -62,7 +57,7 @@ class ComposerStaticInit66f11dcbd46fe7c8b5741f7350ff3071
         ),
         'Psr\\Log\\' => 
         array (
-            0 => __DIR__ . '/..' . '/psr/log/src',
+            0 => __DIR__ . '/..' . '/psr/log/Psr/Log',
         ),
         'PaypalServerSdkLib\\' => 
         array (
@@ -96,6 +91,13 @@ class ComposerStaticInit66f11dcbd46fe7c8b5741f7350ff3071
             'Rs\\Json' => 
             array (
                 0 => __DIR__ . '/..' . '/php-jsonpointer/php-jsonpointer/src',
+            ),
+        ),
+        'P' => 
+        array (
+            'PayPal' => 
+            array (
+                0 => __DIR__ . '/..' . '/paypal/rest-api-sdk-php/lib',
             ),
         ),
     );

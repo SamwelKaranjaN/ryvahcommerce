@@ -20,17 +20,7 @@ Additional attributes associated with the use of this Venmo Wallet.
 {
   "customer": {
     "id": "id0",
-    "email_address": "email_address2",
-    "phone": {
-      "phone_type": "OTHER",
-      "phone_number": {
-        "national_number": "national_number6"
-      }
-    },
-    "name": {
-      "given_name": "given_name2",
-      "surname": "surname8"
-    }
+    "email_address": "email_address2"
   },
   "vault": {
     "store_in_vault": "ON_SUCCESS",

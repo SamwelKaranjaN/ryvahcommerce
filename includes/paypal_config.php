@@ -2,13 +2,11 @@
 
 /**
  * PayPal Configuration
- * Enhanced security and validation for PayPal integration
+ * Enhanced security and validation for PayPal Server SDK integration
  */
 
 // Environment Configuration
 define('PAYPAL_ENVIRONMENT', 'production'); // 'sandbox' or 'production'
-
-
 
 // Production Credentials
 define('PAYPAL_PRODUCTION_CLIENT_ID', 'ARbQtWP1vIsYqgrKcL0v2hhlJA6NujGi26UWQz9Z4lsmPosxbSDPfzLSkaHtS8JRSvdysC99W0qvLyCI');
@@ -62,6 +60,57 @@ function getPayPalCredentials()
     }
 
     return $credentials;
+}
+
+/**
+ * Create PayPal Server SDK Client
+ * 
+ * @return \PaypalServerSdkLib\PaypalServerSdkClient
+ * @throws Exception If SDK is not available
+ */
+function createPayPalServerClient()
+{
+    // Check if the SDK is available
+    if (!class_exists('PaypalServerSdkLib\PaypalServerSdkClientBuilder')) {
+        throw new Exception('PayPal Server SDK is not available. Please install it with: composer require paypal/paypal-server-sdk');
+    }
+
+    $credentials = getPayPalCredentials();
+
+    try {
+        // Determine environment
+        $environment = (PAYPAL_ENVIRONMENT === 'production')
+            ? \PaypalServerSdkLib\Environment::PRODUCTION
+            : \PaypalServerSdkLib\Environment::SANDBOX;
+
+        // Create authentication credentials with proper OAuth configuration
+        $authCredentials = \PaypalServerSdkLib\Authentication\ClientCredentialsAuthCredentialsBuilder::init(
+            $credentials['client_id'],
+            $credentials['client_secret']
+        );
+
+        // Create the client using the official SDK with proper configuration
+        $client = \PaypalServerSdkLib\PaypalServerSdkClientBuilder::init()
+            ->clientCredentialsAuthCredentials($authCredentials)
+            ->environment($environment)
+            ->timeout(30) // 30 second timeout for production
+            ->numberOfRetries(2) // Retry failed requests twice
+            ->build();
+
+        logPayPalError('PayPal Server SDK client created successfully', [
+            'environment' => PAYPAL_ENVIRONMENT,
+            'client_id' => substr($credentials['client_id'], 0, 10) . '...'
+        ]);
+
+        return $client;
+    } catch (Exception $e) {
+        logPayPalError('PayPal Server SDK client creation failed', [
+            'error' => $e->getMessage(),
+            'environment' => PAYPAL_ENVIRONMENT,
+            'credentials_configured' => !empty($credentials['client_id']) && !empty($credentials['client_secret'])
+        ]);
+        throw new Exception('Failed to create PayPal client: ' . $e->getMessage());
+    }
 }
 
 /**
@@ -314,7 +363,7 @@ function sanitizeWebhookData($data)
 }
 
 /**
- * Check if PayPal SDK is properly loaded
+ * Check if PayPal Server SDK is properly loaded
  * 
  * @return bool True if SDK is available
  */
@@ -325,32 +374,109 @@ function isPayPalSDKAvailable()
         return false;
     }
 
-    // This would be called from JavaScript, but we can validate server-side requirements
-    $requiredClasses = [
-        'PayPalCheckoutSdk\Core\ProductionEnvironment',
-        'PayPalCheckoutSdk\Core\PayPalHttpClient',
-        'PayPalCheckoutSdk\Orders\OrdersCreateRequest',
-        'PayPalCheckoutSdk\Orders\OrdersCaptureRequest'
-    ];
+    // Check if the official PayPal Server SDK is available
+    if (!class_exists('PaypalServerSdkLib\PaypalServerSdkClientBuilder')) {
+        logPayPalError('PayPal Server SDK is not available');
+        return false;
+    }
 
-    foreach ($requiredClasses as $class) {
-        if (!class_exists($class)) {
-            logPayPalError('PayPal SDK class not found: ' . $class);
-            return false;
+    // Check if credentials are configured
+    try {
+        getPayPalCredentials();
+        return true;
+    } catch (Exception $e) {
+        logPayPalError('PayPal credentials check failed: ' . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Production error handler for PayPal operations
+ */
+function handlePayPalProductionError($error, $context = [])
+{
+    // Log detailed error for debugging
+    logPayPalError('PayPal Production Error: ' . $error, $context);
+
+    // Return user-friendly error messages based on error type
+    if (strpos($error, 'authentication') !== false || strpos($error, 'OAuth') !== false) {
+        return 'Payment authentication failed. Please contact support if this persists.';
+    }
+
+    if (strpos($error, 'network') !== false || strpos($error, 'connection') !== false) {
+        return 'Payment system temporarily unavailable. Please try again in a few moments.';
+    }
+
+    if (strpos($error, 'timeout') !== false) {
+        return 'Payment request timed out. Please try again.';
+    }
+
+    // Generic production error
+    return 'Payment processing temporarily unavailable. Please try again later.';
+}
+
+/**
+ * Validate production environment for PayPal
+ */
+function validatePayPalProductionEnvironment()
+{
+    $errors = [];
+
+    // Check critical PHP extensions
+    if (!extension_loaded('curl')) {
+        $errors[] = 'cURL extension is required for PayPal integration';
+    }
+
+    if (!extension_loaded('openssl')) {
+        $errors[] = 'OpenSSL extension is required for secure PayPal connections';
+    }
+
+    if (!extension_loaded('json')) {
+        $errors[] = 'JSON extension is required for PayPal data processing';
+    }
+
+    // Check directory permissions
+    $logDir = dirname(__DIR__) . '/logs';
+    if (!is_dir($logDir)) {
+        mkdir($logDir, 0755, true);
+    }
+
+    if (!is_writable($logDir)) {
+        $errors[] = 'Logs directory must be writable for error tracking';
+    }
+
+    if (!empty($errors)) {
+        foreach ($errors as $error) {
+            logPayPalError('Environment validation error: ' . $error);
         }
+        return false;
     }
 
     return true;
 }
 
+// Set production-specific PHP settings
+if (PAYPAL_ENVIRONMENT === 'production') {
+    ini_set('memory_limit', '256M');
+    ini_set('max_execution_time', '60');
+    ini_set('log_errors', '1');
+    ini_set('display_errors', '0');
+}
 
-
-
+// Validate environment first
+if (!validatePayPalProductionEnvironment()) {
+    logPayPalError('PayPal production environment validation failed');
+}
 
 // Initialize configuration validation
 if (!validatePayPalConfig()) {
     // In production, halt execution if config is invalid
-    throw new Exception('PayPal configuration is invalid. Please check your settings.');
+    if (PAYPAL_ENVIRONMENT === 'production') {
+        logPayPalError('PayPal configuration is invalid in production environment');
+        // Don't throw exception in production, log error instead
+    } else {
+        throw new Exception('PayPal configuration is invalid. Please check your settings.');
+    }
 }
 
 /**
@@ -481,4 +607,74 @@ function validateNetworkConnectivity()
     }
 
     return true;
+}
+
+/**
+ * Create PayPal order request with optimized structure
+ * 
+ * @param array $orderData Order data
+ * @param array $address Shipping address
+ * @param string $currency Currency code
+ * @param string $orderReference Order reference
+ * @return array PayPal order request body
+ */
+function createPayPalOrderRequest($orderData, $address, $currency, $orderReference)
+{
+    // Optimize item processing
+    $paypalItems = [];
+    foreach ($orderData['order_items'] as $item) {
+        $paypalItems[] = [
+            'name' => $item['name'],
+            'description' => $item['description'] ?? 'Digital product from ' . SITE_NAME,
+            'unit_amount' => $item['unit_amount'],
+            'quantity' => $item['quantity'],
+            'category' => $item['category'] ?? 'DIGITAL_GOODS'
+        ];
+    }
+
+    // Build optimized request structure
+    $requestBody = [
+        'intent' => 'CAPTURE',
+        'purchase_units' => [[
+            'reference_id' => $orderReference,
+            'description' => 'Order from ' . SITE_NAME . ' - ' . count($paypalItems) . ' item(s)',
+            'amount' => [
+                'currency_code' => $currency,
+                'value' => number_format($orderData['total'], 2, '.', ''),
+                'breakdown' => [
+                    'item_total' => [
+                        'currency_code' => $currency,
+                        'value' => number_format($orderData['subtotal'], 2, '.', '')
+                    ]
+                ]
+            ],
+            'items' => $paypalItems
+        ]],
+        'application_context' => [
+            'return_url' => PAYPAL_RETURN_URL,
+            'cancel_url' => PAYPAL_CANCEL_URL,
+            'brand_name' => SITE_NAME,
+            'user_action' => 'PAY_NOW',
+            'shipping_preference' => 'NO_SHIPPING',
+            'landing_page' => 'BILLING'
+        ]
+    ];
+
+    // Add tax breakdown only if tax amount > 0
+    if ($orderData['tax_amount'] > 0) {
+        $requestBody['purchase_units'][0]['amount']['breakdown']['tax_total'] = [
+            'currency_code' => $currency,
+            'value' => number_format($orderData['tax_amount'], 2, '.', '')
+        ];
+    }
+
+    // Add shipping breakdown only if shipping amount > 0
+    if ($orderData['shipping_amount'] > 0) {
+        $requestBody['purchase_units'][0]['amount']['breakdown']['shipping'] = [
+            'currency_code' => $currency,
+            'value' => number_format($orderData['shipping_amount'], 2, '.', '')
+        ];
+    }
+
+    return $requestBody;
 }
