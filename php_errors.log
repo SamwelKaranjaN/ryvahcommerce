@@ -434,3 +434,58 @@ Stack trace:
 [10-Jun-2025 10:05:46 UTC] PHP   7. apimatic\jsonmapper\JsonMapper->__construct() C:\wamp64\www\ryvahcommerce\vendor\apimatic\core\src\Utils\JsonHelper.php:39
 [10-Jun-2025 10:05:46 UTC] PHP   8. parse_ini_file($filename = 'C:\\wamp64\\bin\\apache\\apache2.4.59\\bin\\php.ini') C:\wamp64\www\ryvahcommerce\vendor\apimatic\jsonmapper\src\JsonMapper.php:134
 [10-Jun-2025 10:05:46 UTC] PayPal Server SDK client created successfully
+[10-Jun-2025 12:26:43 UTC] Getting cart items
+[10-Jun-2025 12:26:44 UTC] Cart Data: Array
+(
+    [items] => Array
+        (
+            [0] => Array
+                (
+                    [id] => 12
+                    [name] => Plight of the Fairies
+                    [price] => 24.95
+                    [quantity] => 1
+                    [stock] => 0
+                    [thumbs] => Uploads/thumbs/fairy.jpg
+                    [type] => book
+                )
+
+            [1] => Array
+                (
+                    [id] => 15
+                    [name] => Ryvah Encyclopedia
+                    [price] => 1.50
+                    [quantity] => 1
+                    [stock] => 0
+                    [thumbs] => Uploads/thumbs/ryvah-encyclopedia.png
+                    [type] => ebook
+                )
+
+        )
+
+    [total] => 26.45
+)
+
+[10-Jun-2025 14:51:27 UTC] PHP Warning:  syntax error, unexpected '"' in C:\wamp64\bin\apache\apache2.4.59\bin\php.ini on line 2001
+ in C:\wamp64\www\ryvahcommerce\vendor\apimatic\jsonmapper\src\JsonMapper.php on line 134
+[10-Jun-2025 14:51:27 UTC] PHP Stack trace:
+[10-Jun-2025 14:51:27 UTC] PHP   1. {main}() C:\wamp64\www\ryvahcommerce\test_paypal_config.php:0
+[10-Jun-2025 14:51:27 UTC] PHP   2. createPayPalServerClient() C:\wamp64\www\ryvahcommerce\test_paypal_config.php:50
+[10-Jun-2025 14:51:27 UTC] PHP   3. PaypalServerSdkLib\PaypalServerSdkClientBuilder->build() C:\wamp64\www\ryvahcommerce\includes\paypal_config.php:98
+[10-Jun-2025 14:51:27 UTC] PHP   4. PaypalServerSdkLib\PaypalServerSdkClient->__construct($config = ['oAuthClientId' => 'ARbQtWP1vIsYqgrKcL0v2hhlJA6NujGi26UWQz9Z4lsmPosxbSDPfzLSkaHtS8JRSvdysC99W0qvLyCI', 'oAuthClientSecret' => 'EChoMRhi0vy7L_Defl5dqinOMbiWHxRmPG2e3ArjXXRQqHR1vwkg1IvHGTDxzwrOOuQR4n-z8ZteQiGc', 'environment' => 'Production', 'timeout' => 30, 'numberOfRetries' => 2]) C:\wamp64\www\ryvahcommerce\vendor\paypal\paypal-server-sdk\src\PaypalServerSdkClientBuilder.php:136
+[10-Jun-2025 14:51:27 UTC] PHP   5. PaypalServerSdkLib\ApiHelper::getJsonHelper() C:\wamp64\www\ryvahcommerce\vendor\paypal\paypal-server-sdk\src\PaypalServerSdkClient.php:63
+[10-Jun-2025 14:51:27 UTC] PHP   6. Core\Utils\JsonHelper->__construct($inheritedModels = [], $discriminatorSubstitutions = [], $additionalPropsMethodName = NULL, $defaultNamespace = 'PaypalServerSdkLib\\Models') C:\wamp64\www\ryvahcommerce\vendor\paypal\paypal-server-sdk\src\ApiHelper.php:31
+[10-Jun-2025 14:51:27 UTC] PHP   7. apimatic\jsonmapper\JsonMapper->__construct() C:\wamp64\www\ryvahcommerce\vendor\apimatic\core\src\Utils\JsonHelper.php:39
+[10-Jun-2025 14:51:27 UTC] PHP   8. parse_ini_file($filename = 'C:\\wamp64\\bin\\apache\\apache2.4.59\\bin\\php.ini') C:\wamp64\www\ryvahcommerce\vendor\apimatic\jsonmapper\src\JsonMapper.php:134
+[10-Jun-2025 14:51:27 UTC] PayPal Server SDK client created successfully
+[10-Jun-2025 17:40:26 UTC] Adding to cart: Array
+(
+    [product_id] => 12
+    [quantity] => 3
+)
+
+[10-Jun-2025 17:40:26 UTC] Add to cart result: Array
+(
+    [success] => 1
+)
+

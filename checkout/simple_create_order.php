@@ -389,6 +389,22 @@ function createPayPalOrder($orderData, $address, $currency)
             ? 'https://api.paypal.com'
             : 'https://api.sandbox.paypal.com';
 
+        // Debug log the request details before making the call
+        logPayPalError('PayPal order creation attempt', [
+            'environment' => PAYPAL_ENVIRONMENT,
+            'base_url' => $baseUrl,
+            'has_credentials' => !empty($credentials['client_id']) && !empty($credentials['client_secret']),
+            'client_id_length' => strlen($credentials['client_id'] ?? ''),
+            'order_total' => $requestBody['purchase_units'][0]['amount']['value'] ?? 'unknown',
+            'currency' => $currency,
+            'user_id' => $_SESSION['user_id'] ?? 'unknown',
+            'request_structure' => [
+                'intent' => $requestBody['intent'] ?? 'missing',
+                'purchase_units_count' => count($requestBody['purchase_units'] ?? []),
+                'has_application_context' => isset($requestBody['application_context'])
+            ]
+        ]);
+
         // Step 1: Get OAuth token
         $ch = curl_init();
         curl_setopt_array($ch, [
@@ -404,14 +420,40 @@ function createPayPalOrder($orderData, $address, $currency)
 
         $tokenResponse = curl_exec($ch);
         $tokenHttpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $tokenCurlError = curl_error($ch);
+        $tokenCurlInfo = curl_getinfo($ch);
         curl_close($ch);
 
+        // Debug log OAuth attempt
+        logPayPalError('PayPal OAuth token attempt', [
+            'http_code' => $tokenHttpCode,
+            'curl_error' => $tokenCurlError,
+            'response_length' => strlen($tokenResponse ?? ''),
+            'curl_info' => $tokenCurlInfo
+        ]);
+
+        if ($tokenResponse === false || !empty($tokenCurlError)) {
+            logPayPalError('PayPal OAuth - cURL error', [
+                'curl_error' => $tokenCurlError,
+                'curl_info' => $tokenCurlInfo
+            ]);
+            handleApiError('PayPal authentication connection failed: ' . $tokenCurlError, [], 503);
+        }
+
         if ($tokenHttpCode !== 200) {
-            handleApiError('PayPal authentication failed', ['http_code' => $tokenHttpCode], 500);
+            logPayPalError('PayPal OAuth failed', [
+                'http_code' => $tokenHttpCode,
+                'response' => $tokenResponse
+            ]);
+            handleApiError('PayPal authentication failed (HTTP ' . $tokenHttpCode . ')', ['http_code' => $tokenHttpCode, 'response' => $tokenResponse], 500);
         }
 
         $tokenData = json_decode($tokenResponse, true);
         if (!$tokenData || !isset($tokenData['access_token'])) {
+            logPayPalError('Invalid PayPal OAuth response', [
+                'response' => $tokenResponse,
+                'parsed_data' => $tokenData
+            ]);
             handleApiError('Invalid PayPal OAuth response', [], 500);
         }
 
@@ -434,10 +476,55 @@ function createPayPalOrder($orderData, $address, $currency)
 
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
+        $curlInfo = curl_getinfo($ch);
         curl_close($ch);
 
+        // Check for cURL errors first
+        if ($response === false || !empty($curlError)) {
+            logPayPalError('PayPal order creation - cURL error', [
+                'curl_error' => $curlError,
+                'curl_info' => $curlInfo,
+                'user_id' => $_SESSION['user_id'] ?? 'unknown',
+                'environment' => PAYPAL_ENVIRONMENT
+            ]);
+            handleApiError('Payment system connection failed: ' . $curlError, [], 503);
+        }
+
         if ($httpCode !== 201) {
-            handleApiError('PayPal order creation failed', ['http_code' => $httpCode, 'response' => $response], 500);
+            // Parse the error response for more details
+            $errorResponse = json_decode($response, true);
+            $errorDetails = [
+                'http_code' => $httpCode,
+                'response' => $response,
+                'parsed_error' => $errorResponse,
+                'curl_info' => $curlInfo
+            ];
+
+            // Log detailed error information with enhanced context
+            logPayPalError('PayPal order creation failed - HTTP ' . $httpCode, [
+                'request_body' => $requestBody,
+                'response_body' => $response,
+                'parsed_response' => $errorResponse,
+                'user_id' => $_SESSION['user_id'] ?? 'unknown',
+                'environment' => PAYPAL_ENVIRONMENT,
+                'curl_info' => $curlInfo,
+                'order_total' => $requestBody['purchase_units'][0]['amount']['value'] ?? 'unknown',
+                'currency' => $currency,
+                'timestamp' => date('Y-m-d H:i:s')
+            ]);
+
+            // Extract specific error message if available
+            $specificError = 'PayPal order creation failed (HTTP ' . $httpCode . ')';
+            if ($errorResponse && isset($errorResponse['message'])) {
+                $specificError = $errorResponse['message'];
+            } elseif ($errorResponse && isset($errorResponse['details'][0]['description'])) {
+                $specificError = $errorResponse['details'][0]['description'];
+            } elseif ($errorResponse && isset($errorResponse['name'])) {
+                $specificError = $errorResponse['name'] . ': ' . ($errorResponse['message'] ?? 'Unknown error');
+            }
+
+            handleApiError($specificError, $errorDetails, 500);
         }
 
         $result = json_decode($response, true);
